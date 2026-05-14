@@ -1,0 +1,84 @@
+name: Frontend CI
+
+on:
+  pull_request:
+    branches: [main, staging]
+    paths:
+      - 'apps/frontend/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'turbo.json'
+  push:
+    branches: [main, staging]
+    paths:
+      - 'apps/frontend/**'
+      - 'turbo.json'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high --workspace=@sawithub/frontend
+      - run: npm run lint --workspace=@sawithub/frontend
+
+  typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck --workspace=@sawithub/frontend
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run build --workspace=@sawithub/frontend
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VITE_ALLOW_MOCK_BILLING: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/frontend
+      - run: npm run build --workspace=@sawithub/frontend
+      - run: npm run test:e2e --workspace=@sawithub/frontend
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: frontend-e2e-artifacts
+          path: apps/frontend/test-results/
+          if-no-files-found: ignore

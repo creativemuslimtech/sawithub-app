@@ -1,0 +1,231 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+:root {
+  /* Ink (text) */
+  --ink:   #0d1f17;
+  --ink-2: #1a2b22;
+  --ink-3: #4a5b53;
+  --ink-4: #7b8a83;
+
+  /* Surface */
+  --paper:   #faf6ec;
+  --paper-2: #f4eedf;
+  --surface: #ffffff;
+  --line:    #e7e2d4;
+  --line-2:  #efeadd;
+
+  /* Brand — emerald */
+  --emerald:      #0a7847;
+  --emerald-2:    #0f5e3a;
+  --emerald-3:    #1a9959;
+  --emerald-soft: #e6f3eb;
+  --emerald-tint: #f1f8f3;
+
+  /* Accent — terracotta */
+  --terra:      #d96a2c;
+  --terra-2:    #b84e1a;
+  --terra-soft: #fbe9dc;
+
+  /* Categorical (charts, badges per jenis, per kebun) */
+  --c1: #0a7847;
+  --c2: #d96a2c;
+  --c3: #d4a017;
+  --c4: #1c8e8a;
+  --c5: #7d3a6b;
+  --c6: #5e8a52;
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius:    14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 0 rgba(13,31,23,.04), 0 1px 2px rgba(13,31,23,.04);
+  --shadow:    0 4px 14px -6px rgba(13,31,23,.08), 0 1px 0 rgba(13,31,23,.04);
+  --shadow-lg: 0 24px 48px -24px rgba(13,31,23,.18), 0 8px 24px -16px rgba(13,31,23,.08);
+
+  /* Font */
+  --font-sans:    "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Plus Jakarta Sans", sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, monospace;
+
+  /* Toast */
+  --toast-bg:     #ffffff;
+  --toast-border: var(--line);
+
+  /* Shell layout (top nav — no sidebar) */
+  --shell-topnav-height: 56px;
+  --shell-content-max:   1480px;
+  --shell-gutter:        1rem;
+}
+
+/* ── Global base ───────────────────────────────────────────────── */
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    padding-top: env(safe-area-inset-top);
+    overflow-x: hidden;
+  }
+
+  h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  select {
+    background-color: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+  }
+  select option {
+    background-color: var(--surface);
+    color: var(--ink);
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--paper);
+  }
+}
+
+/* ── Typography helpers ────────────────────────────────────────── */
+.display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+.num {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+/* ── Shell layout ──────────────────────────────────────────────── */
+.app-shell-gutter {
+  padding-left: var(--shell-gutter);
+  padding-right: var(--shell-gutter);
+}
+
+.app-shell-container {
+  width: min(100%, var(--shell-content-max));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Content area sits below the sticky top nav */
+.app-content {
+  padding-top: var(--shell-topnav-height);
+  min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --shell-content-max: 1480px;
+    --shell-gutter: 1.5rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --shell-gutter: 1.75rem;
+  }
+}
+
+/* Mobile: bottom nav padding */
+@media (max-width: 767px) {
+  .app-content {
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .app-shell-gutter {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* ── Skeleton shimmer ──────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--paper-2) 25%, var(--line-2) 50%, var(--paper-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Form submit buttons ───────────────────────────────────────── */
+.app-submit-button {
+  width: 100%;
+  border-radius: var(--radius);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  background-color: var(--ink);
+  color: var(--paper);
+  border: none;
+  transition: background-color 0.15s;
+  cursor: pointer;
+}
+.app-submit-button:hover:not(:disabled) {
+  background-color: var(--emerald-2);
+}
+.app-submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.app-submit-button--emerald,
+.app-submit-button--green,
+.app-submit-button--sky,
+.app-submit-button--amber,
+.app-submit-button--purple {
+  background-color: var(--emerald);
+  color: #ffffff;
+}
+.app-submit-button--emerald:hover:not(:disabled),
+.app-submit-button--green:hover:not(:disabled),
+.app-submit-button--sky:hover:not(:disabled),
+.app-submit-button--amber:hover:not(:disabled),
+.app-submit-button--purple:hover:not(:disabled) {
+  background-color: var(--emerald-2);
+}
+
+/* ── Legacy marketing panel (kept for PublicPageLayout) ──────── */
+.marketing-panel {
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .marketing-panel {
+    padding: 2rem;
+  }
+}

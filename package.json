@@ -1,0 +1,22 @@
+{
+  "name": "sawithub",
+  "private": true,
+  "workspaces": [
+    "apps/frontend",
+    "apps/admin-frontend"
+  ],
+  "scripts": {
+    "dev:frontend": "turbo run dev --filter=@sawithub/frontend",
+    "dev:admin": "turbo run dev --filter=@sawithub/admin-frontend",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

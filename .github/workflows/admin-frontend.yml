@@ -1,0 +1,48 @@
+name: Admin Frontend CI
+
+on:
+  pull_request:
+    branches: [main, staging]
+    paths:
+      - 'apps/admin-frontend/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'turbo.json'
+  push:
+    branches: [main, staging]
+    paths:
+      - 'apps/admin-frontend/**'
+      - 'turbo.json'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint --workspace=@sawithub/admin-frontend
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run build --workspace=@sawithub/admin-frontend

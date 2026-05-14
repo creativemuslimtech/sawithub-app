@@ -1,0 +1,531 @@
+name: SQL Apply
+
+on:
+  push:
+    branches: [main, staging]
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: GitHub environment/database target to use
+        required: true
+        type: choice
+        default: staging
+        options:
+          - staging
+          - main
+      execute_mode:
+        description: Plan only or execute against the selected database
+        required: true
+        type: choice
+        default: plan
+        options:
+          - plan
+          - execute
+      sql_kind:
+        description: Folder type to include
+        required: true
+        type: choice
+        default: DDL
+        options:
+          - DDL
+          - DML
+          - BOTH
+      database_folder:
+        description: Database folder to include
+        required: true
+        type: choice
+        default: sawit_hub_db
+        options:
+          - sawit_hub_db
+          - sawit_hub_admin_db
+          - all
+      sql_target:
+        description: Select *.sql for all matching files, or one SQL file path
+        required: true
+        type: choice
+        default: "*.sql"
+        options:
+          - "*.sql"
+          - "sawit_hub_admin_db/ddl/t_sawit_admin_audit_logs.sql"
+          - "sawit_hub_admin_db/ddl/t_sawit_admin_sessions.sql"
+          - "sawit_hub_admin_db/ddl/t_sawit_admin_users.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_email_logs.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_field_checklist_run_items.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_field_checklist_runs.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_harga_tbs.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_jadwal_perawatan.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_lahan.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_notifications.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_panen.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_password_resets.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_payment_events.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_payments.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_payments_idx_user_created.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_pendapatan.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_perawatan.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_subscription_reminders.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_subscriptions.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_theme_configs.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_users.sql"
+          - "sawit_hub_db/ddl/t_sawit_hub_visits.sql"
+          - "sawit_hub_db/dml/001_seed_theme_default.sql"
+          - "sawit_hub_db/dml/002_seed_admin_dummy_2019_2026.sql"
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.target_environment || github.ref_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install MySQL client
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.execute_mode == 'execute' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+
+      - name: Build SQL execution plan
+        id: plan
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EXECUTE_MODE: ${{ inputs.execute_mode || 'execute' }}
+          SQL_KIND: ${{ inputs.sql_kind || 'BOTH' }}
+          DATABASE_FOLDER: ${{ inputs.database_folder || 'all' }}
+          SQL_TARGET: ${{ inputs.sql_target || '*.sql' }}
+          BEFORE_SHA: ${{ github.event.before || '' }}
+          HEAD_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          include_file() {
+            local file="$1"
+
+            case "$DATABASE_FOLDER" in
+              all) ;;
+              sawit_hub_db|sawit_hub_admin_db)
+                [[ "$file" == "$DATABASE_FOLDER"/* ]] || return 1
+                ;;
+              *)
+                echo "Invalid database_folder: $DATABASE_FOLDER" >&2
+                return 1
+                ;;
+            esac
+
+            case "$SQL_KIND" in
+              DDL)
+                [[ "$file" == */ddl/*.sql ]] || return 1
+                ;;
+              DML)
+                [[ "$file" == */dml/*.sql ]] || return 1
+                ;;
+              BOTH)
+                [[ "$file" == */ddl/*.sql || "$file" == */dml/*.sql ]] || return 1
+                ;;
+              *)
+                echo "Invalid sql_kind: $SQL_KIND" >&2
+                return 1
+                ;;
+            esac
+
+            if [ "$SQL_TARGET" != "*.sql" ]; then
+              [[ "$file" == "$SQL_TARGET" ]] || return 1
+            fi
+
+            return 0
+          }
+
+          inline_sql_file() {
+            local file="$1"
+            {
+              echo "-- ${file}"
+              sed -E '/^--/d; /^\/\*!/d; /^SET /d; /^DROP TABLE IF EXISTS /d; /^$/d' "$file"
+              echo ""
+            }
+          }
+
+          build_manual_plan() {
+            ddl_files=""
+            dml_files=""
+            if [ "$SQL_TARGET" != "*.sql" ] && [ ! -f "$SQL_TARGET" ]; then
+              echo "Selected SQL file does not exist: $SQL_TARGET" >&2
+              exit 1
+            fi
+
+            while IFS= read -r file; do
+              [ -z "$file" ] && continue
+              include_file "$file" || continue
+              if [[ "$file" == */ddl/*.sql ]]; then
+                ddl_files="${ddl_files}\n${file}"
+              elif [[ "$file" == */dml/*.sql ]]; then
+                dml_files="${dml_files}\n${file}"
+              fi
+            done < <(find sawit_hub_db sawit_hub_admin_db -type f -name '*.sql' | sort)
+
+            ddl_files=$(printf "%b\n" "$ddl_files" | awk 'NF' || true)
+            dml_files=$(printf "%b\n" "$dml_files" | awk 'NF' || true)
+            if [ -z "$ddl_files" ] && [ -z "$dml_files" ]; then
+              echo "No SQL files matched: kind=$SQL_KIND folder=$DATABASE_FOLDER target=$SQL_TARGET" >&2
+              exit 1
+            fi
+
+            {
+              echo "ddl_commands<<EOF"
+              for f in $ddl_files; do
+                inline_sql_file "$f"
+              done
+              echo "EOF"
+              echo "ddl_files<<EOF"
+              printf "%s\n" "$ddl_files" | awk 'NF {print "- " $0}'
+              echo "EOF"
+              echo "dml_files<<EOF"
+              printf "%s\n" "$dml_files" | awk 'NF'
+              echo "EOF"
+              echo "dml_commands<<EOF"
+              for f in $dml_files; do
+                inline_sql_file "$f"
+              done
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          }
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            build_manual_plan
+            exit 0
+          fi
+
+          before_sha="$BEFORE_SHA"
+          head_sha="$HEAD_SHA"
+
+          if [ -z "$before_sha" ] || [ "$before_sha" = "0000000000000000000000000000000000000000" ]; then
+            changed_status=$(git diff-tree --no-commit-id --name-status -r "$head_sha" -- 'sawit_hub_db/**' 'sawit_hub_admin_db/**' | sort || true)
+          else
+            changed_status=$(git diff --name-status "$before_sha" "$head_sha" -- 'sawit_hub_db/**' 'sawit_hub_admin_db/**' | sort || true)
+          fi
+
+          ddl_commands=""
+          ddl_files=""
+          while IFS= read -r row; do
+            [ -z "$row" ] && continue
+            status=$(printf "%s" "$row" | awk '{print $1}')
+            file=$(printf "%s" "$row" | awk '{print $2}')
+            [[ "$file" =~ ^(sawit_hub_db|sawit_hub_admin_db)/ddl/ ]] || continue
+
+            if [[ "$file" = "sawit_hub_db/ddl/.dbconfig" || "$file" = "sawit_hub_admin_db/ddl/.dbconfig" ]]; then
+              ddl_commands="${ddl_commands}\n$(inline_sql_file ${file})"
+              ddl_files="${ddl_files}\n- ${file}"
+              continue
+            fi
+            [[ "$file" =~ \.sql$ ]] || continue
+            table=$(basename "$file" .sql)
+
+            if [ "$status" = "A" ]; then
+              ddl_commands="${ddl_commands}\n$(inline_sql_file ${file})"
+              ddl_files="${ddl_files}\n- ${file}"
+              continue
+            fi
+
+            if [ "$status" = "M" ]; then
+              diff_lines=$(git diff -U0 "$before_sha" "$head_sha" -- "$file" | grep -E '^[+-][[:space:]]*`[^`]+`' || true)
+              table_header_done=false
+              while IFS= read -r dl; do
+                [ -z "$dl" ] && continue
+                sign=$(printf "%s" "$dl" | cut -c1)
+                body=$(printf "%s" "$dl" | sed -E 's/^[+-]\s*//' | sed -E 's/,$//')
+                col=$(printf "%s" "$body" | sed -E 's/^`([^`]+)`.*/\1/')
+                if printf "%s" "$body" | grep -Eq "^(PRIMARY KEY|UNIQUE KEY|KEY|CONSTRAINT|FOREIGN KEY)"; then
+                  continue
+                fi
+                if [ "$sign" != "+" ] && [ "$sign" != "-" ]; then
+                  continue
+                fi
+                if [ "$table_header_done" = false ]; then
+                  if [ -n "$ddl_commands" ]; then
+                    ddl_commands="${ddl_commands}\n\n"
+                  fi
+                  ddl_commands="${ddl_commands}${table}"
+                  table_header_done=true
+                fi
+                if [ "$sign" = "+" ]; then
+                  ddl_commands="${ddl_commands}\nALTER TABLE \`${table}\` ADD COLUMN ${body};"
+                  ddl_files="${ddl_files}\n- ${file}"
+                else
+                  ddl_commands="${ddl_commands}\nALTER TABLE \`${table}\` DROP COLUMN \`${col}\`;"
+                  ddl_files="${ddl_files}\n- ${file}"
+                fi
+              done <<< "$diff_lines"
+            fi
+          done <<< "$changed_status"
+
+          dml_files=$(printf "%s\n" "$changed_status" | awk '{print $2}' | grep -E '^(sawit_hub_db|sawit_hub_admin_db)/dml/.*\.sql$' || true)
+          dml_commands=""
+          for f in $dml_files; do
+            [ -f "$f" ] || continue
+            dml_commands="${dml_commands}\n$(inline_sql_file ${f})"
+          done
+          ddl_commands=$(printf "%b\n" "$ddl_commands")
+          if [ -z "$(printf '%s' "$ddl_commands" | tr -d '[:space:]')" ]; then
+            ddl_commands=""
+          fi
+          ddl_files=$(printf "%b\n" "$ddl_files" | awk 'NF' | sort -u || true)
+          dml_files=$(printf "%s\n" "$dml_files" | awk 'NF' | sort -u || true)
+          dml_commands=$(printf "%b\n" "$dml_commands" | awk 'NF' || true)
+
+          {
+            echo "ddl_commands<<EOF"
+            printf "%s\n" "$ddl_commands"
+            echo "EOF"
+            echo "ddl_files<<EOF"
+            printf "%s\n" "$ddl_files"
+            echo "EOF"
+            echo "dml_files<<EOF"
+            printf "%s\n" "$dml_files"
+            echo "EOF"
+            echo "dml_commands<<EOF"
+            printf "%s\n" "$dml_commands"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: SQL Apply Plan Summary
+        run: |
+          {
+            echo "## SQL Apply Plan"
+            echo ""
+            echo "### Event"
+            echo "${{ github.event_name }}"
+            echo ""
+            echo "### Target environment"
+            echo "${{ github.event_name == 'workflow_dispatch' && inputs.target_environment || github.ref_name }}"
+            echo ""
+            echo "### Execute mode"
+            echo "${{ inputs.execute_mode || 'execute' }}"
+            echo ""
+            echo "### SQL kind"
+            echo "${{ inputs.sql_kind || 'changed files' }}"
+            echo ""
+            echo "### Database folder"
+            echo "${{ inputs.database_folder || 'changed files' }}"
+            echo ""
+            echo "### SQL target"
+            echo "${{ inputs.sql_target || 'changed files' }}"
+            echo ""
+            echo "### DDL files planned"
+            echo "${{ steps.plan.outputs.ddl_files }}"
+            echo ""
+            echo "### DML files planned"
+            echo "${{ steps.plan.outputs.dml_files }}"
+            echo ""
+            echo "### DML commands planned"
+            echo "\`\`\`sql"
+            echo "${{ steps.plan.outputs.dml_commands }}"
+            echo "\`\`\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stop after plan-only manual run
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.execute_mode == 'plan' }}
+        run: |
+          echo "Plan-only mode selected. No SQL executed. Re-run with execute_mode=execute to apply."
+
+      - name: Apply DDL commands
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.execute_mode == 'execute' }}
+        id: apply_ddl
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          PLAN_DDL_COMMANDS: ${{ steps.plan.outputs.ddl_commands }}
+          PLAN_DDL_FILES_MARKDOWN: ${{ steps.plan.outputs.ddl_files }}
+        run: |
+          set -euo pipefail
+          export MYSQL_PWD="$DB_PASSWORD"
+          total_rows=0
+          ddl_commands="$PLAN_DDL_COMMANDS"
+          applied_files="$PLAN_DDL_FILES_MARKDOWN"
+
+          if [ -n "$ddl_commands" ]; then
+            echo "Applying DDL commands:"
+            printf "%s\n" "$ddl_commands"
+            if ! out=$(mysql --protocol=TCP --ssl-mode=REQUIRED --verbose \
+              -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" "$DB_NAME" 2>&1 <<< "$ddl_commands"); then
+              echo "$out"
+              exit 1
+            fi
+            echo "$out"
+            rows=$(printf "%s\n" "$out" | grep -Eo "Query OK, [0-9]+ rows affected" | grep -Eo "[0-9]+" | awk '{s+=$1} END {print s+0}' || true)
+            total_rows=$((total_rows + rows))
+          fi
+
+          {
+            echo "rows=$total_rows"
+            echo "files<<EOF"
+            printf "%s\n" "$applied_files"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Apply DML
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.execute_mode == 'execute' }}
+        id: apply_dml
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          PLAN_DML_FILES_MARKDOWN: ${{ steps.plan.outputs.dml_files }}
+          PLAN_DML_COMMANDS: ${{ steps.plan.outputs.dml_commands }}
+        run: |
+          set -euo pipefail
+          export MYSQL_PWD="$DB_PASSWORD"
+          total_rows=0
+          applied_files="$PLAN_DML_FILES_MARKDOWN"
+          dml_commands="$PLAN_DML_COMMANDS"
+
+          if [ -n "$dml_commands" ]; then
+            echo "Applying DML commands:"
+            printf "%s\n" "$dml_commands"
+            if ! out=$(mysql --protocol=TCP --ssl-mode=REQUIRED --verbose \
+              -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" "$DB_NAME" 2>&1 <<< "$dml_commands"); then
+              echo "$out"
+              exit 1
+            fi
+            echo "$out"
+            rows=$(printf "%s\n" "$out" | grep -Eo "Query OK, [0-9]+ rows affected" | grep -Eo "[0-9]+" | awk '{s+=$1} END {print s+0}' || true)
+            total_rows=$((total_rows + rows))
+          fi
+
+          {
+            echo "rows=$total_rows"
+            echo "files<<EOF"
+            printf "%b\n" "$applied_files"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+
+      - name: Post-execution database verification
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.execute_mode == 'execute' }}
+        id: verify_db
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          PLAN_DDL_FILES_MARKDOWN: ${{ steps.plan.outputs.ddl_files }}
+          PLAN_DML_FILES_MARKDOWN: ${{ steps.plan.outputs.dml_files }}
+        run: |
+          set -euo pipefail
+          export MYSQL_PWD="$DB_PASSWORD"
+          ddl_files="$PLAN_DDL_FILES_MARKDOWN"
+          dml_files="$PLAN_DML_FILES_MARKDOWN"
+          report_file="${RUNNER_TEMP}/sql-post-execution-verification.md"
+
+          mysql_query() {
+            mysql --protocol=TCP --ssl-mode=REQUIRED \
+              -h "$DB_HOST" -P "$DB_PORT" -u "$DB_USER" "$DB_NAME" "$@"
+          }
+
+          table_from_sql_path() {
+            basename "$1" .sql
+          }
+
+          print_query_block() {
+            local title="$1"
+            local query="$2"
+            {
+              echo "#### $title"
+              echo "\`\`\`sql"
+              echo "$query"
+              echo "\`\`\`"
+              echo "\`\`\`text"
+              mysql_query --table -e "$query"
+              echo "\`\`\`"
+              echo ""
+            } >> "$report_file"
+          }
+
+          {
+            echo "## Post-execution Database Verification"
+            echo ""
+            echo "Target database: \`$DB_NAME\`"
+            echo ""
+          } > "$report_file"
+
+          print_query_block "Current tables" "SHOW FULL TABLES;"
+
+          verified_any=false
+
+          # DDL verification: show table existence + final column/index structure for each DDL file.
+          while IFS= read -r line; do
+            file=$(printf "%s" "$line" | sed -E 's/^- //')
+            [ -z "$file" ] && continue
+            [[ "$file" == */ddl/*.sql ]] || continue
+            table=$(table_from_sql_path "$file")
+            verified_any=true
+            print_query_block "DDL table status: $table" "SHOW TABLES LIKE '$table';"
+            print_query_block "DDL column structure: $table" "SHOW COLUMNS FROM \`$table\`;"
+            print_query_block "DDL indexes: $table" "SHOW INDEX FROM \`$table\`;"
+          done <<< "$ddl_files"
+
+          # DML verification: show table existence + row count + latest rows when a table name maps from file name.
+          for file in $dml_files; do
+            [ -z "$file" ] && continue
+            verified_any=true
+            stem=$(table_from_sql_path "$file")
+            table=""
+            if [ -f "$file" ]; then
+              table=$(grep -Eio "(INSERT[[:space:]]+INTO|UPDATE|DELETE[[:space:]]+FROM)[[:space:]]+\`?[^\`[:space:](]+\`?" "$file" \
+                | head -n1 \
+                | sed -E 's/.*[[:space:]]+`?([^`[:space:](]+)`?$/\1/' || true)
+            fi
+            if [ -z "$table" ]; then
+              table="$stem"
+            fi
+            print_query_block "DML table status: $table" "SHOW TABLES LIKE '$table';"
+            if mysql_query -NBe "SHOW TABLES LIKE '$table';" | grep -qx "$table"; then
+              print_query_block "DML row count: $table" "SELECT COUNT(*) AS row_count FROM \`$table\`;"
+              primary_column=$(mysql_query -NBe "SHOW COLUMNS FROM \`$table\`;" | awk 'NR==1 {print $1}' || true)
+              if [ -n "$primary_column" ]; then
+                print_query_block "DML latest rows sample: $table" "SELECT * FROM \`$table\` ORDER BY \`$primary_column\` DESC LIMIT 5;"
+              fi
+            else
+              {
+                echo "#### DML verification warning: $file"
+                echo "Could not infer an existing table named \`$table\`. Review the DML output above."
+                echo ""
+              } >> "$report_file"
+            fi
+          done
+
+          if [ "$verified_any" = false ]; then
+            echo "No DDL/DML files were planned, so only SHOW FULL TABLES was executed." >> "$report_file"
+          fi
+
+          cat "$report_file" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "report<<EOF"
+            cat "$report_file"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: SQL Apply Result Summary
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.execute_mode == 'execute' }}
+        run: |
+          {
+            echo "## SQL Apply Result"
+            echo ""
+            echo "### DDL files applied"
+            echo "${{ steps.apply_ddl.outputs.files }}"
+            echo ""
+            echo "### DDL rows affected (reported by MySQL)"
+            echo "${{ steps.apply_ddl.outputs.rows }}"
+            echo ""
+            echo "### DML files applied"
+            echo "${{ steps.apply_dml.outputs.files }}"
+            echo ""
+            echo "### DML total row changes (reported by MySQL)"
+            echo "${{ steps.apply_dml.outputs.rows }}"
+          } >> "$GITHUB_STEP_SUMMARY"

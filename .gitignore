@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Go binaries
+apps/backend/main
+apps/admin-backend/main
+*.exe
+
+# Go workspace sum (committed by choice)
+# go.work.sum
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Turbo cache
+.turbo/
+
+# Test artifacts
+test-results/
+playwright-report/
+coverage/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Railway
+.railway/

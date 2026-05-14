@@ -1,0 +1,10 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = ""
+# No HTTP health check needed for Redis (TCP service on port 6379)
+# Railway will monitor the Redis process directly
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10

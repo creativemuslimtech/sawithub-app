@@ -1,0 +1,65 @@
+{
+  "name": "@sawithub/frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "check:backend-target": "node ./scripts/validate-admin-backend-target.mjs",
+    "typecheck": "tsc -b",
+    "validate:analytics-events": "node ./scripts/validate-analytics-events.mjs",
+    "build": "npm run check:backend-target && npm run validate:analytics-events && npm run typecheck && vite build",
+    "lint": "eslint .",
+    "ci": "npm run lint && npm run check:icons && npm run check:public-pages && npm run build",
+    "preview": "vite preview",
+    "check:public-pages": "node ./scripts/validate-public-pages.mjs",
+    "check:icons": "node ./scripts/validate-icons.mjs",
+    "test:visual": "playwright test tests/visual-smoke.spec.ts",
+    "test:visual:update": "playwright test --update-snapshots",
+    "test:a11y": "playwright test tests/accessibility.spec.ts",
+    "test:e2e": "playwright test tests/subscription-mock-flow.spec.ts tests/export-xlsx-headers.spec.ts tests/logout-clears-session.spec.ts --project=chromium-desktop-1440"
+  },
+  "dependencies": {
+    "@types/file-saver": "^2.0.7",
+    "axios": "^1.16.0",
+    "file-saver": "^2.0.5",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
+    "lucide-react": "^1.14.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-hot-toast": "^2.6.0",
+    "react-is": "^19.2.5",
+    "react-router-dom": "^7.14.2",
+    "recharts": "^3.8.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.59.1",
+    "@tailwindcss/postcss": "^4.2.4",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "autoprefixer": "^10.5.0",
+    "eslint": "^10.3.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.6.0",
+    "postcss": "^8.5.13",
+    "tailwindcss": "^4.2.4",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.1",
+    "vite": "^8.0.10",
+    "xlsx": "^0.18.5"
+  },
+  "depcheck": {
+    "ignores": [
+      "@tailwindcss/postcss",
+      "autoprefixer",
+      "postcss",
+      "tailwindcss"
+    ]
+  }
+}

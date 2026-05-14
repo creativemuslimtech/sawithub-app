@@ -1,0 +1,63 @@
+name: Admin Backend CI
+
+on:
+  pull_request:
+    branches: [main, staging]
+    paths:
+      - 'apps/admin-backend/**'
+      - 'go.work'
+      - 'go.work.sum'
+  push:
+    branches: [main, staging]
+    paths:
+      - 'apps/admin-backend/**'
+      - 'go.work'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: apps/admin-backend
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/admin-backend/go.mod
+          cache-dependency-path: apps/admin-backend/go.sum
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          working-directory: apps/admin-backend
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/admin-backend/go.mod
+          cache-dependency-path: apps/admin-backend/go.sum
+      - name: Run tests
+        run: go test ./...
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/admin-backend/go.mod
+          cache-dependency-path: apps/admin-backend/go.sum
+      - name: Build binary
+        run: go build -o /dev/null ./...
