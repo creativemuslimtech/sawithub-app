@@ -1,5 +1,0 @@
-CREATE DATABASE IF NOT EXISTS `sawit_hub_db`
-  DEFAULT CHARACTER SET utf8mb4
-  COLLATE utf8mb4_0900_ai_ci;
-
-USE `sawit_hub_db`;
