@@ -1,0 +1,19 @@
+{
+  "name": "sawithub-app",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/frontend",
+    "apps/admin-frontend",
+    "packages/shared"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "dev:admin-frontend": "npm run dev --workspace=apps/admin-frontend",
+    "build:frontend": "npm run build --workspace=apps/frontend",
+    "build:admin-frontend": "npm run build --workspace=apps/admin-frontend",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  }
+}

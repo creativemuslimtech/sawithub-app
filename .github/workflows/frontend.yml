@@ -5,14 +5,16 @@ on:
     branches: [main, staging]
     paths:
       - 'apps/frontend/**'
+      - 'packages/shared/**'
       - 'package.json'
       - 'package-lock.json'
-      - 'turbo.json'
   push:
     branches: [main, staging]
     paths:
       - 'apps/frontend/**'
-      - 'turbo.json'
+      - 'packages/shared/**'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 
 concurrency:
@@ -23,7 +25,9 @@ env:
   NODE_VERSION: 22
 
 jobs:
-  lint:
+  # Lint + typecheck + unit tests share one npm ci — no redundant installs.
+  check:
+    name: Lint · Typecheck · Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -35,22 +39,13 @@ jobs:
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=high --workspace=@sawithub/frontend
       - run: npm run lint --workspace=@sawithub/frontend
-
-  typecheck:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
       - run: npm run typecheck --workspace=@sawithub/frontend
+      - run: npm run test --workspace=@sawithub/frontend -- --run
 
   build:
+    name: Build
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -61,8 +56,9 @@ jobs:
       - run: npm run build --workspace=@sawithub/frontend
 
   e2e:
+    name: E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     env:
       VITE_ALLOW_MOCK_BILLING: 'true'
     steps:
@@ -72,7 +68,20 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      # Cache Playwright browser binaries — invalidated only when Playwright version changes.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('apps/frontend/package-lock.json') }}
+      - name: Install Playwright browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+        working-directory: apps/frontend
+      - name: Install Playwright system deps (cached browser path)
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
         working-directory: apps/frontend
       - run: npm run build --workspace=@sawithub/frontend
       - run: npm run test:e2e --workspace=@sawithub/frontend

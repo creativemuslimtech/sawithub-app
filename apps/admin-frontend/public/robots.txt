@@ -1,0 +1,3 @@
+# Admin SPA — do not crawl (panel internal).
+User-agent: *
+Disallow: /

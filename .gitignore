@@ -10,17 +10,19 @@ build/
 out/
 
 # Go binaries
-apps/backend/main
-apps/admin-backend/main
+apps/backend/sawit-api
+apps/backend/build/
+apps/admin-backend/build/
 *.exe
 
-# Go workspace sum (committed by choice)
-# go.work.sum
+# Go workspace sum
+go.work.sum
 
 # Environment
 .env
 .env.local
 .env.*.local
+apps/**/.env
 
 # Turbo cache
 .turbo/

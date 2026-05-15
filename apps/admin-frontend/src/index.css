@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #7a5cff;
+  --color-bg: #0f0f23;
+  --font-family: Inter;
+  --shell-sidebar-width: 0px;
+  --shell-content-max: 100%;
+  --shell-gutter: 1rem;
+}
+
+html {
+  background-color: var(--color-bg);
+  color: #f1f5f9;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family), system-ui, sans-serif;
+  background-color: var(--color-bg);
+  color: #f1f5f9;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+}
+
+.app-content {
+  margin-left: var(--shell-sidebar-width);
+  min-width: 0;
+}
+
+.app-shell-gutter {
+  padding-left: var(--shell-gutter);
+  padding-right: var(--shell-gutter);
+}
+
+.app-shell-container {
+  width: min(100%, var(--shell-content-max));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --shell-sidebar-width: 104px;
+    --shell-content-max: 1260px;
+    --shell-gutter: 1rem;
+  }
+}
+
+@media (min-width: 1100px) {
+  :root {
+    --shell-sidebar-width: 248px;
+    --shell-content-max: 1480px;
+    --shell-gutter: 1.5rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --shell-sidebar-width: 280px;
+    --shell-content-max: 1700px;
+    --shell-gutter: 1.75rem;
+  }
+}
+
+@media (min-width: 1920px) {
+  :root {
+    --shell-sidebar-width: 312px;
+    --shell-content-max: 1880px;
+    --shell-gutter: 2rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .app-content {
+    margin-left: 0;
+    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .app-shell-gutter {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

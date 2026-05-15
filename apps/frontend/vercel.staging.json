@@ -1,0 +1,39 @@
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://staging.sawithub.com https://www.googletagmanager.com https://app.midtrans.com https://app.sandbox.midtrans.com; connect-src 'self' https://staging.sawithub.com https://www.google-analytics.com https://www.googletagmanager.com https://*.google-analytics.com https://analytics.google.com https://staging.backend.sawithub.com https://api.midtrans.com https://api.sandbox.midtrans.com https://app.midtrans.com https://app.sandbox.midtrans.com https://*.up.railway.app https://*.railway.app; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://staging.sawithub.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; manifest-src 'self' https://staging.sawithub.com; frame-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://staging.backend.sawithub.com/api/$1"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

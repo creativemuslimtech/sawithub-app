@@ -1,0 +1,31 @@
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+README.md
+docs/
+policies/
+
+# Scripts (not needed in container)
+scripts/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude

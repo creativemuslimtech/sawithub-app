@@ -24,6 +24,7 @@ defaults:
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -35,22 +36,12 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          version: v1.64.8
           working-directory: apps/backend
 
-  test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: apps/backend/go.mod
-          cache-dependency-path: apps/backend/go.sum
-      - name: Run tests
-        run: go test ./...
-
-  build:
+  # test + build share one Go setup — avoids a redundant module-cache restore.
+  verify:
+    name: Test · Build
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -59,5 +50,7 @@ jobs:
         with:
           go-version-file: apps/backend/go.mod
           cache-dependency-path: apps/backend/go.sum
-      - name: Build binary
+      - name: Run tests
+        run: go test ./...
+      - name: Build binaries
         run: go build -o /dev/null ./cmd/...

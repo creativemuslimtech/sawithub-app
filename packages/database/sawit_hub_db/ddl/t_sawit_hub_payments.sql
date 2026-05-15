@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS `t_sawit_hub_payments` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned NOT NULL,
+  `provider` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'midtrans',
+  `order_id` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `transaction_id` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `payment_status` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `gross_amount` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `currency` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'IDR',
+  `payment_type` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `paid_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payments_order_id` (`order_id`),
+  KEY `idx_payments_user_status` (`user_id`,`payment_status`),
+  KEY `idx_payments_deleted_at` (`deleted_at`),
+  KEY `idx_payments_status_gross` (`payment_status`,`gross_amount`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
