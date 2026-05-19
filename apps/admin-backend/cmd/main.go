@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	_ "time/tzdata"
 
 	"sawithub/admin-backend/internal/config"
 	"sawithub/admin-backend/internal/db"
