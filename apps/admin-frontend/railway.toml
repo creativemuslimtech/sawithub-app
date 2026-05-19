@@ -1,9 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install && tsc -b && vite build"
-
-[deploy]
-startCommand = "npx --yes serve -s dist -p $PORT"
+nixpacksConfigPath = "nixpacks.toml"
 healthcheckPath = "/"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"

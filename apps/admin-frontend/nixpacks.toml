@@ -1,0 +1,8 @@
+[phases.install]
+cmds = ["npm install"]
+
+[phases.build]
+cmds = ["tsc -b && vite build"]
+
+[start]
+cmd = "npx --yes serve -s dist -p $PORT"
