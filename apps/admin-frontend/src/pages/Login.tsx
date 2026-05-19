@@ -193,7 +193,7 @@ export default function Login() {
                       onChange={e => handleOtpChange(i, e.target.value)}
                       onKeyDown={e => handleOtpKey(i, e)}
                       style={{
-                        height: 48, textAlign: 'center',
+                        width: '100%', minWidth: 0, height: 48, textAlign: 'center',
                         borderRadius: 10, background: 'rgba(0,0,0,0.25)',
                         border: i === 5 ? '1.5px solid var(--amber-3)' : '1px solid rgba(255,255,255,0.12)',
                         fontFamily: 'var(--f-mono)', fontSize: 18, fontWeight: 500, color: 'var(--paper)',
