@@ -12,6 +12,13 @@ import { UserIcon, MailIcon, LockIcon, ArrowIcon } from '../components/ds/icons'
 function isEmail(val: string) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) }
 function isPhone(val: string) { return /^[0-9+\-\s]{8,15}$/.test(val) }
 
+const PhoneIcon = ({ size = 18 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+    <line x1="12" y1="18" x2="12.01" y2="18"/>
+  </svg>
+)
+
 /* ── Left panel content ─────────────────────────────────────────── */
 function LoginPanel() {
   return (
@@ -88,10 +95,19 @@ export default function Login() {
     }
   }
 
-  const inputHint = identifier.length === 0 ? ''
-    : isEmail(identifier) ? '✉️ Email'
-    : isPhone(identifier) ? '📱 No. HP'
-    : '👤 Username'
+  const inputType = identifier.length === 0 ? 'empty'
+    : isEmail(identifier) ? 'email'
+    : isPhone(identifier) ? 'phone'
+    : 'username'
+
+  const identifierIcon = inputType === 'phone' ? <PhoneIcon size={18} />
+    : inputType === 'username' ? <UserIcon size={18} />
+    : <MailIcon size={18} />
+
+  const inputHint = inputType === 'email' ? 'Email'
+    : inputType === 'phone' ? 'No. HP'
+    : inputType === 'username' ? 'Username'
+    : undefined
 
   return (
     <AuthShell panel={<LoginPanel />}>
@@ -112,9 +128,9 @@ export default function Login() {
           autoFocus
           placeholder="email, username, atau 08xx..."
           autoComplete="username"
-          rightLabel={inputHint || undefined}
+          rightLabel={inputHint}
           error={formError || undefined}
-          leftIcon={<MailIcon size={18} />}
+          leftIcon={identifierIcon}
           className="pl-10"
         />
 
