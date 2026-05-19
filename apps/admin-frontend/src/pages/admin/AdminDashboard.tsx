@@ -3,7 +3,6 @@ import AdminLayout from '../../components/AdminLayout'
 import {
   AdminPageHero,
   AdminPanel,
-  AdminSectionLabel,
   AdminMetricCard,
   AdminBadge,
   AdminProgressBar,

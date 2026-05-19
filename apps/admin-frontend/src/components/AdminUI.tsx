@@ -314,7 +314,6 @@ export function AdminEmptyState({
 /* ── AdminInsightList — light cards ── */
 export function AdminInsightList({
   items,
-  color = 'var(--forest)',
 }: {
   items: string[]
   color?: string
