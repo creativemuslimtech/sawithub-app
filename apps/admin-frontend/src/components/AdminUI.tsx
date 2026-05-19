@@ -1,148 +1,139 @@
 import type { ReactNode } from 'react'
 
-type Tone = {
-  color: string
-  bg: string
-  border: string
+/* ── Sparkline ── */
+export function MiniSparkline({
+  data,
+  width = 56,
+  height = 20,
+  color = 'var(--forest)',
+}: {
+  data: number[]
+  width?: number
+  height?: number
+  color?: string
+}) {
+  if (!data || data.length < 2) return null
+  const min = Math.min(...data)
+  const max = Math.max(...data)
+  const range = max - min || 1
+  const stepX = width / (data.length - 1)
+  const pts = data.map((v, i) => `${i * stepX},${height - ((v - min) / range) * (height - 2) - 1}`)
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} fill="none" aria-hidden>
+      <polyline
+        points={pts.join(' ')}
+        stroke={color}
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  )
 }
 
-function deltaTone(value?: number): Tone {
-  if (value === undefined) return { color: 'rgba(226,232,240,0.68)', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.2)' }
-  if (value > 0) return { color: '#86efac', bg: 'rgba(34,197,94,0.13)', border: 'rgba(34,197,94,0.24)' }
-  if (value < 0) return { color: '#fda4af', bg: 'rgba(244,63,94,0.13)', border: 'rgba(244,63,94,0.24)' }
-  return { color: '#cbd5e1', bg: 'rgba(148,163,184,0.12)', border: 'rgba(148,163,184,0.2)' }
-}
-
-function formatTrend(value?: number) {
-  if (value === undefined) return null
-  const prefix = value > 0 ? '+' : ''
-  return `${prefix}${value.toFixed(1)}%`
-}
-
+/* ── AdminPageHero — editorial light header ── */
 export function AdminPageHero({
   eyebrow,
   title,
   description,
-  accent = '#22c55e',
-  children,
   actions,
+  children,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  accent: _accent,
 }: {
   eyebrow: string
-  title: string
-  description: string
-  accent?: string
-  children?: ReactNode
+  title: ReactNode
+  description?: string
   actions?: ReactNode
+  children?: ReactNode
+  accent?: string
 }) {
   return (
-    <section
-      className="relative overflow-hidden rounded-[32px] p-5 md:p-7"
-      style={{
-        background: `linear-gradient(135deg, ${accent}18 0%, rgba(8,14,16,0.94) 46%, rgba(18,14,10,0.9) 100%)`,
-        border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: '0 28px 90px rgba(0,0,0,0.26)',
-      }}
-    >
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 100%), linear-gradient(0deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 100%)',
-          backgroundSize: '28px 28px',
-          opacity: 0.16,
-        }}
-      />
-      <div className="relative grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-5 md:gap-7 items-start">
-        <div>
-          <span
-            className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase mb-4"
-            style={{
-              color: '#d1fae5',
-              background: `${accent}22`,
-              border: `1px solid ${accent}36`,
-              letterSpacing: '0.18em',
-            }}
-          >
-            {eyebrow}
-          </span>
-          <h1 className="text-3xl md:text-5xl font-semibold text-white leading-tight max-w-4xl">{title}</h1>
-          <p className="mt-4 max-w-3xl text-sm md:text-base leading-7" style={{ color: 'rgba(226,232,240,0.72)' }}>
-            {description}
-          </p>
-          {actions && <div className="mt-5 flex flex-wrap gap-2">{actions}</div>}
+    <div style={{ marginBottom: 28 }}>
+      <div className="sh-eyebrow" style={{ marginBottom: 10 }}>—— {eyebrow}</div>
+      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 className="sh-h-2" style={{ color: 'var(--ink)', maxWidth: 780 }}>{title}</h1>
+          {description && (
+            <p style={{ fontSize: 13.5, color: 'var(--ink-3)', marginTop: 8, maxWidth: 680 }}>{description}</p>
+          )}
         </div>
-        {children && (
-          <div
-            className="rounded-[28px] p-4 md:p-5"
-            style={{
-              background: 'rgba(5, 10, 12, 0.62)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
-            }}
-          >
-            {children}
-          </div>
-        )}
+        {actions && <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>{actions}</div>}
       </div>
-    </section>
+      {children}
+    </div>
   )
 }
 
+/* ── AdminMetricCard — paper card with colored top border ── */
 export function AdminMetricCard({
   label,
   value,
   hint,
+  color,
   accent,
-  icon,
   trend,
+  sparkData,
+  live,
+  icon: _icon,
 }: {
   label: string
   value: ReactNode
   hint?: string
-  accent: string
+  color?: string
+  accent?: string
+  trend?: number | string
+  sparkData?: number[]
+  live?: boolean
   icon?: ReactNode
-  trend?: number
 }) {
-  const tone = deltaTone(trend)
-  const trendLabel = formatTrend(trend)
+  const resolvedColor = color ?? accent ?? 'var(--forest)'
+  const trendStr = typeof trend === 'number'
+    ? (trend > 0 ? `+${trend.toFixed(1)}%` : trend < 0 ? `${trend.toFixed(1)}%` : '0%')
+    : trend
+  const trendPositive = trendStr?.startsWith('+') || trendStr?.startsWith('↑')
 
   return (
     <div
-      className="relative overflow-hidden rounded-[24px] p-4 md:p-5"
+      className="sh-card"
       style={{
-        background: `linear-gradient(150deg, ${accent}17 0%, rgba(8,12,18,0.9) 72%)`,
-        border: `1px solid ${accent}30`,
-        boxShadow: `0 18px 42px ${accent}10`,
+        position: 'relative',
+        padding: 14,
+        borderRadius: 12,
+        overflow: 'hidden',
       }}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[11px] uppercase mb-2" style={{ color: `${accent}dd`, letterSpacing: '0.16em' }}>
-            {label}
-          </p>
-          <p className="text-lg font-semibold leading-tight text-white break-words md:text-xl xl:text-[1.45rem]">{value}</p>
-        </div>
-        <div
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-lg"
-          style={{ color: accent, background: `${accent}16`, border: `1px solid ${accent}25` }}
-        >
-          {icon}
-        </div>
-      </div>
-      <div className="mt-3 flex items-end justify-between gap-3">
-        {hint && <p className="text-xs leading-relaxed" style={{ color: 'rgba(226,232,240,0.54)' }}>{hint}</p>}
-        {trendLabel && (
-          <span
-            className="shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold"
-            style={{ color: tone.color, background: tone.bg, borderColor: tone.border }}
-          >
-            {trendLabel}
-          </span>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 2, background: resolvedColor }} />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <span style={{ fontSize: 10, color: 'var(--ink-4)', textTransform: 'uppercase', letterSpacing: '.12em', fontWeight: 600, fontFamily: 'var(--f-mono)' }}>
+          {label}
+        </span>
+        {live && (
+          <span style={{ width: 6, height: 6, borderRadius: 99, background: 'var(--terracotta)', boxShadow: '0 0 6px var(--terracotta)', flexShrink: 0 }} />
         )}
+      </div>
+      <div className="sh-num" style={{ fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)' }}>{value}</div>
+      <div style={{ marginTop: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 8 }}>
+        {trendStr ? (
+          <span style={{
+            fontSize: 11,
+            color: trendPositive ? 'var(--forest)' : 'var(--terracotta-2)',
+            fontFamily: 'var(--f-mono)',
+            fontWeight: 500,
+          }}>
+            {trendStr}
+          </span>
+        ) : hint ? (
+          <span style={{ fontSize: 11, color: 'var(--ink-4)', fontFamily: 'var(--f-mono)' }}>{hint}</span>
+        ) : <span />}
+        {sparkData && <MiniSparkline data={sparkData} color={color} />}
       </div>
     </div>
   )
 }
 
+/* ── AdminPanel — light card panel ── */
 export function AdminPanel({
   title,
   eyebrow,
@@ -150,6 +141,7 @@ export function AdminPanel({
   action,
   children,
   className = '',
+  style,
 }: {
   title?: string
   eyebrow?: string
@@ -157,28 +149,25 @@ export function AdminPanel({
   action?: ReactNode
   children: ReactNode
   className?: string
+  style?: React.CSSProperties
 }) {
   return (
     <section
-      className={`rounded-[28px] p-4 md:p-5 ${className}`}
-      style={{
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
-      }}
+      className={`sh-card ${className}`}
+      style={{ padding: 24, borderRadius: 14, ...style }}
     >
       {(title || eyebrow || description || action) && (
-        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-          <div>
-            {eyebrow && (
-              <p className="text-[11px] uppercase mb-1" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.16em' }}>
-                {eyebrow}
-              </p>
-            )}
-            {title && <h2 className="text-lg md:text-xl font-semibold text-white">{title}</h2>}
-            {description && <p className="mt-1 text-sm leading-relaxed text-white/45">{description}</p>}
+        <div style={{ marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+            <div>
+              {eyebrow && (
+                <div className="sh-eyebrow" style={{ marginBottom: 6 }}>—— {eyebrow}</div>
+              )}
+              {title && <h2 className="sh-h-4" style={{ color: 'var(--ink)' }}>{title}</h2>}
+              {description && <p style={{ marginTop: 4, fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.55 }}>{description}</p>}
+            </div>
+            {action && <div style={{ flexShrink: 0 }}>{action}</div>}
           </div>
-          {action && <div className="shrink-0">{action}</div>}
         </div>
       )}
       {children}
@@ -186,31 +175,29 @@ export function AdminPanel({
   )
 }
 
+/* ── AdminSectionLabel — uses sh-eyebrow pattern ── */
 export function AdminSectionLabel({ children }: { children: ReactNode }) {
   return (
-    <p className="text-xs font-semibold text-white/30 uppercase mb-3" style={{ letterSpacing: '0.18em' }}>
-      {children}
-    </p>
+    <p className="sh-eyebrow" style={{ marginBottom: 12 }}>—— {children}</p>
   )
 }
 
+/* ── AdminBadge — sh-chip based ── */
 export function AdminBadge({
   children,
-  accent = '#94a3b8',
+  tone = 'default',
 }: {
   children: ReactNode
-  accent?: string
+  tone?: 'default' | 'forest' | 'amber' | 'terra'
 }) {
-  return (
-    <span
-      className="inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
-      style={{ color: accent, background: `${accent}18`, border: `1px solid ${accent}28` }}
-    >
-      {children}
-    </span>
-  )
+  const cls = tone === 'forest' ? 'sh-chip sh-chip-forest'
+    : tone === 'amber' ? 'sh-chip sh-chip-amber'
+    : tone === 'terra' ? 'sh-chip sh-chip-terra'
+    : 'sh-chip'
+  return <span className={cls}>{children}</span>
 }
 
+/* ── AdminSearchField — light sh-input style ── */
 export function AdminSearchField({
   value,
   onChange,
@@ -225,10 +212,12 @@ export function AdminSearchField({
   return (
     <div className={`relative ${className}`}>
       <svg
-        className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
+        className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
+        width="14"
+        height="14"
         viewBox="0 0 24 24"
         fill="none"
-        stroke="rgba(255,255,255,0.35)"
+        stroke="var(--ink-4)"
         strokeWidth="2"
       >
         <circle cx="11" cy="11" r="8" />
@@ -238,17 +227,15 @@ export function AdminSearchField({
         type="text"
         placeholder={placeholder}
         value={value}
-        onChange={event => onChange(event.target.value)}
-        className="w-full rounded-2xl py-3 pl-10 pr-4 text-sm text-white placeholder-white/30 outline-none"
-        style={{
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.1)',
-        }}
+        onChange={e => onChange(e.target.value)}
+        className="sh-input"
+        style={{ paddingLeft: 38 }}
       />
     </div>
   )
 }
 
+/* ── AdminPagination — light style ── */
 export function AdminPagination({
   page,
   totalPages,
@@ -268,34 +255,37 @@ export function AdminPagination({
 
   return (
     <div
-      className="mt-5 flex flex-col gap-3 rounded-[22px] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+      className="sh-card"
+      style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 12, borderRadius: 12, padding: '10px 16px' }}
     >
-      <span className="text-sm text-white/40">
-        {totalLabel ?? (totalPages ? `Halaman ${page} dari ${totalPages}` : `Halaman ${page}`)}
-      </span>
-      <div className="grid grid-cols-2 gap-2 sm:flex">
-        <button
-          disabled={page === 1}
-          onClick={onPrev}
-          className="rounded-xl px-4 py-2 text-sm font-medium transition disabled:opacity-30"
-          style={{ background: 'rgba(255,255,255,0.06)', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}
-        >
-          Sebelumnya
-        </button>
-        <button
-          disabled={nextDisabled}
-          onClick={onNext}
-          className="rounded-xl px-4 py-2 text-sm font-medium transition disabled:opacity-30"
-          style={{ background: 'rgba(34,197,94,0.14)', color: '#86efac', border: '1px solid rgba(34,197,94,0.26)' }}
-        >
-          Berikutnya
-        </button>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 13, color: 'var(--ink-4)' }}>
+          {totalLabel ?? (totalPages ? `Halaman ${page} dari ${totalPages}` : `Halaman ${page}`)}
+        </span>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            disabled={page === 1}
+            onClick={onPrev}
+            className="sh-btn sh-btn-ghost sh-btn-sm"
+            style={{ borderRadius: 10 }}
+          >
+            Sebelumnya
+          </button>
+          <button
+            disabled={nextDisabled}
+            onClick={onNext}
+            className="sh-btn sh-btn-primary sh-btn-sm"
+            style={{ borderRadius: 10 }}
+          >
+            Berikutnya
+          </button>
+        </div>
       </div>
     </div>
   )
 }
 
+/* ── AdminEmptyState — light card ── */
 export function AdminEmptyState({
   icon,
   title,
@@ -306,39 +296,55 @@ export function AdminEmptyState({
   description?: string
 }) {
   return (
-    <div className="rounded-[28px] py-12 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-      <div className="mb-3 text-3xl">{icon}</div>
-      <p className="text-sm font-semibold text-white">{title}</p>
-      {description && <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-white/40">{description}</p>}
+    <div
+      className="sh-card"
+      style={{ padding: '48px 24px', textAlign: 'center', borderRadius: 16 }}
+    >
+      <div style={{ marginBottom: 12, fontSize: 32, color: 'var(--ink-4)' }}>{icon}</div>
+      <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>{title}</p>
+      {description && (
+        <p style={{ margin: '8px auto 0', maxWidth: 380, fontSize: 13.5, lineHeight: 1.55, color: 'var(--ink-4)' }}>
+          {description}
+        </p>
+      )}
     </div>
   )
 }
 
+/* ── AdminInsightList — light cards ── */
 export function AdminInsightList({
   items,
-  accent = '#22c55e',
+  color = 'var(--forest)',
 }: {
   items: string[]
-  accent?: string
+  color?: string
 }) {
   return (
     <div>
-      <p className="text-[11px] uppercase mb-3 text-white/35" style={{ letterSpacing: '0.16em' }}>Insight Singkat</p>
-      <div className="space-y-3">
+      <div className="sh-eyebrow" style={{ marginBottom: 12 }}>—— Insight Singkat</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {items.map((item, index) => (
           <div
             key={`${item}-${index}`}
-            className="rounded-[20px] p-3.5"
-            style={{ background: 'rgba(255,255,255,0.035)', border: '1px solid rgba(255,255,255,0.07)' }}
+            className="sh-card"
+            style={{ padding: 14, borderRadius: 12 }}
           >
-            <div className="flex items-start gap-3">
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
               <span
-                className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
-                style={{ color: '#f8fafc', background: `${accent}${index % 2 === 0 ? '35' : '24'}` }}
+                style={{
+                  marginTop: 1,
+                  width: 24, height: 24,
+                  borderRadius: 99,
+                  background: index % 2 === 0 ? 'var(--forest-soft)' : 'var(--amber-soft)',
+                  color: index % 2 === 0 ? 'var(--forest)' : 'var(--amber-2)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 11, fontWeight: 600, flexShrink: 0,
+                  fontFamily: 'var(--f-mono)',
+                }}
               >
                 {index + 1}
               </span>
-              <p className="text-sm leading-6 text-white/70">{item}</p>
+              <p style={{ fontSize: 13.5, lineHeight: 1.55, color: 'var(--ink-2)' }}>{item}</p>
             </div>
           </div>
         ))}
@@ -347,12 +353,44 @@ export function AdminInsightList({
   )
 }
 
+/* ── AdminSkeleton — shimmer on light background ── */
 export function AdminSkeleton({ rows = 4, height = 'h-20' }: { rows?: number; height?: string }) {
   return (
-    <div className="space-y-3">
-      {Array.from({ length: rows }).map((_, index) => (
-        <div key={index} className={`${height} rounded-[22px] animate-pulse`} style={{ background: 'rgba(255,255,255,0.04)' }} />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className={`skeleton ${height}`} style={{ borderRadius: 12 }} />
       ))}
     </div>
+  )
+}
+
+/* ── AdminProgressBar ── */
+export function AdminProgressBar({
+  pct,
+  color = 'var(--forest)',
+  height = 5,
+}: {
+  pct: number
+  color?: string
+  height?: number
+}) {
+  return (
+    <div style={{ height, borderRadius: 999, background: 'var(--line-soft)', overflow: 'hidden', position: 'relative' }}>
+      <div style={{ height: '100%', borderRadius: 999, background: color, width: `${Math.min(100, pct)}%` }} />
+    </div>
+  )
+}
+
+/* ── StatusDot ── */
+export function StatusDot({ severity }: { severity: 'critical' | 'warn' | 'info' | 'ok' }) {
+  const color = severity === 'critical' ? 'var(--terracotta)'
+    : severity === 'warn' ? 'var(--amber-2)'
+    : severity === 'ok' ? 'var(--forest-3)'
+    : 'var(--c-sky)'
+  return (
+    <span style={{
+      width: 8, height: 8, borderRadius: 99, background: color,
+      flexShrink: 0, display: 'inline-block', marginTop: 3,
+    }} />
   )
 }
