@@ -131,7 +131,6 @@ export default function Login() {
           rightLabel={inputHint}
           error={formError || undefined}
           leftIcon={identifierIcon}
-          className="pl-10"
         />
 
         <div>

@@ -106,7 +106,7 @@ type AuthInputProps = InputHTMLAttributes<HTMLInputElement> & {
   leftIcon?: ReactNode
 }
 
-export function AuthInput({ id, label, error, helper, rightLabel, leftIcon, className = '', ...props }: AuthInputProps) {
+export function AuthInput({ id, label, error, helper, rightLabel, leftIcon, className = '', style, ...props }: AuthInputProps) {
   const describedBy = [helper ? `${id}-help` : '', error ? `${id}-error` : '']
     .filter(Boolean).join(' ') || undefined
 
@@ -131,6 +131,7 @@ export function AuthInput({ id, label, error, helper, rightLabel, leftIcon, clas
             error ? 'border-terracotta-2' : '',
             className,
           ].filter(Boolean).join(' ')}
+          style={{ ...(leftIcon ? { paddingLeft: 42 } : {}), ...style }}
           {...props}
         />
       </div>
