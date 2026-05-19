@@ -23,7 +23,7 @@ export default function FormPage({
   subtitle,
   children,
   eyebrow = 'Halaman Kerja',
-  accent = 'var(--emerald)',
+  accent = 'var(--forest)',
   stats = [],
   insights = [],
   contentClassName = 'mx-auto w-full max-w-[900px]',
@@ -78,12 +78,12 @@ export default function FormPage({
                     )}
 
                     {insights.length > 0 && (
-                      <aside className="rounded-md-1 border border-emerald-soft bg-emerald-tint p-4">
-                        <p className="eyebrow text-emerald-2">Tips pengisian</p>
+                      <aside className="rounded-md-1 border border-forest-soft bg-forest-tint p-4">
+                        <p className="sh-eyebrow text-forest-3">Tips pengisian</p>
                         <ul className="mt-3 space-y-2 text-sm leading-6 text-ink-3">
                           {insights.map(item => (
                             <li key={item} className="flex gap-2">
-                              <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald" />
+                              <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-forest" />
                               <span>{item}</span>
                             </li>
                           ))}

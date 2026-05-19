@@ -22,7 +22,7 @@ export function ExportActionButtons({
         disabled={!!exporting}
         title={`Unduh laporan Excel dan kirim salinannya ke ${exportRecipient}`}
         className={shellTonalButtonClass}
-        style={{ background: 'rgba(10,120,71,0.1)', color: 'var(--emerald)' }}
+        style={{ background: 'rgba(10,120,71,0.1)', color: 'var(--forest)' }}
       >
         {exporting === 'xlsx' ? 'Mengirim Excel...' : 'Excel'}
       </button>
@@ -51,9 +51,9 @@ export function ExportStatusPanel({
       role="status"
       className="mt-3 rounded-xl border px-3 py-2 text-sm"
       style={{
-        background: exportStatus.type === 'success' ? 'var(--emerald-tint)' : exportStatus.type === 'error' ? 'var(--terra-soft)' : 'var(--paper-2)',
-        borderColor: exportStatus.type === 'success' ? 'var(--emerald-soft)' : exportStatus.type === 'error' ? 'var(--terra-soft)' : 'var(--line)',
-        color: exportStatus.type === 'success' ? 'var(--emerald)' : exportStatus.type === 'error' ? 'var(--terra)' : 'var(--ink-3)',
+        background: exportStatus.type === 'success' ? 'var(--forest-tint)' : exportStatus.type === 'error' ? 'var(--terra-soft)' : 'var(--paper-2)',
+        borderColor: exportStatus.type === 'success' ? 'var(--forest-soft)' : exportStatus.type === 'error' ? 'var(--terra-soft)' : 'var(--line)',
+        color: exportStatus.type === 'success' ? 'var(--forest)' : exportStatus.type === 'error' ? 'var(--terra)' : 'var(--ink-3)',
       }}
     >
       {exportStatus.text}

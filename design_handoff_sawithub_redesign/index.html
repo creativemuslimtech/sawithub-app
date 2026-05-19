@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SawitHub · Redesign</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=DM+Sans:opsz,wght@9..40,300..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="tokens.css" />
+
+  <style>
+    html, body { margin: 0; padding: 0; height: 100%; background: #f0eee9; font-family: "DM Sans", system-ui, sans-serif; }
+    *, *::before, *::after { box-sizing: border-box; }
+  </style>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="primitives.jsx"></script>
+  <script type="text/babel" src="pages/Landing.jsx"></script>
+  <script type="text/babel" src="pages/Login.jsx"></script>
+  <script type="text/babel" src="pages/Dashboard.jsx"></script>
+  <script type="text/babel" src="pages/Lahan.jsx"></script>
+  <script type="text/babel" src="pages/AddPanen.jsx"></script>
+  <script type="text/babel" src="pages/Laporan.jsx"></script>
+  <script type="text/babel" src="pages/Kalkulator.jsx"></script>
+  <script type="text/babel" src="pages/Subscription.jsx"></script>
+  <script type="text/babel" src="pages/Profile.jsx"></script>
+  <script type="text/babel" src="pages/MobileDashboard.jsx"></script>
+  <script type="text/babel" src="pages/AuthExtras.jsx"></script>
+  <script type="text/babel" src="pages/BrandAssets.jsx"></script>
+
+  <script type="text/babel" src="admin/AdminShell.jsx"></script>
+  <script type="text/babel" src="admin/Login.jsx"></script>
+  <script type="text/babel" src="admin/Dashboard.jsx"></script>
+  <script type="text/babel" src="admin/Users.jsx"></script>
+  <script type="text/babel" src="admin/Data.jsx"></script>
+  <script type="text/babel" src="admin/Analytics.jsx"></script>
+  <script type="text/babel" src="admin/Monitoring.jsx"></script>
+  <script type="text/babel" src="admin/Audit.jsx"></script>
+  <script type="text/babel" src="admin/Settings.jsx"></script>
+  <script type="text/babel" src="admin/Revenue.jsx"></script>
+  <script type="text/babel" src="admin/Apps.jsx"></script>
+  <script type="text/babel" src="admin/pwa/PwaDetail.jsx"></script>
+  <script type="text/babel" src="admin/pwa/PwaVitals.jsx"></script>
+  <script type="text/babel" src="admin/android/AndroidDetail.jsx"></script>
+  <script type="text/babel" src="admin/android/AndroidAnr.jsx"></script>
+
+  <script type="text/babel">
+    const { DesignCanvas, DCSection, DCArtboard } = window;
+    const {
+      LandingPage, LoginPage, DashboardPage, LahanPage, AddPanenPage,
+      LaporanKeuanganPage, KalkulatorPage, SubscriptionPage, ProfilePage, MobileDashboard,
+      SignupPage, ForgotPasswordPage, ResetPasswordPage, OtpVerifyPage, NotFoundPage,
+      BrandAssetsPage,
+      AdminLoginPage, AdminDashboardPage, AdminUsersPage, AdminDataPage,
+      AdminAnalyticsPage, AdminMonitoringPage, AdminAuditPage, AdminSettingsPage,
+      AdminRevenuePage, AdminAppsPage, PwaDetailPage, PwaVitalsPage,
+      AndroidDetailPage, AndroidAnrPage,
+    } = window;
+
+    function App() {
+      return (
+        <DesignCanvas>
+          <DCSection id="brand" title="SawitHub · Redesign 2026" subtitle="Modern agrarian premium — palm-leaf line art, Fraunces editorial display, DM Sans body, IBM Plex Mono for figures. Forest #1A3D2B + amber #D4A827 on a warm cream #F5F0E8 base.">
+            <DCArtboard id="brand-assets" label="00 — Brand Assets" width={1440} height={2200}>
+              <BrandAssetsPage />
+            </DCArtboard>
+            <DCArtboard id="landing" label="01 — Landing" width={1440} height={2400}>
+              <LandingPage />
+            </DCArtboard>
+            <DCArtboard id="login" label="02 — Login" width={1440} height={900}>
+              <LoginPage />
+            </DCArtboard>
+            <DCArtboard id="signup" label="02a — Signup" width={1440} height={900}>
+              <SignupPage />
+            </DCArtboard>
+            <DCArtboard id="forgot" label="02b — Forgot Password" width={1440} height={900}>
+              <ForgotPasswordPage />
+            </DCArtboard>
+            <DCArtboard id="reset" label="02c — Reset Password" width={1440} height={900}>
+              <ResetPasswordPage />
+            </DCArtboard>
+            <DCArtboard id="otp" label="02d — OTP Verify" width={1440} height={900}>
+              <OtpVerifyPage />
+            </DCArtboard>
+            <DCArtboard id="notfound" label="02e — 404 Not Found" width={1440} height={900}>
+              <NotFoundPage />
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="core-app" title="Core app" subtitle="Signed-in experience — shared shell with botanical accents, ring health scores, and an editorial sense of rhythm.">
+            <DCArtboard id="dashboard" label="03 — Dashboard (desktop)" width={1440} height={1320}>
+              <DashboardPage />
+            </DCArtboard>
+            <DCArtboard id="mobile" label="04 — Dashboard (mobile)" width={390} height={844}>
+              <MobileDashboard />
+            </DCArtboard>
+            <DCArtboard id="lahan" label="05 — Lahan / Kebun" width={1440} height={1100}>
+              <LahanPage />
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="forms-reports" title="Forms & reports" subtitle="Where data is captured and turned into a story — live preview cards, tabular ledgers with Plex Mono figures, donut & combined charts.">
+            <DCArtboard id="addpanen" label="06 — Catat Panen" width={1440} height={1280}>
+              <AddPanenPage />
+            </DCArtboard>
+            <DCArtboard id="laporan" label="07 — Laporan Keuangan" width={1440} height={1500}>
+              <LaporanKeuanganPage />
+            </DCArtboard>
+            <DCArtboard id="calc" label="08 — Kalkulator Pupuk" width={1440} height={1280}>
+              <KalkulatorPage />
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="account" title="Account & settings" subtitle="Long-form configuration surfaces with editorial section numbers, dark hero blocks, and amber callouts.">
+            <DCArtboard id="subscription" label="09 — Subscription / Pricing" width={1440} height={1700}>
+              <SubscriptionPage />
+            </DCArtboard>
+            <DCArtboard id="profile" label="10 — Profile" width={1440} height={1180}>
+              <ProfilePage />
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="admin" title="Admin · Command Center" subtitle="Internal staff surfaces. Same forest/amber system but denser — dark sidebar, Plex Mono labels, ops-console feel. Production env is signalled in deep terracotta everywhere.">
+            <DCArtboard id="admin-login" label="11 — Admin Login (2FA)" width={1440} height={900}>
+              <AdminLoginPage />
+            </DCArtboard>
+            <DCArtboard id="admin-overview" label="12 — Command Center" width={1440} height={1700}>
+              <AdminDashboardPage />
+            </DCArtboard>
+            <DCArtboard id="admin-users" label="13 — Pengguna" width={1440} height={1400}>
+              <AdminUsersPage />
+            </DCArtboard>
+            <DCArtboard id="admin-revenue" label="14 — Revenue (subscription)" width={1440} height={2400}>
+              <AdminRevenuePage />
+            </DCArtboard>
+            <DCArtboard id="admin-apps" label="15 — Apps · PWA & Android" width={1440} height={1800}>
+              <AdminAppsPage />
+            </DCArtboard>
+            <DCArtboard id="admin-pwa-detail" label="15a — PWA detail" width={1440} height={2400}>
+              <PwaDetailPage />
+            </DCArtboard>
+            <DCArtboard id="admin-pwa-vitals" label="15a-i — PWA · Web Vitals per route" width={1440} height={2100}>
+              <PwaVitalsPage />
+            </DCArtboard>
+            <DCArtboard id="admin-android-detail" label="15b — Android detail" width={1440} height={2500}>
+              <AndroidDetailPage />
+            </DCArtboard>
+            <DCArtboard id="admin-android-anr" label="15b-i — Android · ANR per device" width={1440} height={2200}>
+              <AndroidAnrPage />
+            </DCArtboard>
+            <DCArtboard id="admin-data" label="16 — Data Browser" width={1440} height={1100}>
+              <AdminDataPage />
+            </DCArtboard>
+            <DCArtboard id="admin-analytics" label="17 — Analytics & Cohorts" width={1440} height={1500}>
+              <AdminAnalyticsPage />
+            </DCArtboard>
+            <DCArtboard id="admin-monitoring" label="18 — Monitoring" width={1440} height={1300}>
+              <AdminMonitoringPage />
+            </DCArtboard>
+            <DCArtboard id="admin-audit" label="19 — Audit Log" width={1440} height={1100}>
+              <AdminAuditPage />
+            </DCArtboard>
+            <DCArtboard id="admin-settings" label="20 — Settings & Flags" width={1440} height={1500}>
+              <AdminSettingsPage />
+            </DCArtboard>
+          </DCSection>
+        </DesignCanvas>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

@@ -69,7 +69,7 @@ export function FinanceMetricCard({
 }
 
 export function RankingCard({ farm, rank }: { farm: FarmRanking; rank: number }) {
-  const accent = rank === 1 ? 'var(--emerald)' : rank === 2 ? '#0284c7' : rank === 3 ? '#d97706' : '#7c3aed'
+  const accent = rank === 1 ? 'var(--forest)' : rank === 2 ? '#0284c7' : rank === 3 ? '#d97706' : '#7c3aed'
   const margin = safeDivide(farm.hasil_bersih, farm.total_pendapatan) * 100
 
   return (
@@ -95,7 +95,7 @@ export function RankingCard({ farm, rank }: { farm: FarmRanking; rank: number })
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <SnapshotPill label="Produksi" value={fmtTon(farm.total_ton)} hint={`${fmtNum(farm.produktivitas)} t/ha`} accent="var(--emerald)" />
+        <SnapshotPill label="Produksi" value={fmtTon(farm.total_ton)} hint={`${fmtNum(farm.produktivitas)} t/ha`} accent="var(--forest)" />
         <SnapshotPill
           label="Pendapatan"
           value={fmtRpFull(farm.total_pendapatan)}
@@ -106,7 +106,7 @@ export function RankingCard({ farm, rank }: { farm: FarmRanking; rank: number })
           label="Bersih"
           value={fmtRpFull(farm.hasil_bersih)}
           hint={`${fmtRpFull(safeDivide(farm.hasil_bersih, farm.luas_ha || 1))}/ha`}
-          accent={farm.hasil_bersih >= 0 ? 'var(--emerald)' : 'var(--terra)'}
+          accent={farm.hasil_bersih >= 0 ? 'var(--forest)' : 'var(--terra)'}
         />
         <SnapshotPill
           label="Fokus"
@@ -122,7 +122,7 @@ export function RankingCard({ farm, rank }: { farm: FarmRanking; rank: number })
 export function EmptyState() {
   return (
     <div className="rounded-xl-1 py-20 text-center bg-surface border border-line">
-      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-tint text-emerald" aria-hidden="true">
+      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-forest-tint text-forest" aria-hidden="true">
         <AppMetricIcon kind="report" />
       </div>
       <p className="mb-1 font-medium text-ink-3">Belum ada data laporan pada periode ini</p>
@@ -136,7 +136,7 @@ export function ReportHeroSection({ financeSummary }: { financeSummary: FinanceS
     <section className="relative overflow-hidden rounded-xl-1 bg-surface border border-line shadow-card p-6 md:p-8">
       <div className="relative">
         <div>
-          <span className="mb-4 inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.2em] border border-emerald-soft bg-emerald-tint text-emerald">
+          <span className="mb-4 inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.2em] border border-forest-soft bg-forest-tint text-forest">
             Ringkasan Uang Kebun
           </span>
           <h2 className="mb-3 text-2xl font-semibold leading-tight text-ink md:text-4xl">Laporan uang kebun yang mudah dibaca.</h2>
@@ -149,7 +149,7 @@ export function ReportHeroSection({ financeSummary }: { financeSummary: FinanceS
               label="Untung Bersih"
               value={`${financeSummary.marginPct.toFixed(1)}%`}
               hint={financeSummary.marginPct >= 40 ? 'Untung masih bagus dibanding uang masuk.' : 'Biaya perlu dijaga supaya untung tidak turun.'}
-              accent={financeSummary.marginPct >= 40 ? 'var(--emerald)' : 'var(--terra)'}
+              accent={financeSummary.marginPct >= 40 ? 'var(--forest)' : 'var(--terra)'}
             />
             <SnapshotPill
               label="Biaya per Ton"
@@ -222,7 +222,7 @@ export function RevenueReconciliationPanel({ reconciliation }: { reconciliation:
           label="Total dari panen"
           value={fmtRpFull(panen_total)}
           hint="SUM total_pendapatan di catatan panen"
-          accent="var(--emerald)"
+          accent="var(--forest)"
         />
         <SnapshotPill
           label="Total pendapatan manual"
@@ -244,7 +244,7 @@ export function RankingSection({ ranking }: { ranking: FarmRanking[] }) {
           <h2 className="text-xl font-semibold text-ink">Perbandingan kebun</h2>
           <p className="mt-1 text-sm text-ink-3">Lihat kebun mana yang hasilnya paling baik dari sisi produksi dan hasil bersih.</p>
         </div>
-        <div className="rounded-full px-3 py-1 text-xs font-medium w-max border border-emerald-soft bg-emerald-tint text-emerald">
+        <div className="rounded-full px-3 py-1 text-xs font-medium w-max border border-forest-soft bg-forest-tint text-forest">
           {ranking.length} kebun sedang dihitung
         </div>
       </div>

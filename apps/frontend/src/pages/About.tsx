@@ -38,7 +38,7 @@ const teamPrinciples = [
   ['Tidak membuat bukti palsu', 'Kutipan bernama, foto petani, dan cerita pengguna hanya akan dipublikasikan setelah ada izin yang jelas.'],
 ]
 
-const inputClass = 'mt-2 w-full rounded-md-1 border border-line bg-surface px-4 py-3 text-sm text-ink outline-none transition placeholder:text-ink-4 focus:border-emerald'
+const inputClass = 'mt-2 w-full rounded-md-1 border border-line bg-surface px-4 py-3 text-sm text-ink outline-none transition placeholder:text-ink-4 focus:border-forest'
 
 export default function About() {
   const [form, setForm] = useState<ContactForm>(initialForm)
@@ -95,7 +95,7 @@ export default function About() {
     >
       <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="rounded-xl-1 border border-line bg-surface p-6 shadow-card-sm sm:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald">Kenapa SawitHub dibuat</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-forest">Kenapa SawitHub dibuat</p>
           <h2 className="mt-4 text-2xl font-semibold leading-tight text-ink sm:text-3xl">
             Banyak kebun kecil punya masalah besar: catatan tercecer dan untung bersih tidak jelas.
           </h2>
@@ -112,8 +112,8 @@ export default function About() {
             ))}
           </div>
 
-          <div className="mt-6 rounded-xl border border-emerald-soft bg-emerald-tint p-4">
-            <p className="text-sm font-semibold text-emerald">Posisi SawitHub</p>
+          <div className="mt-6 rounded-xl border border-forest-soft bg-forest-tint p-4">
+            <p className="text-sm font-semibold text-forest">Posisi SawitHub</p>
             <p className="mt-2 text-[15px] leading-7 text-ink-3">
               SawitHub bukan sistem estate yang rumit. SawitHub adalah buku catatan kebun sawit digital yang membantu petani mandiri mencatat panen, biaya, jadwal, dan untung bersih dari HP.
             </p>
@@ -131,7 +131,7 @@ export default function About() {
 
         <section id="kontak" className="rounded-xl-1 border border-line bg-surface p-6 shadow-card-sm sm:p-8">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald">Hubungi Kami</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-forest">Hubungi Kami</p>
             <h2 className="mt-4 text-2xl font-semibold text-ink sm:text-3xl">Kirim pesan ke tim SawitHub</h2>
             <p className="mt-3 text-[15px] leading-7 text-ink-3">
               Tulis kebutuhan, pertanyaan, atau masukan Anda. Kami membalas dalam 1–2 hari kerja melalui email yang Anda tulis.
@@ -198,7 +198,7 @@ export default function About() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="min-h-12 rounded-full bg-ink px-6 text-sm font-semibold text-paper transition hover:bg-emerald-2 disabled:cursor-not-allowed disabled:opacity-55"
+                className="min-h-12 rounded-full bg-ink px-6 text-sm font-semibold text-paper transition hover:bg-forest-3 disabled:cursor-not-allowed disabled:opacity-55"
               >
                 {submitting ? 'Mengirim...' : 'Kirim Pesan'}
               </button>
@@ -210,7 +210,7 @@ export default function About() {
       <section className="mt-8 rounded-xl-1 border border-line bg-surface p-6 shadow-card-sm sm:p-8">
         <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald">Siapa di balik SawitHub · Statement founder/tim</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-forest">Siapa di balik SawitHub · Statement founder/tim</p>
             <h2 className="mt-4 text-2xl font-semibold leading-tight text-ink sm:text-3xl">
               Kami ingin catatan kebun mandiri naik kelas tanpa membuat petani harus belajar sistem yang rumit.
             </h2>
@@ -232,10 +232,10 @@ export default function About() {
         </div>
       </section>
 
-      <section className="mt-8 rounded-xl-1 border border-emerald-soft bg-emerald-tint p-6 text-center sm:p-8">
+      <section className="mt-8 rounded-xl-1 border border-forest-soft bg-forest-tint p-6 text-center sm:p-8">
         <h2 className="text-2xl font-semibold text-ink">Ingin mencoba dari satu kebun dulu?</h2>
         <p className="mx-auto mt-3 max-w-2xl text-[15px] leading-7 text-ink-3">Mulai gratis 14 hari tanpa kartu kredit. Catat panen dan biaya pertama Anda dari HP.</p>
-        <Link to="/signup" className="mt-5 inline-flex min-h-12 items-center rounded-full bg-ink px-6 text-sm font-semibold text-paper transition hover:bg-emerald-2">
+        <Link to="/signup" className="mt-5 inline-flex min-h-12 items-center rounded-full bg-ink px-6 text-sm font-semibold text-paper transition hover:bg-forest-3">
           Coba Gratis 14 Hari
         </Link>
       </section>

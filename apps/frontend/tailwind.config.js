@@ -4,57 +4,81 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: {
-          DEFAULT: '#0d1f17',
-          2: '#1a2b22',
-          3: '#4a5b53',
-          4: '#7b8a83',
+        // ── Brand ──
+        forest: {
+          DEFAULT: '#1A3D2B',
+          2:       '#14301F',
+          3:       '#2D5A3D',
+          soft:    '#E7EEE8',
+          tint:    '#F1F6F1',
+        },
+        amber: {
+          DEFAULT: '#D4A827',
+          2:       '#B88E1F',
+          3:       '#E8C25F',
+          soft:    '#F7EED1',
+          tint:    '#FCF7E4',
+        },
+        terracotta: {
+          DEFAULT: '#B8542B',
+          2:       '#973F19',
+          soft:    '#F4DECF',
+        },
+        // ── Surfaces ──
+        cream: {
+          DEFAULT: '#F5F0E8',
+          2:       '#ECE4D2',
         },
         paper: {
-          DEFAULT: '#faf6ec',
-          2: '#f4eedf',
+          DEFAULT: '#FBF8F1',
+          2:       '#F8F3E6',
         },
-        surface: '#ffffff',
+        surface: '#FFFFFF',
+        // ── Ink ──
+        ink: {
+          DEFAULT: '#1A1F1A',
+          2:       '#2F3530',
+          3:       '#5A615A',
+          4:       '#8A8F86',
+          5:       '#B2B5AC',
+        },
+        // ── Lines ──
         line: {
-          DEFAULT: '#e7e2d4',
-          2: '#efeadd',
+          DEFAULT: '#DBD3BF',
+          2:       '#E8E0CB',
+          soft:    '#EFE9D9',
         },
-        emerald: {
-          DEFAULT: '#0a7847',
-          2: '#0f5e3a',
-          3: '#1a9959',
-          soft: '#e6f3eb',
-          tint: '#f1f8f3',
-        },
-        terra: {
-          DEFAULT: '#d96a2c',
-          2: '#b84e1a',
-          soft: '#fbe9dc',
-        },
+        // ── Categorical ──
         cat: {
-          1: '#0a7847',
-          2: '#d96a2c',
-          3: '#d4a017',
-          4: '#1c8e8a',
-          5: '#7d3a6b',
-          6: '#5e8a52',
+          leaf:  '#2D5A3D',
+          amber: '#D4A827',
+          terra: '#B8542B',
+          bark:  '#6B4F2C',
+          sky:   '#4A7A8C',
+          clay:  '#C77E5C',
         },
       },
       fontFamily: {
-        sans:    ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-        display: ['"Bricolage Grotesque"', '"Plus Jakarta Sans"', 'sans-serif'],
-        mono:    ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        display: ['"Fraunces"', '"Iowan Old Style"', 'Georgia', 'serif'],
+        sans:    ['"DM Sans"', '"Inter"', 'system-ui', 'sans-serif'],
+        mono:    ['"JetBrains Mono"', '"IBM Plex Mono"', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
-        'sm-1': '10px',
-        'md-1': '14px',
-        'lg-1': '20px',
-        'xl-1': '28px',
+        'xs-1':  '6px',
+        'sm-1':  '10px',
+        'md-1':  '14px',
+        'lg-1':  '20px',
+        'xl-1':  '28px',
+        '2xl-1': '36px',
       },
       boxShadow: {
-        card:    '0 4px 14px -6px rgba(13,31,23,.08), 0 1px 0 rgba(13,31,23,.04)',
-        'card-sm': '0 1px 0 rgba(13,31,23,.04), 0 1px 2px rgba(13,31,23,.04)',
-        'card-lg': '0 24px 48px -24px rgba(13,31,23,.18), 0 8px 24px -16px rgba(13,31,23,.08)',
+        'sh-card':   '0 1px 0 rgba(74,56,22,.04), 0 1px 3px rgba(74,56,22,.04)',
+        'sh-card-2': '0 2px 0 rgba(74,56,22,.03), 0 10px 28px -16px rgba(45,41,22,.14)',
+        'sh-card-3': '0 6px 0 rgba(74,56,22,.02), 0 28px 60px -24px rgba(26,31,26,.22), 0 8px 24px -16px rgba(26,31,26,.10)',
+        // legacy aliases
+        card:    '0 1px 0 rgba(74,56,22,.04), 0 1px 3px rgba(74,56,22,.04)',
+        'card-sm': '0 1px 0 rgba(74,56,22,.04), 0 1px 3px rgba(74,56,22,.04)',
+        'card-lg': '0 6px 0 rgba(74,56,22,.02), 0 28px 60px -24px rgba(26,31,26,.22), 0 8px 24px -16px rgba(26,31,26,.10)',
       },
     },
   },

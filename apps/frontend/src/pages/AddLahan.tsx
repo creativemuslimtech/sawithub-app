@@ -10,7 +10,7 @@ import { getSubscriptionGateMessage, isSubscriptionRequiredError } from '../util
 import { trackEvent, GAEvents } from '../utils/analytics'
 import { lahanSchema, type LahanInput } from '../schemas/lahan'
 
-const INP = 'w-full px-4 py-3 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-emerald transition'
+const INP = 'w-full px-4 py-3 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-forest transition'
 const LBL_CLS = 'block text-xs font-medium uppercase tracking-wide mb-1.5'
 const LBL_ST = { color: 'var(--ink-3)' }
 const ERR_CLS = 'mt-1 text-xs text-red-400'

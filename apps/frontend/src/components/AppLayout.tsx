@@ -1,26 +1,36 @@
 import type { ReactNode } from 'react'
-import AppTopNav from './AppTopNav'
+import Sidebar from './Sidebar'
 import BottomNav from './BottomNav'
 import MobileMoreNav from './MobileMoreNav'
+import AppTopNav from './AppTopNav'
 
 type AppLayoutProps = {
-  /** @deprecated topbar prop ignored — AppTopNav is always rendered */
+  /** @deprecated topbar prop ignored */
   topbar?: ReactNode
   children: ReactNode
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className="min-h-screen bg-paper font-sans">
+    <div className="min-h-screen" style={{ background: 'var(--cream)', position: 'relative' }}>
+      <div className="sh-grain" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }} />
+
+      {/* Desktop sidebar */}
+      <Sidebar />
+
+      {/* Mobile topnav (hidden on md+) */}
       <AppTopNav />
       <MobileMoreNav />
-      <BottomNav />
 
+      {/* Content */}
       <div className="app-content">
-        <main className="flex min-h-[calc(100vh-var(--shell-topnav-height))] flex-col">
+        <main className="flex min-h-screen flex-col">
           {children}
         </main>
       </div>
+
+      {/* Mobile bottom nav */}
+      <BottomNav />
     </div>
   )
 }

@@ -16,7 +16,7 @@ interface ThemeConfig {
 }
 
 const DEFAULTS: ThemeConfig = {
-  primary_color: '#16a34a',
+  primary_color: 'var(--forest)',
   secondary_color: '#059669',
   background_color: '#0f0f23',
 }

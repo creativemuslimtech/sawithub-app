@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import api from '../api/client'
 import toast from 'react-hot-toast'
 import AppLayout from '../components/AppLayout'
+import AppTopbar from '../components/AppTopbar'
+import { PlusIcon } from '../components/ds/icons'
 
 interface ScheduleItem {
   id_jadwal?: string
@@ -216,25 +218,20 @@ export default function JadwalPerawatan() {
 
   return (
     <AppLayout>
-      <div className="px-7 py-7 pb-12">
-        {/* Page header */}
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="eyebrow mb-2">Jadwal</p>
-            <h1 className="display text-4xl font-bold text-ink" style={{ letterSpacing: '-0.025em' }}>Kalender Perawatan</h1>
-            <p className="mt-2 text-sm text-ink-3 max-w-xl">
-              Atur jadwal pupuk, semprot, pruning, dan jadwal kerja lain. Jadwal yang dekat akan muncul di ringkasan kebun.
-            </p>
-          </div>
-          <div className="flex gap-2 shrink-0">
-            <Link
-              to="/jadwal-perawatan/add"
-              className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-paper hover:opacity-90 transition-opacity"
-            >
-              + Buat Jadwal
-            </Link>
-          </div>
-        </div>
+      <AppTopbar
+        title="Kalender Perawatan"
+        subtitle="Jadwal"
+        actions={
+          <Link
+            to="/jadwal-perawatan/add"
+            className="sh-btn sh-btn-primary sh-btn-sm"
+            style={{ borderRadius: 999, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <PlusIcon size={14} /> Buat Jadwal
+          </Link>
+        }
+      />
+      <div style={{ padding: '32px 36px 48px' }}>
 
         {/* Preset rotation cards */}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 mb-5">
@@ -251,7 +248,7 @@ export default function JadwalPerawatan() {
                       <path d="M12 2v20M2 12h20" />
                     </svg>
                   </div>
-                  <p className="eyebrow text-[10px]">{preset.label}</p>
+                  <p className="sh-eyebrow text-[10px]">{preset.label}</p>
                 </div>
                 <p className="display text-base font-bold text-ink" style={{ letterSpacing: '-0.015em' }}>{preset.name}</p>
                 <p className="text-xs mt-2" style={{ color: 'var(--ink-3)' }}>
@@ -302,7 +299,7 @@ export default function JadwalPerawatan() {
                 <div
                   key={d}
                   className="text-center py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em]"
-                  style={{ color: i >= 5 ? 'var(--terra-2)' : 'var(--ink-4)' }}
+                  style={{ color: i >= 5 ? 'var(--terracotta-2)' : 'var(--ink-4)' }}
                 >
                   {d}
                 </div>
@@ -322,22 +319,22 @@ export default function JadwalPerawatan() {
                     key={idx}
                     className="rounded-xl border p-2 min-h-[72px]"
                     style={{
-                      borderColor: isToday ? 'var(--emerald)' : 'var(--line)',
-                      background: isToday ? 'var(--emerald-soft)' : cell.currentMonth ? 'white' : 'var(--paper)',
+                      borderColor: isToday ? 'var(--forest)' : 'var(--line)',
+                      background: isToday ? 'var(--forest-soft)' : cell.currentMonth ? 'white' : 'var(--paper)',
                       opacity: cell.currentMonth ? 1 : 0.4,
                     }}
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <span
                         className="num text-[13px] font-bold"
-                        style={{ color: isToday ? 'var(--emerald-2)' : 'var(--ink)' }}
+                        style={{ color: isToday ? 'var(--forest-3)' : 'var(--ink)' }}
                       >
                         {cell.day}
                       </span>
                       {isToday && (
                         <span
                           className="text-[9px] font-bold text-white px-1 rounded-full"
-                          style={{ background: 'var(--emerald)', letterSpacing: '0.06em' }}
+                          style={{ background: 'var(--forest)', letterSpacing: '0.06em' }}
                         >
                           TODAY
                         </span>
@@ -368,7 +365,7 @@ export default function JadwalPerawatan() {
           <div className="flex flex-col gap-4">
             {/* Upcoming */}
             <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-5">
-              <p className="eyebrow mb-1">Akan datang</p>
+              <p className="sh-eyebrow mb-1">Akan datang</p>
               <h3 className="display text-lg font-bold text-ink mt-1 mb-4">Jadwal terdekat</h3>
               {loading ? (
                 <div className="space-y-2">
@@ -377,7 +374,7 @@ export default function JadwalPerawatan() {
               ) : upcoming.length === 0 ? (
                 <div className="py-8 text-center">
                   <p className="text-sm text-ink-4">Belum ada jadwal.</p>
-                  <Link to="/jadwal-perawatan/add" className="mt-2 inline-flex text-sm font-semibold" style={{ color: 'var(--emerald-2)' }}>+ Buat jadwal →</Link>
+                  <Link to="/jadwal-perawatan/add" className="mt-2 inline-flex text-sm font-semibold" style={{ color: 'var(--forest-3)' }}>+ Buat jadwal →</Link>
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
@@ -409,7 +406,7 @@ export default function JadwalPerawatan() {
               <div className="flex gap-3 items-start">
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: 'var(--terra)' }}
+                  style={{ background: 'var(--terracotta)' }}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.11 15 19.79 19.79 0 0 1 1.07 6.36a2 2 0 0 1 1.99-2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 12a16 16 0 0 0 6 6l.73-.81a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
@@ -423,7 +420,7 @@ export default function JadwalPerawatan() {
                   <Link
                     to="/jadwal-perawatan/add"
                     className="mt-2 inline-flex items-center gap-1 text-xs font-bold"
-                    style={{ color: 'var(--terra)' }}
+                    style={{ color: 'var(--terracotta)' }}
                   >
                     Buat jadwal baru →
                   </Link>

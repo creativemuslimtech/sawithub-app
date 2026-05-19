@@ -6,6 +6,8 @@ import {
 import api from '../api/client'
 import toast from 'react-hot-toast'
 import AppLayout from '../components/AppLayout'
+import AppTopbar from '../components/AppTopbar'
+import { PlusIcon } from '../components/ds/icons'
 import type { PerawatanRow, Lahan } from '../types'
 import { formatRupiahDisplay } from '../utils/rupiah'
 
@@ -125,25 +127,20 @@ export default function Perawatan() {
 
   return (
     <AppLayout>
-      <div className="px-7 py-7 pb-12">
-        {/* Page header */}
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="eyebrow mb-2">Catat Rawat</p>
-            <h1 className="display text-4xl font-bold text-ink" style={{ letterSpacing: '-0.025em' }}>Perawatan Kebun</h1>
-            <p className="mt-2 text-sm text-ink-3 max-w-xl">
-              Pupuk, semprot, pruning, dan pekerjaan kebun lainnya — pisahkan biaya bahan dan tenaga kerja agar laporan jelas.
-            </p>
-          </div>
-          <div className="flex gap-2 shrink-0">
-            <Link
-              to="/perawatan/add"
-              className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-paper hover:opacity-90 transition-opacity"
-            >
-              + Catat Perawatan
-            </Link>
-          </div>
-        </div>
+      <AppTopbar
+        title="Perawatan Kebun"
+        subtitle="Catat Rawat"
+        actions={
+          <Link
+            to="/perawatan/add"
+            className="sh-btn sh-btn-primary sh-btn-sm"
+            style={{ borderRadius: 999, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <PlusIcon size={14} /> Catat Perawatan
+          </Link>
+        }
+      />
+      <div style={{ padding: '32px 36px 48px' }}>
 
         {/* KPI cards */}
         {!loading && (
@@ -156,7 +153,7 @@ export default function Perawatan() {
             ].map(({ label, value, sub, accent, data, stroke, fill }) => (
               <div key={label} className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-5"
                 style={{ borderTop: `3px solid ${accent}` }}>
-                <p className="eyebrow mb-1">{label}</p>
+                <p className="sh-eyebrow mb-1">{label}</p>
                 <p className="num text-2xl font-bold text-ink mt-1" style={{ letterSpacing: '-0.02em' }}>{value}</p>
                 <p className="text-xs text-ink-4 mt-0.5">{sub}</p>
                 {data.length > 1 && (
@@ -202,7 +199,7 @@ export default function Perawatan() {
               ) : sorted.length === 0 ? (
                 <div className="py-16 text-center">
                   <p className="text-sm text-ink-4">Belum ada data perawatan.</p>
-                  <Link to="/perawatan/add" className="mt-3 inline-flex text-sm font-semibold" style={{ color: 'var(--terra-2)' }}>+ Catat perawatan pertama →</Link>
+                  <Link to="/perawatan/add" className="mt-3 inline-flex text-sm font-semibold" style={{ color: 'var(--terracotta-2)' }}>+ Catat perawatan pertama →</Link>
                 </div>
               ) : (
                 <div className="relative">
@@ -242,7 +239,7 @@ export default function Perawatan() {
               {sorted.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-line flex justify-between items-center text-xs text-ink-3">
                   <span>{sorted.length} catatan perawatan</span>
-                  <Link to="/perawatan/add" className="font-semibold" style={{ color: 'var(--terra-2)' }}>+ Catat perawatan baru →</Link>
+                  <Link to="/perawatan/add" className="font-semibold" style={{ color: 'var(--terracotta-2)' }}>+ Catat perawatan baru →</Link>
                 </div>
               )}
             </div>
@@ -252,7 +249,7 @@ export default function Perawatan() {
           <div className="lg:col-span-2 flex flex-col gap-4">
             {/* Category breakdown */}
             <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-6">
-              <p className="eyebrow mb-1">Biaya per jenis</p>
+              <p className="sh-eyebrow mb-1">Biaya per jenis</p>
               <h3 className="display text-xl font-bold text-ink mt-1 mb-5">Komposisi rawat</h3>
               {loading ? (
                 <div className="space-y-3">
@@ -294,14 +291,14 @@ export default function Perawatan() {
               <div className="flex gap-3 items-start">
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                  style={{ background: 'var(--terra)' }}
+                  style={{ background: 'var(--terracotta)' }}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-bold" style={{ color: 'var(--terra-2)' }}>Saran AI</p>
+                  <p className="text-sm font-bold" style={{ color: 'var(--terracotta-2)' }}>Saran AI</p>
                   <p className="text-sm leading-relaxed mt-1" style={{ color: 'var(--ink-2)' }}>
                     Bandingkan biaya rawat per hektare dengan hasil panen untuk melihat efisiensi kebun.
                     Cek <strong>Kalkulator Pupuk</strong> untuk hitung ulang dosis sesuai umur tanaman.
@@ -309,7 +306,7 @@ export default function Perawatan() {
                   <Link
                     to="/kalkulator-pupuk"
                     className="mt-2 inline-flex items-center gap-1 text-xs font-bold"
-                    style={{ color: 'var(--terra-2)' }}
+                    style={{ color: 'var(--terracotta-2)' }}
                   >
                     Buka kalkulator →
                   </Link>
@@ -322,7 +319,7 @@ export default function Perawatan() {
               className="rounded-lg-1 p-5"
               style={{ background: 'var(--paper)', border: '1px solid var(--line)' }}
             >
-              <p className="eyebrow mb-1">Tambah catatan baru</p>
+              <p className="sh-eyebrow mb-1">Tambah catatan baru</p>
               <p className="text-sm text-ink-3 mt-1 mb-4 leading-relaxed">
                 Catat pupuk, semprot, pruning, atau pekerjaan lainnya lengkap dengan bahan dan tenaga kerja.
               </p>

@@ -179,7 +179,7 @@ export default function AdminUsers() {
 
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           <AdminMetricCard label="Total Akun" value={total.toLocaleString('id-ID')} hint="seluruh akun terdaftar" accent="#06b6d4" icon="👥" />
-          <AdminMetricCard label="Akun Aktif" value={activeTotal.toLocaleString('id-ID')} hint={`${activePct.toFixed(1)}% dari total akun`} accent="#22c55e" icon="✅" />
+          <AdminMetricCard label="Akun Aktif" value={activeTotal.toLocaleString('id-ID')} hint={`${activePct.toFixed(1)}% dari total akun`} accent="var(--forest)" icon="✅" />
           <AdminMetricCard label="Online" value={onlineTotal.toLocaleString('id-ID')} hint={`${onlinePct.toFixed(1)}% sedang aktif sekarang`} accent="#84cc16" icon="●" />
           <AdminMetricCard label="Nonaktif" value={inactiveTotal.toLocaleString('id-ID')} hint={`${inactivePct.toFixed(1)}% perlu tinjauan`} accent="#f87171" icon="!" />
         </div>

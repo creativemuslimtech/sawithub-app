@@ -6,9 +6,10 @@ type CardProps = HTMLAttributes<HTMLElement> & {
   children: ReactNode
   as?: 'article' | 'section' | 'div' | 'aside'
   elevated?: boolean
+  padded?: boolean
 }
 
-export function Card({ children, as: Component = 'div', elevated = false, className = '', ...props }: CardProps) {
+export function Card({ children, as: Component = 'div', elevated = false, padded: _padded, className = '', ...props }: CardProps) {
   return (
     <Component
       className={`bg-surface border border-line rounded-lg-1 ${elevated ? 'shadow-card-lg' : 'shadow-card-sm'} ${className}`.trim()}
@@ -31,7 +32,7 @@ type KPICardProps = {
   className?: string
 }
 
-export function KPICard({ label, value, sub, delta, accentColor = 'var(--emerald)', sparkline, className = '' }: KPICardProps) {
+export function KPICard({ label, value, sub, delta, accentColor = 'var(--forest)', sparkline, className = '' }: KPICardProps) {
   return (
     <div
       className={`bg-surface border border-line rounded-lg-1 shadow-card-sm overflow-hidden flex flex-col ${className}`}
@@ -44,8 +45,8 @@ export function KPICard({ label, value, sub, delta, accentColor = 'var(--emerald
             <span
               className="inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-600 shrink-0"
               style={{
-                background: delta.positive ? 'var(--emerald-soft)' : 'var(--terra-soft)',
-                color: delta.positive ? 'var(--emerald-2)' : 'var(--terra-2)',
+                background: delta.positive ? 'var(--forest-soft)' : 'var(--terra-soft)',
+                color: delta.positive ? 'var(--forest-3)' : 'var(--terra-2)',
               }}
             >
               {delta.positive ? '↑' : '↓'} {delta.value}
@@ -62,11 +63,11 @@ export function KPICard({ label, value, sub, delta, accentColor = 'var(--emerald
 
 /* ── Chip ────────────────────────────────────────────────────────── */
 
-type ChipVariant = 'default' | 'emerald' | 'terra' | 'warn' | 'cat1' | 'cat2' | 'cat3' | 'cat4' | 'cat5' | 'cat6'
+type ChipVariant = 'default' | 'forest' | 'terra' | 'warn' | 'cat1' | 'cat2' | 'cat3' | 'cat4' | 'cat5' | 'cat6'
 
 const chipStyles: Record<ChipVariant, string> = {
   default:  'bg-surface border-line text-ink-3',
-  emerald:  'bg-emerald-soft border-transparent text-emerald-2',
+  forest:  'bg-forest-soft border-transparent text-forest-3',
   terra:    'bg-terra-soft border-transparent text-terra-2',
   warn:     'bg-[#fff7e0] border-transparent text-[#92600a]',
   cat1:     'bg-cat-1 border-transparent text-white',
@@ -101,14 +102,14 @@ export function StatPill({ label, value, accentColor, className = '' }: { label:
 
 /* ── Button ──────────────────────────────────────────────────────── */
 
-type BtnVariant = 'primary' | 'emerald' | 'ghost' | 'terra'
+type BtnVariant = 'primary' | 'forest' | 'ghost' | 'terra'
 type BtnSize    = 'sm' | 'md' | 'lg'
 
 const btnBase = 'inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-55 disabled:cursor-not-allowed active:scale-[0.98]'
 
 const btnVariantStyles: Record<BtnVariant, string> = {
-  primary: 'bg-ink text-paper hover:bg-emerald-2 focus-visible:outline-ink',
-  emerald: 'bg-emerald text-white hover:bg-emerald-2 focus-visible:outline-emerald',
+  primary: 'bg-ink text-paper hover:bg-forest-3 focus-visible:outline-ink',
+  forest: 'bg-forest text-paper hover:bg-forest-3 focus-visible:outline-forest',
   ghost:   'bg-transparent border border-line text-ink hover:bg-paper-2 focus-visible:outline-ink',
   terra:   'bg-terra text-white hover:bg-terra-2 focus-visible:outline-terra',
 }
@@ -168,7 +169,7 @@ type EmptyStateProps = HTMLAttributes<HTMLDivElement> & {
 
 function DefaultEmptyIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-6 w-6 text-emerald" fill="none" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className="h-6 w-6 text-forest" fill="none" aria-hidden="true">
       <path d="M4 20c0-9 7-16 16-16 0 9-7 16-16 16Zm0 0L20 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
@@ -197,7 +198,7 @@ export function AddTile({ label, sub, onClick, className = '' }: { label: string
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full flex-col items-center justify-center gap-3 rounded-lg-1 border-2 border-dashed border-line bg-surface p-8 text-center cursor-pointer hover:border-emerald hover:bg-emerald-tint transition-colors duration-150 ${className}`.trim()}
+      className={`flex w-full flex-col items-center justify-center gap-3 rounded-lg-1 border-2 border-dashed border-line bg-surface p-8 text-center cursor-pointer hover:border-forest hover:bg-forest-tint transition-colors duration-150 ${className}`.trim()}
     >
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-paper-2">
         <svg viewBox="0 0 24 24" className="h-6 w-6 text-ink-3" fill="none" aria-hidden="true">
@@ -243,7 +244,7 @@ export function FormInput({ id, label, error, hint, rightLabel, leftIcon, rightI
           aria-describedby={hint ? `${id}-hint` : error ? `${id}-err` : undefined}
           className={[
             'w-full rounded-md-1 border border-line bg-surface px-3.5 py-3.5 text-sm text-ink placeholder:text-ink-4 transition-colors duration-150',
-            'focus:border-emerald focus:outline-none',
+            'focus:border-forest focus:outline-none',
             error ? 'border-terra-2' : '',
             leftIcon ? 'pl-10' : '',
             rightIcon ? 'pr-10' : '',
@@ -280,7 +281,7 @@ export function FormSelect({ id, label, error, children, className = '', ...prop
         id={id}
         aria-invalid={Boolean(error)}
         className={[
-          'w-full rounded-md-1 border border-line bg-surface px-3.5 py-3.5 text-sm text-ink appearance-none transition-colors duration-150 focus:border-emerald focus:outline-none',
+          'w-full rounded-md-1 border border-line bg-surface px-3.5 py-3.5 text-sm text-ink appearance-none transition-colors duration-150 focus:border-forest focus:outline-none',
           error ? 'border-terra-2' : '',
           className,
         ].filter(Boolean).join(' ')}
@@ -309,7 +310,7 @@ export function FormTextarea({ id, label, error, className = '', ...props }: For
         id={id}
         aria-invalid={Boolean(error)}
         className={[
-          'w-full rounded-md-1 border border-line bg-surface px-3.5 py-3.5 text-sm text-ink placeholder:text-ink-4 transition-colors resize-none focus:border-emerald focus:outline-none',
+          'w-full rounded-md-1 border border-line bg-surface px-3.5 py-3.5 text-sm text-ink placeholder:text-ink-4 transition-colors resize-none focus:border-forest focus:outline-none',
           error ? 'border-terra-2' : '',
           className,
         ].filter(Boolean).join(' ')}

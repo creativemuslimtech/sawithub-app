@@ -50,7 +50,7 @@ export default function SubscriptionGateSheet({ open, onClose, message, surface 
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-200/90">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-forest-3">
           Langganan diperlukan
         </p>
         <h2 id="subscription-gate-title" className="mt-2 text-xl font-semibold text-white">

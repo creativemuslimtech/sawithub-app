@@ -1,143 +1,146 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { shellSidebarBrandClass } from '../constants/appShellChrome'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Logo from './Logo'
-import { APP_NAV_ITEMS, KEUANGAN_NAV_LINKS } from './appNavigation'
+import { useFarm } from '../context/useFarm'
+import { useAuth } from '../context/useAuth'
+import Card from './ds/Card'
+import SeedSprout from './ds/botanical/SeedSprout'
+import Chip from './ds/Chip'
+import {
+  HomeIcon, LeafIcon, BasketIcon, SprayIcon, CalIcon,
+  MoneyIcon, ChartIcon, CalcIcon, StarIcon, UserIcon, MoreIcon,
+} from './ds/icons'
 
-function Chevron({ open }: { open: boolean }) {
-  return (
-    <svg
-      className={`shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
-    >
-      <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
+const NAV_ITEMS = [
+  { k: 'dashboard',   icon: HomeIcon,    label: 'Ringkasan',        to: '/dashboard' },
+  { k: 'lahan',       icon: LeafIcon,    label: 'Lahan & Kebun',    to: '/lahan' },
+  { k: 'panen',       icon: BasketIcon,  label: 'Panen',            to: '/panen' },
+  { k: 'perawatan',   icon: SprayIcon,   label: 'Perawatan',        to: '/perawatan' },
+  { k: 'jadwal',      icon: CalIcon,     label: 'Jadwal',           to: '/jadwal-perawatan' },
+  { k: 'pendapatan',  icon: MoneyIcon,   label: 'Pendapatan',       to: '/pendapatan' },
+  { k: 'laporan',     icon: ChartIcon,   label: 'Laporan Keuangan', to: '/laporan-keuangan' },
+  { k: 'kalkulator',  icon: CalcIcon,    label: 'Kalkulator Pupuk', to: '/kalkulator-pupuk' },
+  { k: 'harga',       icon: StarIcon,    label: 'Harga TBS',        to: '/harga-tbs' },
+]
+
+function isActive(pathname: string, to: string) {
+  if (to === '/dashboard') return pathname === to
+  return pathname.startsWith(to)
 }
 
 export default function Sidebar() {
   const { pathname } = useLocation()
-  const [financeOpen, setFinanceOpen] = useState(true)
+  const { user, logout } = useAuth()
+  const { lahans, activeFarmId } = useFarm()
+  const navigate = useNavigate()
 
-  const financeHasActive = KEUANGAN_NAV_LINKS.some(
-    (item) => pathname === item.to || (item.to !== '/keuangan' && pathname.startsWith(item.to)),
-  )
+  const activeFarm = lahans.find(l => String(l.id_lahan) === activeFarmId) ?? lahans[0]
+  const farmName = activeFarm?.nama_kebun ?? 'Kebun Saya'
+  const totalHa = lahans.reduce((s, l) => s + (l.luas_ha ?? 0), 0)
+
+  const displayName = user?.full_name?.trim() || user?.username || user?.email || 'Pengguna'
+  const letter = displayName.charAt(0).toUpperCase()
 
   return (
-    <div
+    <aside
       className="app-sidebar hidden md:flex fixed inset-y-0 left-0 z-30 flex-col overflow-hidden"
       style={{
         width: 'var(--shell-sidebar-width)',
-        background: 'linear-gradient(180deg, rgba(5,8,12,0.98) 0%, rgba(10,6,20,0.98) 52%, rgba(7,16,12,0.98) 100%)',
-        borderRight: '1px solid rgba(255,255,255,0.07)',
-        backdropFilter: 'blur(18px)',
-        boxShadow: '24px 0 60px rgba(0,0,0,0.24)',
+        background: 'var(--paper)',
+        borderRight: '1px solid var(--line-2)',
       }}
     >
-      <div className="flex h-14 shrink-0 items-center border-b border-white/7 px-3 min-[1100px]:px-4">
-        <Link
-          to="/dashboard"
-          className={shellSidebarBrandClass}
-        >
-          <Logo size="sm" showText={false} className="justify-center min-[1100px]:hidden" />
-          <Logo size="sm" className="hidden min-[1100px]:flex min-[1100px]:justify-start" />
+      {/* Logo */}
+      <div style={{ padding: '24px 24px 0' }}>
+        <Link to="/dashboard" aria-label="Ke beranda">
+          <Logo size="sm" />
         </Link>
       </div>
 
-      <div className="hidden px-4 pt-4 min-[1100px]:block">
-        <p className="text-[11px] uppercase tracking-[0.22em]" style={{ color: 'rgba(255,255,255,0.28)' }}>Navigasi</p>
+      {/* Farm switcher */}
+      <div style={{ padding: '16px 16px 0' }}>
+        <button style={{
+          padding: '12px 14px', borderRadius: 12,
+          background: 'var(--cream)', border: '1px solid var(--line)',
+          display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
+          textAlign: 'left', width: '100%',
+        }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--forest)', color: 'var(--paper)', display: 'grid', placeItems: 'center', fontFamily: 'var(--f-display)', fontWeight: 500, fontStyle: 'italic', fontSize: 16 }}>
+            {letter}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{farmName}</div>
+            <div style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 1 }}>
+              {lahans.length} kebun · {totalHa > 0 ? `${totalHa.toFixed(1)} ha` : '—'}
+            </div>
+          </div>
+          <span style={{ color: 'var(--ink-4)', fontSize: 14 }}>↕</span>
+        </button>
       </div>
 
-      <nav className="mt-3 flex-1 space-y-2 overflow-y-auto px-3 pb-3">
-        {APP_NAV_ITEMS.map((item) => {
-          const active = pathname === item.to || (item.to !== '/dashboard' && pathname.startsWith(item.to))
-          const Icon = item.icon
+      {/* Nav items */}
+      <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {NAV_ITEMS.map(({ k, icon: Icon, label, to }) => {
+          const active = isActive(pathname, to)
           return (
             <Link
-              key={item.to}
-              to={item.to}
-              className="w-full rounded-xl transition font-medium block"
-              title={item.label}
+              key={k}
+              to={to}
               style={{
-                background: active ? `rgba(34,197,94,0.12)` : 'transparent',
-                border: active ? '1px solid rgba(34,197,94,0.28)' : '1px solid transparent',
-                color: active ? '#4ade80' : 'rgba(255,255,255,0.60)',
-              }}
-              onMouseOver={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.88)'
-                }
-              }}
-              onMouseOut={(e) => {
-                if (!active) {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.color = 'rgba(255,255,255,0.60)'
-                }
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '10px 12px', borderRadius: 10,
+                fontSize: 13.5, fontWeight: 500,
+                color: active ? 'var(--forest)' : 'var(--ink-2)',
+                background: active ? 'var(--forest-soft)' : 'transparent',
+                textDecoration: 'none',
+                position: 'relative',
               }}
             >
-              <div className="flex items-center justify-center gap-3 px-3 py-2.5 min-[1100px]:justify-start">
-                <div
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-                  style={{ color: active ? '#4ade80' : 'rgba(255,255,255,0.55)' }}
-                >
-                  <Icon color="currentColor" size={18} />
-                </div>
-                <div className="hidden min-w-0 flex-1 min-[1100px]:block">
-                  <div className="text-sm font-medium truncate">{item.label}</div>
-                </div>
-                <span className="text-[10px] font-medium min-[1100px]:hidden leading-tight text-center max-w-[52px] truncate">{item.shortLabel}</span>
-              </div>
+              {active && (
+                <div style={{ position: 'absolute', left: -16, top: 8, bottom: 8, width: 3, background: 'var(--forest)', borderRadius: '0 2px 2px 0' }} />
+              )}
+              <span style={{ color: active ? 'var(--forest)' : 'var(--ink-4)' }}>
+                <Icon size={17} />
+              </span>
+              {label}
             </Link>
           )
         })}
-
-        <div className="pt-2">
-          <button
-            type="button"
-            className="flex w-full items-center justify-between rounded-xl px-2 py-2 text-left text-[11px] font-semibold uppercase tracking-[0.18em]"
-            style={{
-              color: financeHasActive ? 'rgba(52,211,153,0.95)' : 'rgba(255,255,255,0.35)',
-              border: financeHasActive ? '1px solid rgba(52,211,153,0.28)' : '1px solid rgba(255,255,255,0.06)',
-              background: financeHasActive ? 'rgba(52,211,153,0.08)' : 'rgba(255,255,255,0.03)',
-            }}
-            aria-expanded={financeOpen}
-            onClick={() => setFinanceOpen((v) => !v)}
-          >
-            Keuangan
-            <Chevron open={financeOpen} />
-          </button>
-
-          {financeOpen ? (
-            <div className="mt-2 space-y-1.5 pl-1">
-              {KEUANGAN_NAV_LINKS.map((item) => {
-                const active = pathname === item.to || (item.to !== '/keuangan' && pathname.startsWith(item.to))
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    className="block rounded-xl px-3 py-2.5 text-sm font-medium transition"
-                    style={{
-                      background: active ? `${item.accent}18` : 'transparent',
-                      border: active ? `1px solid ${item.accent}40` : '1px solid transparent',
-                      color: active ? item.accent : 'rgba(226,232,240,0.72)',
-                    }}
-                  >
-                    <span className="block truncate">{item.label}</span>
-                    <span className="block truncate text-[11px] font-normal" style={{ color: 'rgba(255,255,255,0.38)' }}>
-                      {item.note}
-                    </span>
-                  </Link>
-                )
-              })}
-            </div>
-          ) : null}
-        </div>
       </nav>
-    </div>
+
+      {/* Bottom: trial card + user */}
+      <div style={{ padding: '0 16px 16px' }}>
+        <Card style={{ padding: 16, background: 'var(--cream)', position: 'relative', overflow: 'hidden' }}>
+          <SeedSprout size={56} style={{ position: 'absolute', right: -6, bottom: -6, color: 'var(--forest)', opacity: 0.18 }} />
+          <Chip tone="amber" style={{ marginBottom: 8 }}>Trial</Chip>
+          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)', marginBottom: 4 }}>Coba gratis 14 hari</div>
+          <div style={{ fontSize: 11, color: 'var(--ink-3)', marginBottom: 10, lineHeight: 1.5 }}>Lanjutkan ke Petani Pro untuk akses penuh.</div>
+          <Link
+            to="/subscription"
+            style={{ display: 'block', width: '100%', padding: '8px 0', borderRadius: 8, background: 'var(--forest)', color: 'var(--paper)', fontSize: 12, fontWeight: 600, border: 0, cursor: 'pointer', textAlign: 'center', textDecoration: 'none' }}
+          >
+            Tingkatkan
+          </Link>
+        </Card>
+
+        <div style={{ marginTop: 12, padding: '10px 8px', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 99, background: 'var(--amber-soft)', color: 'var(--amber-2)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
+            <UserIcon size={16} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</div>
+            <div style={{ fontSize: 10.5, color: 'var(--ink-4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {user?.email ?? ''}
+            </div>
+          </div>
+          <button
+            onClick={() => { logout(); navigate('/login') }}
+            style={{ background: 'none', border: 0, padding: 4, cursor: 'pointer', color: 'var(--ink-4)', borderRadius: 6 }}
+            title="Keluar"
+          >
+            <MoreIcon size={16} />
+          </button>
+        </div>
+      </div>
+    </aside>
   )
 }

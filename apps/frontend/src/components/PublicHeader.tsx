@@ -16,7 +16,7 @@ export default function PublicHeader({ className = '', bordered = false, rightSl
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
         <Link
           to="/"
-          className="rounded-lg outline-none transition focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+          className="rounded-lg outline-none transition focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
           aria-label="Kembali ke halaman utama SawitHub"
         >
           <Logo size="md" />

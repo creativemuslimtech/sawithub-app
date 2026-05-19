@@ -8,6 +8,8 @@ import Logo from './Logo'
 const PAGE_LABELS: Record<string, string> = {
   '/admin': 'Overview',
   '/admin/users': 'Pengguna',
+  '/admin/revenue': 'Revenue',
+  '/admin/apps': 'Apps',
   '/admin/data': 'Data',
   '/admin/analytics': 'Analytics',
   '/admin/monitoring': 'Monitor',
@@ -32,7 +34,7 @@ export default function AdminLayout({ children, topbarRight, maxWidth = 'max-w-[
   return (
     <div
       className="min-h-screen overflow-x-hidden"
-      style={{ background: 'linear-gradient(145deg, #080412 0%, #0b1711 54%, #090b10 100%)' }}
+      style={{ background: 'var(--cream)' }}
     >
       <AdminSidebar />
 
@@ -42,9 +44,9 @@ export default function AdminLayout({ children, topbarRight, maxWidth = 'max-w-[
         <header
           className="sticky top-0 z-20 border-b"
           style={{
-            background: 'rgba(5,8,12,0.9)',
-            borderColor: 'rgba(255,255,255,0.07)',
-            backdropFilter: 'blur(18px)',
+            background: 'rgba(245, 240, 232, 0.7)',
+            borderColor: 'var(--line-2)',
+            backdropFilter: 'blur(10px)',
           }}
         >
           <div className="flex w-full items-center gap-4 px-4 md:px-8 h-14">
@@ -52,19 +54,24 @@ export default function AdminLayout({ children, topbarRight, maxWidth = 'max-w-[
             <Link to="/admin" className="md:hidden shrink-0">
               <Logo size="sm" />
             </Link>
-            <span className="md:hidden text-sm font-semibold truncate" style={{ color: 'rgba(255,255,255,0.85)' }}>
+            <span className="md:hidden text-sm font-semibold truncate" style={{ color: 'var(--ink)' }}>
               {pageLabel}
             </span>
+            {/* Breadcrumb on desktop */}
+            <div className="hidden md:flex items-center gap-2" style={{ fontSize: 12.5 }}>
+              <span style={{ color: 'var(--ink-4)' }}>Admin</span>
+              <span style={{ color: 'var(--ink-4)' }}>/</span>
+              <span style={{ color: 'var(--ink-2)', fontWeight: 600 }}>{pageLabel}</span>
+            </div>
             <div className="min-w-0 flex-1" aria-hidden />
             <div className="flex shrink-0 items-center gap-3 text-sm">
-              <ShellUserMenu accentColor="#22c55e" />
+              <ShellUserMenu accentColor="var(--amber)" />
             </div>
             {topbarRight && (
               <div className="flex shrink-0 items-center gap-3 text-sm">
                 {topbarRight}
               </div>
             )}
-
           </div>
         </header>
 

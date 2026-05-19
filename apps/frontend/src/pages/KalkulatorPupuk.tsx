@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import AppLayout from '../components/AppLayout'
+import AppTopbar from '../components/AppTopbar'
+import SunRays from '../components/ds/botanical/SunRays'
 import api from '../api/client'
 import { useAuth } from '../context/useAuth'
 import type { Lahan } from '../types'
@@ -15,7 +17,7 @@ import {
   type NutrientKey,
 } from '../utils/fertilizerCalculator'
 
-const INP = 'w-full px-4 py-3 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-emerald transition'
+const INP = 'w-full px-4 py-3 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-forest transition'
 const LBL = 'block text-xs font-medium uppercase tracking-wide mb-1.5'
 const LBL_ST = { color: 'var(--ink-3)' }
 
@@ -81,9 +83,9 @@ const NUTRIENT_COLORS: Record<NutrientKey, string> = {
 }
 
 const LEVEL_CHIPS: Record<string, string> = {
-  rendah: 'chip-warn',
-  sedang: 'chip-emerald',
-  tinggi: 'chip-terra',
+  rendah: 'sh-chip-amber',
+  sedang: 'sh-chip-forest',
+  tinggi: 'sh-chip-terra',
 }
 
 export default function KalkulatorPupuk() {
@@ -200,43 +202,46 @@ export default function KalkulatorPupuk() {
 
   return (
     <AppLayout>
-      <div className="px-7 py-7 pb-12">
+      <AppTopbar
+        title="Kalkulator Pupuk"
+        headerActions={
+          <Link to="/jadwal-perawatan/add" className="sh-btn sh-btn-ghost sh-btn-sm" style={{ textDecoration: 'none' }}>
+            Riwayat perhitungan
+          </Link>
+        }
+      />
+      <div style={{ padding: '32px 36px 48px' }}>
         {/* Page header */}
-        <div className="flex items-end justify-between mb-6">
+        <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between', marginBottom: 28, position: 'relative' }}>
+          <SunRays size={160} style={{ position: 'absolute', right: 80, top: -40, color: 'var(--amber)', opacity: 0.08, pointerEvents: 'none' }} />
           <div>
-            <p className="eyebrow mb-2">Tools</p>
-            <h1 className="display text-4xl font-bold text-ink" style={{ letterSpacing: '-0.025em' }}>Kalkulator Pupuk</h1>
-            <p className="mt-2 text-sm text-ink-3 max-w-xl">
-              Hitung kebutuhan pupuk berdasarkan umur tanaman, jumlah pohon, kadar NPK tanah, dan jenis pupuk. Hasil dapat disimpan ke catatan perawatan.
+            <div className="sh-eyebrow" style={{ marginBottom: 10 }}>—— Kalkulator pupuk presisi · v2026</div>
+            <h1 className="sh-h-2">
+              Berapa pupuk yang <em className="sh-italic" style={{ color: 'var(--forest)' }}>kebun&nbsp;kamu</em> perlukan?
+            </h1>
+            <p style={{ fontSize: 14, color: 'var(--ink-3)', marginTop: 8, maxWidth: 640 }}>
+              Masukkan jenis bibit, umur tanaman, dan target hasil — kami hitung dosis NPK per pohon, kebutuhan tahunan, dan estimasi biaya.
             </p>
-          </div>
-          <div className="flex gap-2 shrink-0">
-            <Link
-              to="/jadwal-perawatan/add"
-              className="inline-flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-paper hover:opacity-90 transition-opacity"
-            >
-              + Buat jadwal pupuk
-            </Link>
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {/* Left: input form */}
           <form onSubmit={handleCalculate} className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-7">
-            <p className="eyebrow mb-1">Input data</p>
-            <h3 className="display text-xl font-bold text-ink mt-1 mb-5">Profil kebun &amp; tanah</h3>
+            <div className="sh-eyebrow" style={{ marginBottom: 4 }}>Input data</div>
+            <h3 className="sh-h-4" style={{ marginTop: 4, marginBottom: 20 }}>Profil kebun &amp; tanah</h3>
 
             {/* Auto-fill from kebun */}
             <div
               className="flex items-center gap-3 rounded-xl p-3 mb-5"
-              style={{ background: 'var(--emerald-soft)', border: '1px solid rgba(10,120,71,0.18)' }}
+              style={{ background: 'var(--forest-soft)', border: '1px solid rgba(10,120,71,0.18)' }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--emerald-2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--forest-3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
               <p className="text-sm flex-1" style={{ color: 'var(--ink-2)' }}>Pilih kebun untuk auto-isi umur tanaman &amp; jumlah pohon</p>
               <select
-                className="text-sm font-semibold px-3 py-1.5 bg-white border border-line rounded-lg focus:outline-none focus:border-emerald"
+                className="text-sm font-semibold px-3 py-1.5 bg-white border border-line rounded-lg focus:outline-none focus:border-forest"
                 value={form.id_lahan}
                 onChange={handleLahanChange}
               >
@@ -283,12 +288,12 @@ export default function KalkulatorPupuk() {
             {/* NPK soil levels */}
             <div className="mb-5">
               <div className="flex items-center justify-between mb-3">
-                <p className="eyebrow">Kadar tanah (hasil uji)</p>
+                <p className="sh-eyebrow">Kadar tanah (hasil uji)</p>
                 <button
                   type="button"
                   onClick={applyAverageSoilValues}
                   className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-line hover:bg-paper-2 transition"
-                  style={{ color: 'var(--emerald-2)' }}
+                  style={{ color: 'var(--forest-3)' }}
                 >
                   Pakai nilai rata-rata
                 </button>
@@ -339,14 +344,14 @@ export default function KalkulatorPupuk() {
                       onClick={() => { setForm(cur => ({ ...cur, jenis_pupuk: opt.value })); setResult(null) }}
                       className="flex items-center gap-2.5 p-3 rounded-xl border text-left transition"
                       style={{
-                        borderColor: active ? 'var(--emerald-2)' : 'var(--line)',
+                        borderColor: active ? 'var(--forest-3)' : 'var(--line)',
                         borderWidth: active ? 1.5 : 1,
-                        background: active ? 'var(--emerald-soft)' : 'white',
+                        background: active ? 'var(--forest-soft)' : 'white',
                       }}
                     >
                       <div
                         className="w-4 h-4 rounded-full border-2 shrink-0"
-                        style={{ borderColor: active ? 'var(--emerald)' : 'var(--line)', background: active ? 'var(--emerald)' : 'white' }}
+                        style={{ borderColor: active ? 'var(--forest)' : 'var(--line)', background: active ? 'var(--forest)' : 'white' }}
                       />
                       <span className="text-sm font-semibold text-ink">{opt.label}</span>
                     </button>
@@ -359,14 +364,14 @@ export default function KalkulatorPupuk() {
                 onClick={() => { setForm(cur => ({ ...cur, jenis_pupuk: 'manual' })); setResult(null) }}
                 className="mt-2 w-full flex items-center gap-2.5 p-3 rounded-xl border text-left transition"
                 style={{
-                  borderColor: isManual ? 'var(--emerald-2)' : 'var(--line)',
+                  borderColor: isManual ? 'var(--forest-3)' : 'var(--line)',
                   borderWidth: isManual ? 1.5 : 1,
-                  background: isManual ? 'var(--emerald-soft)' : 'white',
+                  background: isManual ? 'var(--forest-soft)' : 'white',
                 }}
               >
                 <div
                   className="w-4 h-4 rounded-full border-2 shrink-0"
-                  style={{ borderColor: isManual ? 'var(--emerald)' : 'var(--line)', background: isManual ? 'var(--emerald)' : 'white' }}
+                  style={{ borderColor: isManual ? 'var(--forest)' : 'var(--line)', background: isManual ? 'var(--forest)' : 'white' }}
                 />
                 <span className="text-sm font-semibold text-ink">Pupuk manual (isi kadar sendiri)</span>
               </button>
@@ -412,7 +417,7 @@ export default function KalkulatorPupuk() {
               <button
                 type="submit"
                 className="flex-1 rounded-xl py-3.5 text-sm font-bold text-white transition hover:opacity-90"
-                style={{ background: 'var(--emerald)' }}
+                style={{ background: 'var(--forest)' }}
               >
                 Hitung dosis pupuk →
               </button>
@@ -434,10 +439,10 @@ export default function KalkulatorPupuk() {
               style={{ background: 'linear-gradient(140deg, var(--ink) 0%, #14241c 100%)', color: 'white', border: 'none' }}
             >
               <div className="relative">
-                <p className="eyebrow" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                <p className="sh-eyebrow" style={{ color: 'rgba(255,255,255,0.5)' }}>
                   Hasil perhitungan · {fertilizer.label}
                 </p>
-                <h3 className="display text-2xl font-bold text-white mt-1.5 mb-6">
+                <h3 className="sh-h-4" style={{ color: "var(--paper)", marginTop: 6, marginBottom: 24 }}>
                   Dosis Pupuk Direkomendasikan
                 </h3>
 
@@ -514,8 +519,8 @@ export default function KalkulatorPupuk() {
             {/* Cost estimation */}
             {result && (
               <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-6">
-                <p className="eyebrow mb-1">Perkiraan biaya</p>
-                <h3 className="display text-lg font-bold text-ink mt-1 mb-4">Biaya pupuk satu rotasi</h3>
+                <p className="sh-eyebrow" style={{ marginBottom: 4 }}>Perkiraan biaya</p>
+                <h3 className="sh-h-4" style={{ marginTop: 4, marginBottom: 16 }}>Biaya pupuk satu rotasi</h3>
                 <div className="grid grid-cols-3 gap-3">
                   {[
                     { label: 'Per pohon / tahun', value: fmtKg(result.annualDosePerTreeKg), color: 'var(--ink)' },
@@ -563,7 +568,7 @@ export default function KalkulatorPupuk() {
 
             {!result && (
               <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-6">
-                <p className="eyebrow mb-2">Panduan</p>
+                <p className="sh-eyebrow" style={{ marginBottom: 8 }}>Panduan</p>
                 <div className="grid grid-cols-3 gap-3">
                   {[
                     { symbol: 'N', name: 'Nitrogen', desc: 'Pertumbuhan daun dan batang. Kekurangan membuat tanaman pucat.' },

@@ -16,7 +16,7 @@ export default function Terms() {
       description="Dokumen ini menjelaskan trial 14 hari, akun, data, pembayaran, batasan layanan, dan hak pengguna dalam bahasa yang ringkas."
     >
       <div className="space-y-6 text-[15px] leading-7 text-ink-3 sm:text-base">
-        <section className="rounded-xl-1 border border-emerald-soft bg-emerald-tint p-6">
+        <section className="rounded-xl-1 border border-forest-soft bg-forest-tint p-6">
           <h2 className="text-xl font-semibold text-ink">Ringkasan singkat</h2>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {[
@@ -25,7 +25,7 @@ export default function Terms() {
               'Data kebun yang Anda masukkan tetap milik Anda.',
               'SawitHub membantu pencatatan; keputusan kebun tetap menjadi tanggung jawab pengguna.',
             ].map(item => (
-              <li key={item} className="rounded-xl border border-emerald-soft bg-surface p-3 text-ink-3">{item}</li>
+              <li key={item} className="rounded-xl border border-forest-soft bg-surface p-3 text-ink-3">{item}</li>
             ))}
           </ul>
         </section>
@@ -102,7 +102,7 @@ export default function Terms() {
 
         <section className="rounded-xl-1 border border-line bg-surface p-6 shadow-card-sm">
           <h2 className="text-xl font-semibold text-ink">8. Penghentian akun dan penghapusan data</h2>
-          <p className="mt-3">Kami dapat menonaktifkan akun yang melanggar syarat, mengganggu layanan, atau membahayakan pengguna lain. Anda dapat meminta penghapusan akun dan data melalui email <a href="mailto:privacy@sawithub.com" className="font-semibold text-emerald hover:text-emerald-2">privacy@sawithub.com</a> atau halaman <Link to="/tentang-kami#kontak" className="font-semibold text-emerald hover:text-emerald-2">Tentang Kami</Link>. Kami menargetkan respons awal maksimal 7 hari kerja dan penghapusan/anonimisasi data maksimal 30 hari kalender setelah verifikasi selesai, kecuali data tertentu wajib disimpan lebih lama oleh hukum.</p>
+          <p className="mt-3">Kami dapat menonaktifkan akun yang melanggar syarat, mengganggu layanan, atau membahayakan pengguna lain. Anda dapat meminta penghapusan akun dan data melalui email <a href="mailto:privacy@sawithub.com" className="font-semibold text-forest hover:text-forest-3">privacy@sawithub.com</a> atau halaman <Link to="/tentang-kami#kontak" className="font-semibold text-forest hover:text-forest-3">Tentang Kami</Link>. Kami menargetkan respons awal maksimal 7 hari kerja dan penghapusan/anonimisasi data maksimal 30 hari kalender setelah verifikasi selesai, kecuali data tertentu wajib disimpan lebih lama oleh hukum.</p>
         </section>
 
         <section className="rounded-xl-1 border border-line bg-surface p-6 shadow-card-sm">

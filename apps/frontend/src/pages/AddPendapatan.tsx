@@ -7,7 +7,7 @@ import RupiahInput from '../components/RupiahInput'
 import type { Lahan } from '../types'
 import { parseRupiahInput } from '../utils/rupiah'
 
-const INP = 'w-full px-4 py-3 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-emerald transition'
+const INP = 'w-full px-4 py-3 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-forest transition'
 const LBL_CLS = 'block text-xs font-medium uppercase tracking-wide mb-1.5'
 const LBL_ST = { color: 'var(--ink-3)' }
 
@@ -112,10 +112,10 @@ export default function AddPendapatan() {
 
         {/* Net preview */}
         {(form.pendapatan_kotor || form.biaya_total) && (
-          <div className={`rounded-xl px-4 py-3 ${bersih >= 0 ? 'border border-emerald-soft bg-emerald-tint' : 'border border-terra-soft bg-terra-soft'}`}>
+          <div className={`rounded-xl px-4 py-3 ${bersih >= 0 ? 'border border-forest-soft bg-forest-tint' : 'border border-terra-soft bg-terra-soft'}`}>
             <div className="flex justify-between text-sm">
               <span className="text-ink-3">Pendapatan Bersih</span>
-              <span className={`font-bold ${bersih >= 0 ? 'text-emerald' : 'text-terra'}`}>
+              <span className={`font-bold ${bersih >= 0 ? 'text-forest' : 'text-terracotta-2'}`}>
                 Rp {bersih.toLocaleString('id-ID')}
               </span>
             </div>

@@ -7,6 +7,7 @@ import { getApiErrorMessage } from '../utils/apiError'
 import { SUBSCRIPTION_TRIAL_DAYS } from '../copy/productConstants'
 import { AuthShell, AuthInput, AuthPasswordToggle, AuthSubmitButton } from '../components/AuthLayout'
 import { authLinkClass } from '../components/authStyles'
+import { UserIcon } from '../components/ds/icons'
 
 function buildTrialUsername(name: string, email: string) {
   const emailPrefix = email.split('@')[0] || ''
@@ -22,63 +23,40 @@ function buildTrialUsername(name: string, email: string) {
   return `${base}_${suffix}`.slice(0, 30)
 }
 
-const featureBullets = [
-  {
-    text: 'Catat panen, biaya rawat, dan jadwal kerja dalam hitungan detik.',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path d="M12 2a9 9 0 0 1 7 14.5L17 22H7l-2-5.5A9 9 0 0 1 12 2Z" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-  {
-    text: 'Laporan keuangan otomatis — siap untuk koperasi atau bank.',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <rect x="2" y="3" width="20" height="18" rx="3" stroke="white" strokeWidth="1.8"/>
-        <path d="M7 8h10M7 12h6M7 16h8" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    text: 'Kalkulator pupuk presisi berdasarkan kebutuhan lahan Anda.',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <rect x="3" y="3" width="18" height="18" rx="3" stroke="white" strokeWidth="1.8"/>
-        <path d="M8 8h.01M12 8h.01M16 8h.01M8 12h.01M12 12h.01M16 12h4" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    text: 'Pengingat jadwal perawatan lewat WhatsApp.',
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
-  },
-]
+function CheckIcon({ size = 10 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="m5 12 5 5 9-11" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
 
 function SignupPanel() {
   return (
     <div>
-      <p className="eyebrow mb-4" style={{ color: 'var(--terra)' }}>Daftar {SUBSCRIPTION_TRIAL_DAYS} hari gratis</p>
-      <h2 className="display font-bold text-white leading-tight mb-7"
-        style={{ fontSize: 42, letterSpacing: '-0.03em', lineHeight: 1.05 }}>
-        Bawa kebun kamu ke dalam satu aplikasi.
+      <div style={{ fontSize: 11, color: 'var(--amber-3)', letterSpacing: '.18em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 18 }}>
+        —— Daftar gratis · {SUBSCRIPTION_TRIAL_DAYS} hari
+      </div>
+      <h2 style={{ fontFamily: 'var(--f-display)', fontStyle: 'italic', fontSize: 40, fontWeight: 400, color: 'var(--paper)', lineHeight: 1.1, marginBottom: 24 }}>
+        Mulai dari <em style={{ color: 'var(--amber-3)' }}>panen minggu ini</em>.
       </h2>
-      <div className="flex flex-col gap-3">
-        {featureBullets.map((item, i) => (
-          <div key={i} className="flex items-start gap-3">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
-              style={{ background: 'var(--emerald)' }}>
-              {item.icon}
-            </div>
-            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.85)', paddingTop: 4 }}>
-              {item.text}
-            </p>
+      <p style={{ fontSize: 16, color: 'rgba(251,248,241,0.7)', lineHeight: 1.55, marginBottom: 32 }}>
+        Buat akun dalam 2 menit. Tanpa kartu kredit. Catat panen pertama hari ini juga.
+      </p>
+      <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: 22, color: 'var(--paper)' }}>
+        <div style={{ fontFamily: 'var(--f-display)', fontSize: 48, color: 'var(--amber-3)', lineHeight: 0.5, marginBottom: 8 }}>"</div>
+        <p style={{ fontFamily: 'var(--f-display)', fontSize: 17, lineHeight: 1.45, color: 'var(--paper)' }}>
+          Hasil panen naik 14% dalam setahun. Jadwal pupuknya tidak pernah terlewat.
+        </p>
+        <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 99, background: 'var(--amber-soft)', color: 'var(--forest)', display: 'grid', placeItems: 'center' }}>
+            <UserIcon size={14} />
           </div>
-        ))}
+          <div>
+            <div style={{ fontSize: 12.5, fontWeight: 600 }}>Pak Yusran</div>
+            <div style={{ fontSize: 10.5, color: 'rgba(251,248,241,0.6)' }}>Petani · Sumut · 8,5 ha</div>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -87,6 +65,7 @@ function SignupPanel() {
 export default function Signup() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ nama_lengkap: '', phone: '', email: '', password: '' })
+  const [role, setRole] = useState<'petani' | 'koperasi'>('petani')
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
   const [formStarted, setFormStarted] = useState(false)
@@ -144,21 +123,51 @@ export default function Signup() {
     }
   }
 
+  const strengthScore = form.password.length >= 12 ? 4 : form.password.length >= 10 ? 3 : form.password.length >= 8 ? 2 : form.password.length > 0 ? 1 : 0
+  const strengthColors = ['var(--line)', 'var(--terracotta)', 'var(--amber)', 'var(--amber-2)', 'var(--forest)']
+  const strengthLabel = ['', 'Lemah', 'Cukup', 'Kuat', 'Sangat kuat'][strengthScore]
+
   return (
     <AuthShell panel={<SignupPanel />}>
-      <p className="eyebrow mb-2">Buat akun</p>
-      <h1 className="display text-3xl font-bold text-ink mb-2" style={{ letterSpacing: '-0.025em' }}>
-        Daftar gratis {SUBSCRIPTION_TRIAL_DAYS} hari.
-      </h1>
-      <p className="mb-7 text-sm leading-6 text-ink-3">
-        Tanpa kartu kredit. Sudah punya akun?{' '}
+      <div className="sh-eyebrow" style={{ marginBottom: 12 }}>—— Buat akun</div>
+      <h1 className="sh-h-3" style={{ marginBottom: 10 }}>Gabung 12.418 petani.</h1>
+      <p style={{ fontSize: 13.5, color: 'var(--ink-3)', marginBottom: 26 }}>
+        Sudah punya akun?{' '}
         <Link to="/login" className={authLinkClass}>Masuk →</Link>
       </p>
+
+      {/* Role picker */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 18 }}>
+        {([
+          { l: 'Petani', sub: 'Kebun pribadi / keluarga', value: 'petani' as const },
+          { l: 'Koperasi', sub: 'Pengurus kelompok tani', value: 'koperasi' as const },
+        ]).map(r => (
+          <button
+            key={r.value}
+            type="button"
+            onClick={() => setRole(r.value)}
+            style={{
+              padding: 14, borderRadius: 12,
+              border: `1.5px solid ${role === r.value ? 'var(--forest)' : 'var(--line)'}`,
+              background: role === r.value ? 'var(--forest-tint)' : 'var(--surface)',
+              textAlign: 'left', cursor: 'pointer', position: 'relative',
+            }}
+          >
+            {role === r.value && (
+              <div style={{ position: 'absolute', top: 10, right: 10, width: 16, height: 16, borderRadius: 99, background: 'var(--forest)', color: 'var(--paper)', display: 'grid', placeItems: 'center' }}>
+                <CheckIcon size={10} />
+              </div>
+            )}
+            <div style={{ fontSize: 13, fontWeight: 600, color: role === r.value ? 'var(--forest)' : 'var(--ink)' }}>{r.l}</div>
+            <div style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 2 }}>{r.sub}</div>
+          </button>
+        ))}
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <AuthInput
           id="signup-name"
-          label="Nama Lengkap"
+          label="Nama lengkap"
           value={form.nama_lengkap}
           onChange={set('nama_lengkap')}
           onFocus={handleFormStart}
@@ -174,22 +183,22 @@ export default function Signup() {
           className="pl-10"
         />
 
-        <AuthInput
-          id="signup-phone"
-          label="No. WhatsApp"
-          type="tel"
-          value={form.phone}
-          onChange={set('phone')}
-          placeholder="08xx-xxxx-xxxx"
-          autoComplete="tel"
-          helper="Untuk verifikasi & pengingat jadwal perawatan."
-          leftIcon={
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path d="M5 4h4l2 5-2 1a11 11 0 0 0 5 5l1-2 5 2v4a2 2 0 0 1-2 2A17 17 0 0 1 3 6a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          }
-          className="pl-10"
-        />
+        <div>
+          <label className="sh-label" style={{ display: 'block', marginBottom: 6 }}>Nomor WhatsApp</label>
+          <div style={{ position: 'relative' }}>
+            <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontFamily: 'var(--f-mono)', fontSize: 13, color: 'var(--ink-3)' }}>+62</span>
+            <input
+              type="tel"
+              value={form.phone}
+              onChange={set('phone')}
+              placeholder="812 xxxx xxxx"
+              autoComplete="tel"
+              className="sh-input sh-num"
+              style={{ paddingLeft: 50 }}
+            />
+          </div>
+          <p className="mt-1.5 text-xs" style={{ color: 'var(--ink-4)' }}>Kami kirim kode OTP untuk verifikasi · gratis</p>
+        </div>
 
         <AuthInput
           id="signup-email"
@@ -210,12 +219,9 @@ export default function Signup() {
         />
 
         <div>
-          <div className="mb-1.5 flex items-center justify-between gap-3">
-            <label htmlFor="signup-password" className="text-[13px] font-semibold text-ink-2">Password</label>
-            <span className="text-xs text-ink-4">Min. 8 karakter</span>
-          </div>
-          <div className="relative">
-            <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-ink-4">
+          <label htmlFor="signup-password" className="sh-label" style={{ display: 'block', marginBottom: 6 }}>Buat kata sandi</label>
+          <div style={{ position: 'relative' }}>
+            <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center" style={{ color: 'var(--ink-4)' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
                 <path d="M6 11V8a6 6 0 0 1 12 0v3M5 11h14v9H5z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -231,58 +237,61 @@ export default function Signup() {
               autoComplete="new-password"
               aria-invalid={Boolean(passwordError)}
               aria-describedby={passwordError ? 'signup-password-error' : 'signup-password-help'}
-              className="w-full rounded-md-1 border border-line bg-surface py-3.5 pl-10 pr-12 text-sm text-ink placeholder:text-ink-4 transition-colors focus:border-emerald focus:outline-none"
+              className="sh-input"
+              style={{ paddingLeft: 42, paddingRight: 48 }}
             />
             <AuthPasswordToggle show={showPw} onClick={() => setShowPw(p => !p)} />
           </div>
-          <div className="mt-2 flex gap-1" aria-hidden>
-            {[8, 10, 12].map((len, i) => (
-              <div key={len} className={`h-1 flex-1 rounded-full transition-all ${
-                form.password.length >= len
-                  ? i === 0 ? 'bg-red-400' : i === 1 ? 'bg-yellow-400' : 'bg-emerald'
-                  : 'bg-line'
-              }`} />
+          <div style={{ marginTop: 8, display: 'flex', gap: 4 }} aria-hidden>
+            {[1, 2, 3, 4].map(b => (
+              <div key={b} style={{ flex: 1, height: 4, borderRadius: 99, background: b <= strengthScore ? strengthColors[strengthScore] : 'var(--line)', transition: 'background .2s' }} />
             ))}
           </div>
           {passwordError
-            ? <p id="signup-password-error" role="alert" className="mt-1.5 text-xs text-terra-2">{passwordError}</p>
-            : <p id="signup-password-help" className="mt-1.5 text-xs text-ink-4">Gunakan minimal 8 karakter agar akun lebih aman.</p>
+            ? <p id="signup-password-error" role="alert" style={{ marginTop: 5, fontSize: 11, color: 'var(--terracotta-2)' }}>{passwordError}</p>
+            : strengthScore > 0
+              ? <p id="signup-password-help" style={{ marginTop: 5, fontSize: 11, color: strengthColors[strengthScore], fontWeight: 500 }}>{strengthLabel} · minimal 8 karakter, ada angka</p>
+              : <p id="signup-password-help" style={{ marginTop: 5, fontSize: 11, color: 'var(--ink-4)' }}>Gunakan minimal 8 karakter agar akun lebih aman.</p>
           }
         </div>
 
-        <label className="flex items-start gap-2 text-sm text-ink-3 cursor-pointer select-none">
-          <span className="flex h-4 w-4 items-center justify-center rounded bg-ink shrink-0 mt-0.5">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path d="m5 12 5 5 9-11" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </span>
+        <label style={{ display: 'flex', alignItems: 'start', gap: 10, fontSize: 12, color: 'var(--ink-3)', marginTop: 4, lineHeight: 1.55, cursor: 'pointer' }}>
+          <input type="checkbox" defaultChecked style={{ accentColor: 'var(--forest)', marginTop: 3, flexShrink: 0 }} />
           <span>
             Saya setuju dengan{' '}
             <Link to="/syarat" className={authLinkClass}>Syarat Layanan</Link>{' '}
             dan{' '}
-            <Link to="/privasi" className={authLinkClass}>Kebijakan Privasi</Link>.
+            <Link to="/privasi" className={authLinkClass}>Kebijakan Privasi</Link> SawitHub.
           </span>
         </label>
 
         <AuthSubmitButton loading={loading} loadingLabel="Mendaftar...">
-          Mulai {SUBSCRIPTION_TRIAL_DAYS} hari gratis →
+          Mulai gratis {SUBSCRIPTION_TRIAL_DAYS} hari →
         </AuthSubmitButton>
-      </form>
 
-      {/* Migration help card */}
-      <div className="mt-7 flex items-start gap-3 rounded-lg-1 border p-4"
-        style={{ background: 'var(--emerald-soft)', borderColor: 'rgba(10,120,71,0.18)' }}>
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md-1"
-          style={{ background: 'var(--emerald)' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2Z" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '4px 0' }}>
+          <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
+          <span style={{ fontSize: 11, color: 'var(--ink-4)', letterSpacing: '.1em', textTransform: 'uppercase' }}>atau daftar lewat</span>
+          <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
         </div>
-        <div className="text-[13px] leading-5 text-ink-2">
-          <strong className="text-ink">Bantuan migrasi gratis.</strong>{' '}
-          Punya catatan di Excel atau buku? Kirim ke kami, tim akan memindahkan.
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <button
+            type="button"
+            className="sh-btn sh-btn-ghost"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+          >
+            <span style={{ fontWeight: 700, color: '#25D366' }}>◉</span> WhatsApp
+          </button>
+          <button
+            type="button"
+            className="sh-btn sh-btn-ghost"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+          >
+            <span style={{ fontFamily: 'var(--f-display)', fontSize: 16, fontWeight: 600 }}>G</span> Google
+          </button>
         </div>
-      </div>
+      </form>
     </AuthShell>
   )
 }

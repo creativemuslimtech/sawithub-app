@@ -6,6 +6,7 @@ import {
 import api from '../api/client'
 import toast from 'react-hot-toast'
 import AppLayout from '../components/AppLayout'
+import AppTopbar from '../components/AppTopbar'
 
 interface HargaItem {
   id_harga: string
@@ -93,27 +94,21 @@ export default function HargaTbs() {
 
   return (
     <AppLayout>
-      <div className="px-7 py-7 pb-12">
-        {/* Page header */}
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="eyebrow mb-2">Harga</p>
-            <h1 className="display text-4xl font-bold text-ink" style={{ letterSpacing: '-0.025em' }}>Harga TBS Hari Ini</h1>
-            <p className="mt-2 text-sm text-ink-3 max-w-xl">
-              Pantau harga Tandan Buah Segar di Riau dan sekitarnya. Data dikumpulkan dari Disbun provinsi, pengepul, dan pabrik resmi.
-            </p>
-          </div>
-        </div>
+      <AppTopbar
+        title="Harga TBS Hari Ini"
+        subtitle="Harga"
+      />
+      <div style={{ padding: '32px 36px 48px' }}>
 
         {/* Hero row: price card + age class table */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-5 mb-4">
           {/* Emerald hero card */}
           <div
             className="lg:col-span-3 rounded-lg-1 p-8 relative overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, var(--emerald) 0%, var(--emerald-2) 100%)', color: 'white', border: 'none' }}
+            style={{ background: 'linear-gradient(135deg, var(--forest) 0%, var(--forest-3) 100%)', color: 'white', border: 'none' }}
           >
             <div className="relative">
-              <p className="eyebrow" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              <p className="sh-eyebrow" style={{ color: 'rgba(255,255,255,0.6)' }}>
                 {loading ? 'Memuat...' : latest ? todayStr : 'Belum ada data'}
               </p>
               <div className="mt-4 flex items-end gap-2">
@@ -134,7 +129,7 @@ export default function HargaTbs() {
                   <div className="flex items-center gap-3 mt-4">
                     <span
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold text-white"
-                      style={{ background: 'var(--terra)' }}
+                      style={{ background: 'var(--terracotta)' }}
                     >
                       {up ? '↑' : '↓'} Rp {Math.abs(delta).toLocaleString('id-ID')} ({up ? '+' : ''}{pct}%)
                     </span>
@@ -162,7 +157,7 @@ export default function HargaTbs() {
                       {value > 0 ? `Rp ${value.toLocaleString('id-ID')}` : '—'}
                     </p>
                     {value > 0 && latestPrice > 0 && (
-                      <p className="text-xs font-bold mt-0.5" style={{ color: 'var(--terra)' }}>
+                      <p className="text-xs font-bold mt-0.5" style={{ color: 'var(--terracotta)' }}>
                         {latestPrice > value ? '↑' : '↓'} {Math.abs(((latestPrice - value) / value) * 100).toFixed(1)}%
                       </p>
                     )}
@@ -174,7 +169,7 @@ export default function HargaTbs() {
 
           {/* Age class price table */}
           <div className="lg:col-span-2 bg-surface border border-line rounded-lg-1 shadow-card-sm p-6">
-            <p className="eyebrow mb-1">Per kelas umur tanaman</p>
+            <p className="sh-eyebrow mb-1">Per kelas umur tanaman</p>
             <h3 className="display text-lg font-bold text-ink mt-1 mb-4">Harga PKS Riau</h3>
             {loading ? (
               <div className="space-y-3">
@@ -215,7 +210,7 @@ export default function HargaTbs() {
           <div className="lg:col-span-3 bg-surface border border-line rounded-lg-1 shadow-card-sm p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <p className="eyebrow mb-1">Riwayat harga</p>
+                <p className="sh-eyebrow mb-1">Riwayat harga</p>
                 <h3 className="display text-xl font-bold text-ink">{hargas.length} data terakhir</h3>
               </div>
             </div>
@@ -227,8 +222,8 @@ export default function HargaTbs() {
                   <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
                     <defs>
                       <linearGradient id="hargaGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--emerald)" stopOpacity={0.2} />
-                        <stop offset="95%" stopColor="var(--emerald)" stopOpacity={0} />
+                        <stop offset="5%" stopColor="var(--forest)" stopOpacity={0.2} />
+                        <stop offset="95%" stopColor="var(--forest)" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid vertical={false} stroke="var(--line)" />
@@ -246,12 +241,12 @@ export default function HargaTbs() {
                     <Tooltip
                       contentStyle={{ background: 'var(--ink)', border: 'none', borderRadius: 8, color: 'white', fontSize: 12 }}
                       formatter={(v) => [`Rp ${Number(v).toLocaleString('id-ID')}/kg`, 'Harga']}
-                      cursor={{ stroke: 'var(--emerald)', strokeWidth: 1 }}
+                      cursor={{ stroke: 'var(--forest)', strokeWidth: 1 }}
                     />
                     <Area
                       type="monotone"
                       dataKey="harga"
-                      stroke="var(--emerald)"
+                      stroke="var(--forest)"
                       strokeWidth={2}
                       fill="url(#hargaGrad)"
                       dot={false}
@@ -268,7 +263,7 @@ export default function HargaTbs() {
 
           {/* Sources */}
           <div className="lg:col-span-2 bg-surface border border-line rounded-lg-1 shadow-card-sm p-6">
-            <p className="eyebrow mb-1">Sumber data</p>
+            <p className="sh-eyebrow mb-1">Sumber data</p>
             <h3 className="display text-lg font-bold text-ink mt-1 mb-4">Pengepul & pabrik</h3>
             {loading ? (
               <div className="space-y-3">
@@ -303,12 +298,12 @@ export default function HargaTbs() {
             {!loading && hargas.length > 0 && (
               <div
                 className="mt-4 rounded-xl p-4"
-                style={{ background: 'var(--emerald-soft)', border: '1px solid rgba(10,120,71,0.18)' }}
+                style={{ background: 'var(--forest-soft)', border: '1px solid rgba(10,120,71,0.18)' }}
               >
-                <p className="text-[11px] font-bold uppercase tracking-wide mb-1" style={{ color: 'var(--emerald-2)' }}>
+                <p className="text-[11px] font-bold uppercase tracking-wide mb-1" style={{ color: 'var(--forest-3)' }}>
                   Rata-rata semua sumber
                 </p>
-                <p className="num text-2xl font-bold" style={{ color: 'var(--emerald-2)' }}>
+                <p className="num text-2xl font-bold" style={{ color: 'var(--forest-3)' }}>
                   Rp {Math.round(hargas.reduce((s, h) => s + h.harga_per_kg, 0) / hargas.length).toLocaleString('id-ID')}/kg
                 </p>
                 <p className="text-xs text-ink-3 mt-0.5">Dari {hargas.length} catatan · {fmtDate(latest?.tanggal || '')}</p>

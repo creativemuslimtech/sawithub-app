@@ -219,8 +219,8 @@ export default function Notifikasi() {
                 <span style={{
                   fontSize: 11,
                   padding: '1px 7px',
-                  background: active ? 'var(--emerald-soft)' : 'var(--paper-2)',
-                  color: active ? 'var(--emerald-2)' : 'var(--ink-3)',
+                  background: active ? 'var(--forest-soft)' : 'var(--paper-2)',
+                  color: active ? 'var(--forest-3)' : 'var(--ink-3)',
                   borderRadius: 99,
                   fontWeight: 700,
                 }}>

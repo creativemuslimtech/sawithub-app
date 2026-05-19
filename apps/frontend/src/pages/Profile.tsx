@@ -3,12 +3,13 @@ import type { User } from '../context/auth'
 import { useAuth } from '../context/useAuth'
 import ConfirmDialog from '../components/ConfirmDialog'
 import AppLayout from '../components/AppLayout'
+import AppTopbar from '../components/AppTopbar'
 import api from '../api/client'
 import { getAdminAppUrl } from '../constants/adminApp'
 import { getApiErrorMessage } from '../utils/apiError'
 
 const INPUT =
-  'w-full px-4 py-3 rounded-xl text-ink text-sm outline-none transition bg-paper-2 border border-line focus:border-emerald placeholder-ink-4'
+  'w-full px-4 py-3 rounded-xl text-ink text-sm outline-none transition bg-paper-2 border border-line focus:border-forest placeholder-ink-4'
 
 type FormState = 'view' | 'full_name' | 'email' | 'phone' | 'username' | 'password'
 
@@ -321,18 +322,21 @@ export default function Profile() {
 
   return (
     <AppLayout>
-      <div className="px-7 py-7 pb-12">
+      <AppTopbar title="Profil & Pengaturan" />
+      <div style={{ padding: '32px 36px 48px' }}>
         {/* Page header */}
-        <div className="mb-6">
-          <p className="eyebrow mb-2">Akun</p>
-          <h1 className="display text-4xl font-bold text-ink" style={{ letterSpacing: '-0.025em' }}>Profil & Pengaturan</h1>
-          <p className="mt-2 text-sm text-ink-3">
+        <div style={{ marginBottom: 28 }}>
+          <div className="sh-eyebrow" style={{ marginBottom: 10 }}>—— Profil & Akun</div>
+          <h1 className="sh-h-2">
+            Kelola <em className="sh-italic" style={{ color: 'var(--forest)' }}>akun&nbsp;kamu</em>.
+          </h1>
+          <p style={{ fontSize: 14, color: 'var(--ink-3)', marginTop: 8 }}>
             Kelola informasi akun, kebun, dan preferensi pengingat.
           </p>
         </div>
 
         {message && (
-          <div className={`mb-4 p-4 rounded-xl text-sm border ${message.type === 'success' ? 'bg-emerald-tint border-emerald-soft text-emerald' : 'bg-terra-soft border-terra-soft text-terra'}`}>
+          <div className={`mb-4 p-4 rounded-xl text-sm border`} style={message.type === 'success' ? { background: 'var(--forest-tint)', borderColor: 'var(--forest-soft)', color: 'var(--forest)' } : { background: 'var(--terra-soft)', borderColor: 'var(--terra-soft)', color: 'var(--terracotta-2)' }}>
             {message.text}
           </div>
         )}
@@ -369,7 +373,7 @@ export default function Profile() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 24 }}>
                 <div style={{
                   width: 92, height: 92, borderRadius: 24,
-                  background: 'linear-gradient(135deg, var(--emerald), var(--emerald-2))',
+                  background: 'linear-gradient(135deg, var(--forest), var(--forest-3))',
                   color: 'white', display: 'grid', placeItems: 'center',
                   fontSize: 32, fontWeight: 800, flexShrink: 0, position: 'relative',
                 }}>
@@ -383,9 +387,9 @@ export default function Profile() {
                     <span style={{ fontSize: 13, color: 'var(--ink-3)' }}>
                       {userInfo.username ? `@${userInfo.username}` : 'Petani · SawitHub'}
                     </span>
-                    <span className="chip chip-emerald" style={{ fontSize: 11 }}>✓ Terverifikasi</span>
+                    <span className="chip sh-chip-forest" style={{ fontSize: 11 }}>✓ Terverifikasi</span>
                     {userInfo.role === 'admin' && (
-                      <span className="chip chip-terra" style={{ fontSize: 11 }}>Admin</span>
+                      <span className="chip sh-chip-terra" style={{ fontSize: 11 }}>Admin</span>
                     )}
                   </div>
                 </div>
@@ -416,8 +420,8 @@ export default function Profile() {
 
             {/* Activity summary */}
             <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-7">
-              <p className="eyebrow mb-1">Ringkasan aktivitas</p>
-              <h3 className="display text-xl font-bold text-ink mt-1 mb-5">Sejak bergabung</h3>
+              <p className="sh-eyebrow" style={{ marginBottom: 4 }}>Ringkasan aktivitas</p>
+              <h3 className="sh-h-4" style={{ marginTop: 4, marginBottom: 20 }}>Sejak bergabung</h3>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
                 {[
                   ['Profil', `${completion}%`, 'terisi', 'var(--c1)'],
@@ -459,7 +463,7 @@ export default function Profile() {
 
                       <button
                         onClick={() => setFormState(row.key)}
-                        className="px-4 py-2 rounded-lg text-sm font-medium transition shrink-0 border border-emerald-soft bg-emerald-tint text-emerald hover:opacity-80"
+                        className="px-4 py-2 rounded-lg text-sm font-medium transition shrink-0 border border-forest-soft bg-forest-tint text-forest hover:opacity-80"
                       >
                         {row.actionLabel}
                       </button>
@@ -507,7 +511,7 @@ export default function Profile() {
                           setPasswordForm({ current: '', new: '', confirm: '' })
                           setFormState('password')
                         }}
-                        className="px-4 py-2 rounded-lg text-sm font-medium transition shrink-0 border border-emerald-soft bg-emerald-tint text-emerald hover:opacity-80"
+                        className="px-4 py-2 rounded-lg text-sm font-medium transition shrink-0 border border-forest-soft bg-forest-tint text-forest hover:opacity-80"
                       >
                         Ubah
                       </button>
@@ -554,7 +558,7 @@ export default function Profile() {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex rounded-lg px-4 py-2 font-semibold text-white"
-                          style={{ background: 'var(--emerald)' }}
+                          style={{ background: 'var(--forest)' }}
                         >
                           Buka panel admin
                         </a>
@@ -810,10 +814,10 @@ export default function Profile() {
 
             {activeNav === 'kebun' && (
               <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-7">
-                <p className="eyebrow mb-1">Kebun & blok</p>
-                <h3 className="display text-xl font-bold text-ink mt-1 mb-4">Kelola lahan</h3>
+                <p className="sh-eyebrow" style={{ marginBottom: 4 }}>Kebun & blok</p>
+                <h3 className="sh-h-4" style={{ marginTop: 4, marginBottom: 16 }}>Kelola lahan</h3>
                 <p className="text-sm text-ink-3 mb-4">Lihat dan tambah kebun dari halaman Lahan.</p>
-                <a href="/lahan" className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--emerald)' }}>
+                <a href="/lahan" className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--forest)' }}>
                   Buka halaman Lahan →
                 </a>
               </div>
@@ -821,8 +825,8 @@ export default function Profile() {
 
             {activeNav === 'anggota' && (
               <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-7">
-                <p className="eyebrow mb-1">Anggota tim</p>
-                <h3 className="display text-xl font-bold text-ink mt-1 mb-4">Akses bersama</h3>
+                <p className="sh-eyebrow" style={{ marginBottom: 4 }}>Anggota tim</p>
+                <h3 className="sh-h-4" style={{ marginTop: 4, marginBottom: 16 }}>Akses bersama</h3>
                 <p className="text-sm text-ink-3">Fitur multi-anggota tersedia di paket Koperasi. Hubungi tim kami untuk informasi lebih lanjut.</p>
               </div>
             )}
@@ -830,8 +834,8 @@ export default function Profile() {
             {activeNav === 'keamanan' && (
               <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-7 space-y-5">
                 <div>
-                  <p className="eyebrow mb-1">Keamanan</p>
-                  <h3 className="display text-xl font-bold text-ink mt-1 mb-4">Keamanan & Akses</h3>
+                  <p className="sh-eyebrow" style={{ marginBottom: 4 }}>Keamanan</p>
+                  <h3 className="sh-h-4" style={{ marginTop: 4, marginBottom: 16 }}>Keamanan & Akses</h3>
                 </div>
                 <div className="pb-5 border-b border-line">
                   <div className="text-xs uppercase tracking-[0.18em] mb-1 text-ink-4">Password</div>
@@ -841,7 +845,7 @@ export default function Profile() {
                       <div className="text-sm mt-1 text-ink-4">Gunakan password kuat dengan minimal 8 karakter.</div>
                     </div>
                     <button onClick={() => { setPasswordForm({ current: '', new: '', confirm: '' }); setFormState('password') }}
-                      className="px-4 py-2 rounded-lg text-sm font-medium transition shrink-0 border border-emerald-soft bg-emerald-tint text-emerald hover:opacity-80">
+                      className="px-4 py-2 rounded-lg text-sm font-medium transition shrink-0 border border-forest-soft bg-forest-tint text-forest hover:opacity-80">
                       Ubah
                     </button>
                   </div>
@@ -874,10 +878,10 @@ export default function Profile() {
 
             {activeNav === 'cookie' && (
               <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-7">
-                <p className="eyebrow mb-1">Cookie & privasi</p>
-                <h3 className="display text-xl font-bold text-ink mt-1 mb-4">Pengaturan cookie</h3>
+                <p className="sh-eyebrow" style={{ marginBottom: 4 }}>Cookie & privasi</p>
+                <h3 className="sh-h-4" style={{ marginTop: 4, marginBottom: 16 }}>Pengaturan cookie</h3>
                 <p className="text-sm text-ink-3 mb-4">Kelola preferensi cookie Anda.</p>
-                <a href="/pengaturan-cookie" className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--emerald)' }}>
+                <a href="/pengaturan-cookie" className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--forest)' }}>
                   Pengaturan cookie →
                 </a>
               </div>
@@ -885,10 +889,10 @@ export default function Profile() {
 
             {activeNav === 'bantuan' && (
               <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-7">
-                <p className="eyebrow mb-1">Bantuan</p>
-                <h3 className="display text-xl font-bold text-ink mt-1 mb-4">Pusat bantuan</h3>
+                <p className="sh-eyebrow" style={{ marginBottom: 4 }}>Bantuan</p>
+                <h3 className="sh-h-4" style={{ marginTop: 4, marginBottom: 16 }}>Pusat bantuan</h3>
                 <p className="text-sm text-ink-3 mb-4">Temukan jawaban dan hubungi tim dukungan kami.</p>
-                <a href="/bantuan" className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--emerald)' }}>
+                <a href="/bantuan" className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity" style={{ background: 'var(--forest)' }}>
                   Buka bantuan →
                 </a>
               </div>

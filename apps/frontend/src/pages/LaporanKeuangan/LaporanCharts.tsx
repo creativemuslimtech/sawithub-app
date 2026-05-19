@@ -56,7 +56,7 @@ export function LaporanCharts({
 
         <div className="flex flex-wrap gap-1.5">
           {([
-            { key: 'produksi', label: 'Produksi', color: 'var(--emerald)' },
+            { key: 'produksi', label: 'Produksi', color: 'var(--forest)' },
             { key: 'cashflow', label: 'Uang', color: '#d97706' },
             { key: 'biaya', label: 'Biaya', color: 'var(--terra)' },
           ] as { key: ChartMode; label: string; color: string }[]).map((item) => (
@@ -114,9 +114,9 @@ export function LaporanCharts({
             <AreaChart data={chartRows} margin={{ top: 20, right: 10, left: 6, bottom: 0 }}>
               <defs>
                 <linearGradient id="reportProductionFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--emerald)" stopOpacity={0.28} />
-                  <stop offset="75%" stopColor="var(--emerald)" stopOpacity={0.06} />
-                  <stop offset="100%" stopColor="var(--emerald)" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--forest)" stopOpacity={0.28} />
+                  <stop offset="75%" stopColor="var(--forest)" stopOpacity={0.06} />
+                  <stop offset="100%" stopColor="var(--forest)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="4 4" vertical={false} stroke={GRID_COLOR} />
@@ -151,11 +151,11 @@ export function LaporanCharts({
                 type="monotone"
                 dataKey="produksi"
                 name="Produksi"
-                stroke="var(--emerald)"
+                stroke="var(--forest)"
                 strokeWidth={2.5}
                 fill="url(#reportProductionFill)"
-                dot={{ r: 3, strokeWidth: 2, fill: '#ffffff', stroke: 'var(--emerald)' }}
-                activeDot={{ r: 6, fill: 'var(--emerald)', stroke: '#ffffff', strokeWidth: 2 }}
+                dot={{ r: 3, strokeWidth: 2, fill: '#ffffff', stroke: 'var(--forest)' }}
+                activeDot={{ r: 6, fill: 'var(--forest)', stroke: '#ffffff', strokeWidth: 2 }}
               />
             </AreaChart>
           ) : (

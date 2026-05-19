@@ -62,7 +62,7 @@ export default function OnboardingWizard({ open, onComplete }: OnboardingWizardP
         }}
       >
         <div className="border-b border-white/10 px-6 pb-4 pt-6">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-200/90">Langkah {step + 1} dari {STEPS.length}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-forest-3">Langkah {step + 1} dari {STEPS.length}</p>
           <h2 id="onboarding-wizard-title" className="mt-2 text-xl font-semibold text-white">
             {current.title}
           </h2>

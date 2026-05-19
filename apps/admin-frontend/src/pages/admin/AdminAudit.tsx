@@ -90,7 +90,7 @@ export default function AdminAudit() {
 
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
           <AdminMetricCard label="Aktivitas Halaman" value={logs.length.toLocaleString('id-ID')} hint={`page ${page}`} accent="#ec4899" icon="📋" />
-          <AdminMetricCard label="Panen" value={(activityCounts.tambah_panen ?? 0).toLocaleString('id-ID')} hint="catatan panen masuk" accent="#22c55e" icon="🌾" />
+          <AdminMetricCard label="Panen" value={(activityCounts.tambah_panen ?? 0).toLocaleString('id-ID')} hint="catatan panen masuk" accent="var(--forest)" icon="🌾" />
           <AdminMetricCard label="Lahan" value={(activityCounts.tambah_lahan ?? 0).toLocaleString('id-ID')} hint="data kebun dibuat" accent="#38bdf8" icon="🌱" />
           <AdminMetricCard label="Perawatan" value={(activityCounts.tambah_perawatan ?? 0).toLocaleString('id-ID')} hint="tindakan perawatan" accent="#a78bfa" icon="🔧" />
         </div>

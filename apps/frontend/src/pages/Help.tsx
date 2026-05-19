@@ -122,9 +122,9 @@ export default function Help() {
       title="Jawaban cepat untuk mulai memakai SawitHub."
       description="Pelajari cara daftar, mencatat panen, membuat laporan, menjaga data, dan menghubungi tim SawitHub dengan bahasa yang sederhana."
     >
-      <section className="rounded-xl-1 border border-emerald-soft bg-emerald-tint p-5 sm:p-6">
+      <section className="rounded-xl-1 border border-forest-soft bg-forest-tint p-5 sm:p-6">
         <div className="max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald">Panduan 3 langkah</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-forest">Panduan 3 langkah</p>
           <h2 className="mt-3 text-2xl font-semibold text-ink sm:text-3xl">Dari kebun pertama sampai laporan awal.</h2>
           <p className="mt-3 text-[15px] leading-7 text-ink-3">Panduan visual ini memakai contoh screenshot sederhana agar pengguna baru tahu apa yang perlu dilakukan setelah login.</p>
         </div>
@@ -132,19 +132,19 @@ export default function Help() {
           {guideSteps.map(step => (
             <article key={step.title} className="rounded-xl border border-line bg-surface p-4 shadow-card-sm">
               <div role="img" aria-label={`Contoh screenshot ${step.title} di SawitHub`} className="rounded-xl border border-line bg-paper-2 p-3">
-                <div className="mb-3 h-2 w-20 rounded-full bg-emerald/40" />
+                <div className="mb-3 h-2 w-20 rounded-full bg-forest/40" />
                 <div className="space-y-2">
                   {step.mock.map((item, index) => (
                     <div key={item} className="flex items-center justify-between rounded-lg bg-paper px-3 py-2 text-xs text-ink-3">
                       <span>{item}</span>
-                      <span className="font-semibold text-emerald">{index === 2 ? 'OK' : 'Isi'}</span>
+                      <span className="font-semibold text-forest">{index === 2 ? 'OK' : 'Isi'}</span>
                     </div>
                   ))}
                 </div>
               </div>
               <h3 className="mt-4 text-lg font-semibold text-ink">{step.title}</h3>
               <p className="mt-2 text-[15px] leading-7 text-ink-3">{step.desc}</p>
-              <Link to={step.to} className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-emerald-soft px-3 text-sm font-semibold text-emerald transition hover:bg-emerald-tint hover:text-emerald-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald">{step.link}</Link>
+              <Link to={step.to} className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-forest-soft px-3 text-sm font-semibold text-forest transition hover:bg-forest-tint hover:text-forest-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest">{step.link}</Link>
             </article>
           ))}
         </div>
@@ -156,18 +156,18 @@ export default function Help() {
             <h2 className="text-xl font-semibold text-ink">{group.title}</h2>
             <div className="mt-4 space-y-3">
               {group.items.map(faq => (
-                <details key={faq.q} className="group rounded-xl border border-line bg-paper open:border-emerald-soft open:bg-emerald-tint">
-                  <summary className="cursor-pointer list-none p-4 text-base font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald">
+                <details key={faq.q} className="group rounded-xl border border-line bg-paper open:border-forest-soft open:bg-forest-tint">
+                  <summary className="cursor-pointer list-none p-4 text-base font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest">
                     <span className="inline-flex w-full items-center justify-between gap-3">
                       {faq.q}
-                      <span className="text-emerald transition group-open:rotate-45">+</span>
+                      <span className="text-forest transition group-open:rotate-45">+</span>
                     </span>
                   </summary>
                   <p className="px-4 pb-4 text-[15px] leading-7 text-ink-3">{faq.a}</p>
                   {faq.links ? (
                     <div className="flex flex-wrap gap-2 px-4 pb-4">
                       {faq.links.map(link => (
-                        <Link key={link.to} to={link.to} className="inline-flex min-h-10 items-center rounded-lg border border-emerald-soft px-3 text-sm font-semibold text-emerald transition hover:bg-emerald-tint hover:text-emerald-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald">
+                        <Link key={link.to} to={link.to} className="inline-flex min-h-10 items-center rounded-lg border border-forest-soft px-3 text-sm font-semibold text-forest transition hover:bg-forest-tint hover:text-forest-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest">
                           {link.label}
                         </Link>
                       ))}
@@ -180,7 +180,7 @@ export default function Help() {
         ))}
       </section>
 
-      <MarketingCard as="section" className="mt-8 border-emerald-soft bg-emerald-tint">
+      <MarketingCard as="section" className="mt-8 border-forest-soft bg-forest-tint">
         <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
           <div>
             <h2 className="text-2xl font-semibold text-ink">Tidak menemukan jawaban?</h2>
@@ -196,7 +196,7 @@ export default function Help() {
           ['/syarat', 'Syarat & Ketentuan', 'Aturan trial, akun, langganan, dan penggunaan layanan.'],
           ['/tentang-kami', 'Tentang SawitHub', 'Kenapa SawitHub dibuat untuk petani sawit mandiri.'],
         ].map(([to, title, desc]) => (
-          <Link key={to} to={to} className="rounded-xl-1 border border-line bg-surface p-5 shadow-card-sm transition hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald">
+          <Link key={to} to={to} className="rounded-xl-1 border border-line bg-surface p-5 shadow-card-sm transition hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest">
             <h3 className="font-semibold text-ink">{title}</h3>
             <p className="mt-2 text-[15px] leading-7 text-ink-3">{desc}</p>
           </Link>

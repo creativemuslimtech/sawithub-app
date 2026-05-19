@@ -7,12 +7,12 @@ export type SubscriptionPaymentReturnVariant = 'finish' | 'unfinish' | 'error'
 
 const copy: Record<
   SubscriptionPaymentReturnVariant,
-  { title: string; body: string; tone: 'emerald' | 'amber' | 'rose' }
+  { title: string; body: string; tone: 'forest' | 'amber' | 'rose' }
 > = {
   finish: {
     title: 'Pembayaran selesai',
     body: 'Jika status belum berubah, tunggu beberapa detik — pemberituan dari Midtrans akan memperbarui langganan Anda. Anda bisa memuat ulang halaman langganan.',
-    tone: 'emerald',
+    tone: 'forest',
   },
   unfinish: {
     title: 'Pembayaran belum selesai',
@@ -27,7 +27,7 @@ const copy: Record<
 }
 
 const borderByTone = {
-  emerald: 'border-emerald-soft bg-emerald-tint',
+  forest: 'border-forest-soft bg-forest-tint',
   amber: 'border-line bg-paper-2',
   rose: 'border-terra-soft bg-terra-soft',
 }

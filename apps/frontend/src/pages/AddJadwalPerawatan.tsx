@@ -11,7 +11,7 @@ interface Lahan {
   nama_kebun: string
 }
 
-const INP = 'w-full px-4 py-3 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-emerald transition'
+const INP = 'w-full px-4 py-3 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-forest transition'
 const LBL_CLS = 'block text-xs font-medium uppercase tracking-wide mb-1.5'
 const LBL_ST = { color: 'var(--ink-3)' }
 
@@ -198,7 +198,7 @@ export default function AddJadwalPerawatan() {
               key={preset.label}
               type="button"
               onClick={() => applyPreset(preset)}
-              className="rounded-xl border border-line bg-surface p-4 text-left transition hover:bg-paper-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+              className="rounded-xl border border-line bg-surface p-4 text-left transition hover:bg-paper-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
             >
               <span className="text-sm font-semibold text-ink">{preset.label}</span>
               <span className="mt-1 block text-xs leading-5 text-ink-3">{preset.deskripsi}</span>

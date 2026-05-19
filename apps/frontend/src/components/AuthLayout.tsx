@@ -1,48 +1,43 @@
 import type { InputHTMLAttributes, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import Logo from './Logo'
+import PalmFrond from './ds/botanical/PalmFrond'
+import SoilWaves from './ds/botanical/SoilWaves'
+import SunRays from './ds/botanical/SunRays'
 
 /* ── 2-column Auth Shell ─────────────────────────────────────────── */
 
 type AuthShellProps = {
-  /** Panel kiri — konten branding/marketing */
   panel: ReactNode
-  /** Panel kanan — form */
   children: ReactNode
 }
 
 export function AuthShell({ panel, children }: AuthShellProps) {
   return (
-    <div className="min-h-screen grid lg:grid-cols-[1.05fr_1fr]">
-      {/* ── Left panel — dark ink ────────────────────────────── */}
+    <div className="min-h-screen grid lg:grid-cols-[640px_1fr]" style={{ background: 'var(--cream)' }}>
+      {/* ── Left panel — dark forest ─────────────────────────── */}
       <div
         className="relative hidden lg:flex flex-col overflow-hidden"
-        style={{ background: 'var(--ink)', color: 'var(--paper)' }}
+        style={{ background: 'var(--forest)', color: 'var(--paper)' }}
       >
-        {/* Radial decorations */}
-        <div className="pointer-events-none absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(circle at 10% 90%, var(--emerald-3), transparent 40%), radial-gradient(circle at 80% 20%, var(--terra), transparent 30%)',
-          opacity: 0.05,
-        }} />
-        {/* Watermark logo */}
-        <div className="pointer-events-none absolute -right-28 -bottom-20 opacity-[0.08]" style={{ color: 'white' }}>
-          <Logo size="lg" showText={false} mono />
-        </div>
+        <PalmFrond size={620} style={{ position: 'absolute', right: -160, top: -80, color: 'var(--paper)', opacity: 0.07 }} />
+        <SoilWaves width={520} height={120} style={{ position: 'absolute', left: 0, bottom: 0, color: 'var(--amber)', opacity: 0.15 }} />
+        <SunRays size={120} style={{ position: 'absolute', left: 64, top: 220, color: 'var(--amber-3)', opacity: 0.16 }} />
 
         {/* Wordmark */}
-        <div className="relative shrink-0 p-8 lg:p-10">
+        <div className="relative shrink-0 p-10">
           <Link to="/" aria-label="Kembali ke beranda">
-            <Logo size="sm" mono />
+            <Logo size="sm" mono color="var(--paper)" wordColor="var(--paper)" />
           </Link>
         </div>
 
-        {/* Center content — passed in as panel */}
-        <div className="relative flex flex-1 flex-col justify-center px-10 py-8 pr-14">
+        {/* Center content */}
+        <div className="relative flex flex-1 flex-col justify-center px-14 py-8">
           {panel}
         </div>
 
         {/* Footer */}
-        <div className="relative shrink-0 flex justify-between px-10 pb-8 text-xs" style={{ color: 'rgba(255,255,255,0.38)' }}>
+        <div className="relative shrink-0 flex justify-between px-14 pb-8 text-xs" style={{ color: 'rgba(251,248,241,0.38)' }}>
           <span>© 2026 SawitHub</span>
           <span className="flex gap-3">
             <Link to="/bantuan" className="hover:text-white/70 transition-colors">Bantuan</Link>
@@ -52,13 +47,13 @@ export function AuthShell({ panel, children }: AuthShellProps) {
         </div>
       </div>
 
-      {/* ── Right panel — cream paper ────────────────────────── */}
+      {/* ── Right panel ─────────────────────────────────────── */}
       <div
         className="flex flex-col min-h-screen lg:min-h-0"
-        style={{ background: 'var(--paper)' }}
+        style={{ background: 'var(--cream)' }}
       >
         {/* Mobile header */}
-        <div className="flex items-center justify-between px-6 py-5 lg:hidden border-b border-line">
+        <div className="flex items-center justify-between px-6 py-5 lg:hidden" style={{ borderBottom: '1px solid var(--line)' }}>
           <Link to="/" aria-label="Beranda SawitHub"><Logo size="sm" /></Link>
         </div>
 
@@ -72,7 +67,7 @@ export function AuthShell({ panel, children }: AuthShellProps) {
   )
 }
 
-/* ── Legacy AuthLayout (single-column wrapper — kept for compat) ──── */
+/* ── Legacy AuthLayout ────────────────────────────────────────────── */
 type AuthLayoutProps = {
   children: ReactNode
   actionLabel: string
@@ -83,12 +78,12 @@ type AuthLayoutProps = {
 
 export function AuthLayout({ children, actionLabel, actionTo, actionText, maxWidth = 'max-w-sm' }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col bg-paper">
-      <header className="flex items-center justify-between px-6 py-5 border-b border-line">
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--cream)' }}>
+      <header className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid var(--line)' }}>
         <Link to="/" aria-label="Beranda SawitHub"><Logo size="md" /></Link>
-        <Link to={actionTo} className="text-sm font-medium text-ink-3 hover:text-ink transition-colors">
+        <Link to={actionTo} className="text-sm font-medium transition-colors" style={{ color: 'var(--ink-3)' }}>
           {actionText ? <span className="hidden sm:inline">{actionText} </span> : null}
-          <span className="text-emerald font-semibold">{actionLabel}</span>
+          <span style={{ color: 'var(--forest)', fontWeight: 600 }}>{actionLabel}</span>
         </Link>
       </header>
       <main className="flex flex-1 items-center justify-center px-4 py-8">
@@ -100,7 +95,7 @@ export function AuthLayout({ children, actionLabel, actionTo, actionText, maxWid
   )
 }
 
-/* ── AuthInput ──────────────────────────────────────────────────────── */
+/* ── AuthInput ────────────────────────────────────────────────────── */
 
 type AuthInputProps = InputHTMLAttributes<HTMLInputElement> & {
   id: string
@@ -118,12 +113,12 @@ export function AuthInput({ id, label, error, helper, rightLabel, leftIcon, clas
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between gap-3">
-        <label htmlFor={id} className="text-[13px] font-semibold text-ink-2">{label}</label>
-        {rightLabel ? <span className="text-xs text-ink-4">{rightLabel}</span> : null}
+        <label htmlFor={id} className="sh-label">{label}</label>
+        {rightLabel ? <span className="text-xs" style={{ color: 'var(--ink-4)' }}>{rightLabel}</span> : null}
       </div>
       <div className="relative">
         {leftIcon ? (
-          <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-ink-4">
+          <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center" style={{ color: 'var(--ink-4)' }}>
             {leftIcon}
           </span>
         ) : null}
@@ -132,35 +127,35 @@ export function AuthInput({ id, label, error, helper, rightLabel, leftIcon, clas
           aria-invalid={Boolean(error)}
           aria-describedby={describedBy}
           className={[
-            'w-full rounded-md-1 border border-line bg-surface px-3.5 py-3.5 text-sm text-ink placeholder:text-ink-4 transition-colors',
-            'focus:border-emerald focus:outline-none',
-            error ? 'border-terra-2' : '',
+            'sh-input',
+            error ? 'border-terracotta-2' : '',
             className,
           ].filter(Boolean).join(' ')}
           {...props}
         />
       </div>
-      {helper ? <p id={`${id}-help`} className="mt-1.5 text-xs text-ink-4">{helper}</p> : null}
-      {error ? <p id={`${id}-error`} role="alert" className="mt-1.5 text-xs text-terra-2">{error}</p> : null}
+      {helper ? <p id={`${id}-help`} className="mt-1.5 text-xs" style={{ color: 'var(--ink-4)' }}>{helper}</p> : null}
+      {error ? <p id={`${id}-error`} role="alert" className="mt-1.5 text-xs" style={{ color: 'var(--terracotta-2)' }}>{error}</p> : null}
     </div>
   )
 }
 
-/* ── AuthSubmitButton ───────────────────────────────────────────────── */
+/* ── AuthSubmitButton ─────────────────────────────────────────────── */
 
 export function AuthSubmitButton({ loading, loadingLabel, children }: { loading: boolean; loadingLabel: string; children: ReactNode }) {
   return (
     <button
       type="submit"
       disabled={loading}
-      className="mt-2 w-full rounded-full bg-ink px-5 py-3.5 text-sm font-semibold text-paper hover:bg-emerald-2 transition-colors disabled:cursor-not-allowed disabled:opacity-55 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+      className="sh-btn sh-btn-primary sh-btn-lg w-full mt-2 disabled:cursor-not-allowed disabled:opacity-55"
+      style={{ borderRadius: '999px' }}
     >
       {loading ? loadingLabel : children}
     </button>
   )
 }
 
-/* ── AuthPasswordToggle ─────────────────────────────────────────────── */
+/* ── AuthPasswordToggle ───────────────────────────────────────────── */
 
 export function AuthPasswordToggle({ show, onClick }: { show: boolean; onClick: () => void }) {
   return (
@@ -168,7 +163,8 @@ export function AuthPasswordToggle({ show, onClick }: { show: boolean; onClick: 
       type="button"
       onClick={onClick}
       aria-label={show ? 'Sembunyikan password' : 'Tampilkan password'}
-      className="absolute right-3 top-1/2 min-h-10 min-w-10 -translate-y-1/2 flex items-center justify-center text-ink-4 hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald"
+      className="absolute right-3 top-1/2 min-h-10 min-w-10 -translate-y-1/2 flex items-center justify-center transition-colors focus-visible:outline-none"
+      style={{ color: 'var(--ink-4)' }}
     >
       {show ? (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -183,11 +179,11 @@ export function AuthPasswordToggle({ show, onClick }: { show: boolean; onClick: 
   )
 }
 
-/* ── AuthTrustNote ──────────────────────────────────────────────────── */
+/* ── AuthTrustNote ────────────────────────────────────────────────── */
 
 export function AuthTrustNote({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-lg-1 border border-line bg-surface p-4 text-[13px] leading-6 text-ink-3">
+    <div className="sh-card mt-4 text-[13px] leading-6" style={{ color: 'var(--ink-3)' }}>
       {children}
     </div>
   )

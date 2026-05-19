@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import AppLayout from '../components/AppLayout'
+import AppTopbar from '../components/AppTopbar'
+import PalmFrond from '../components/ds/botanical/PalmFrond'
 import api from '../api/client'
 import type { SubscriptionView } from '../context/farmContextBase'
 import { trackEvent, GAEvents } from '../utils/analytics'
@@ -43,8 +45,8 @@ function fmtDate(s: string | undefined) {
 
 function paymentStatusChip(status: string) {
   const s = status.toLowerCase()
-  if (s === 'settlement' || s === 'capture' || s === 'paid' || s === 'lunas') return 'chip-emerald'
-  if (s === 'pending') return 'chip-warn'
+  if (s === 'settlement' || s === 'capture' || s === 'paid' || s === 'lunas') return 'sh-chip-forest'
+  if (s === 'pending') return 'sh-chip-amber'
   return 'chip'
 }
 
@@ -178,20 +180,26 @@ export default function SubscriptionPage() {
 
   return (
     <AppLayout>
-      <div className="px-7 py-7 pb-12">
-        {/* Page header */}
-        <div className="mb-6">
-          <p className="eyebrow mb-2">Berlangganan</p>
-          <h1 className="display text-4xl font-bold text-ink" style={{ letterSpacing: '-0.025em' }}>Paket & Pembayaran</h1>
-          <p className="mt-2 text-sm text-ink-3">
-            Atur paket berlangganan, riwayat pembayaran, dan detail tagihan.
-          </p>
+      <AppTopbar title="Langganan" />
+      <div style={{ padding: '32px 36px 48px' }}>
+        {/* Editorial header */}
+        <div style={{ position: 'relative', marginBottom: 36 }}>
+          <PalmFrond size={280} style={{ position: 'absolute', right: -40, top: -60, color: 'var(--forest)', opacity: 0.08, pointerEvents: 'none' }} />
+          <div style={{ maxWidth: 720 }}>
+            <div className="sh-eyebrow" style={{ marginBottom: 12 }}>—— Langganan SawitHub</div>
+            <h1 className="sh-h-1">
+              Pilih paket yang <em className="sh-italic" style={{ color: 'var(--forest)' }}>tumbuh&nbsp;bersama</em> kebun kamu.
+            </h1>
+            <p style={{ fontSize: 16, color: 'var(--ink-3)', marginTop: 14 }}>
+              Bayar bulanan atau tahunan — hemat 2 bulan kalau bayar setahun. Bisa berhenti kapan saja.
+            </p>
+          </div>
         </div>
 
         {/* Mock payment banner */}
         {isMockPaymentSession && (
           <div className="mb-4 rounded-lg-1 border border-line bg-paper-2 p-5 text-sm">
-            <p className="font-semibold text-terra">Mode simulasi (bukan pembayaran nyata)</p>
+            <p className="font-semibold" style={{ color: 'var(--terracotta-2)' }}>Mode simulasi (bukan pembayaran nyata)</p>
             <p className="mt-2 leading-relaxed text-ink-3">
               Lingkungan ini memakai pembayaran tiruan untuk pengujian. Tidak ada penagihan sungguhan.
             </p>
@@ -199,7 +207,7 @@ export default function SubscriptionPage() {
             <button
               type="button"
               className="mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50 transition-opacity hover:opacity-90"
-              style={{ background: 'var(--emerald)' }}
+              style={{ background: 'var(--forest)' }}
               disabled={mockBusy}
               onClick={() => void completeMockPayment()}
             >
@@ -213,7 +221,7 @@ export default function SubscriptionPage() {
           className="rounded-lg-1 mb-4 relative overflow-hidden"
           style={{
             padding: 32,
-            background: 'linear-gradient(120deg, var(--emerald-2) 0%, var(--emerald) 100%)',
+            background: 'linear-gradient(120deg, var(--forest-3) 0%, var(--forest) 100%)',
             color: 'white',
             border: 'none',
           }}
@@ -293,8 +301,8 @@ export default function SubscriptionPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {/* Upgrade card */}
           <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-7">
-            <p className="eyebrow mb-1">Tingkatkan</p>
-            <h3 className="display text-xl font-bold text-ink mt-1 mb-4">Naik ke Koperasi</h3>
+            <p className="sh-eyebrow" style={{ marginBottom: 4 }}>Tingkatkan</p>
+            <h3 className="sh-h-4" style={{ marginTop: 4, marginBottom: 16 }}>Naik ke Koperasi</h3>
             <p className="text-sm text-ink-3 mb-5 leading-relaxed">
               Cocok jika kamu ingin mengelola anggota koperasi atau kelompok tani 50+ petani.
               Dapat akun multi-anggota, rekap koperasi, dan API integrasi PKS.
@@ -302,7 +310,7 @@ export default function SubscriptionPage() {
             <div className="flex flex-col gap-2 mb-6">
               {UPGRADE_FEATURES.map(f => (
                 <div key={f} className="flex items-center gap-2.5 text-sm">
-                  <span style={{ color: 'var(--emerald-2)', fontWeight: 700 }}>✓</span>
+                  <span style={{ color: 'var(--forest-3)', fontWeight: 700 }}>✓</span>
                   {f}
                 </div>
               ))}
@@ -315,7 +323,7 @@ export default function SubscriptionPage() {
               <Link
                 to="/bantuan/akses"
                 className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ background: 'var(--emerald)' }}
+                style={{ background: 'var(--forest)' }}
               >
                 Diskusi dengan tim →
               </Link>
@@ -325,8 +333,8 @@ export default function SubscriptionPage() {
           {/* Payment history */}
           <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm overflow-hidden">
             <div className="px-6 py-5" style={{ borderBottom: '1px solid var(--line)' }}>
-              <p className="eyebrow mb-1">Riwayat pembayaran</p>
-              <h3 className="display text-xl font-bold text-ink mt-1">
+              <p className="sh-eyebrow" style={{ marginBottom: 4 }}>Riwayat pembayaran</p>
+              <h3 className="sh-h-4" style={{ marginTop: 4 }}>
                 {paymentsLoading ? '—' : `${payments.length} tagihan`}
               </h3>
             </div>
@@ -370,7 +378,7 @@ export default function SubscriptionPage() {
                       onClick={() => void loadPayments(paymentsNextPage, true)}
                       disabled={loadingMore}
                       className="text-sm font-semibold disabled:opacity-50"
-                      style={{ color: 'var(--emerald-2)' }}
+                      style={{ color: 'var(--forest-3)' }}
                     >
                       {loadingMore ? 'Memuat…' : 'Muat lebih banyak →'}
                     </button>

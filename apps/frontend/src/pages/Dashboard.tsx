@@ -1,7 +1,14 @@
 import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import AppLayout from '../components/AppLayout'
+import AppTopbar from '../components/AppTopbar'
 import RupiahInput from '../components/RupiahInput'
+import Chip from '../components/ds/Chip'
+import Card from '../components/ds/Card'
+import Ring from '../components/ds/Ring'
+import PalmLeaf from '../components/ds/botanical/PalmLeaf'
+import SunRays from '../components/ds/botanical/SunRays'
+import { DownloadIcon, PlusIcon } from '../components/ds/icons'
 import {
   Area,
   AreaChart,
@@ -86,8 +93,6 @@ const LINE_COLORS = ['#22c55e','#38bdf8','#f97316','#f43f5e','#a78bfa','#34d399'
 const LINE_DASH_PATTERNS = ['0', '6 4', '3 3', '8 4', '4 2 2 2', '6 2 2 2'] as const
 const UP_COLORS   = ['#f97316','#22c55e','#38bdf8','#a855f7','#ec4899']
 
-const CARD = { background: 'var(--surface)', border: '1px solid var(--line)' }
-
 type Period = 'week' | 'month' | 'year'
 type Metric = 'total' | 'pendapatan' | 'net_income' | 'janjang' | 'harga_avg'
 type PerawatanMetric = 'all' | 'material' | 'pekerja' | 'total'
@@ -139,28 +144,26 @@ const PERFORMANCE_METRICS: { key: Metric; label: string; color: string; fmt: (v:
 ]
 
 function deltaTone(value: number) {
-  if (value > 0) return { color: 'var(--emerald)', bg: 'var(--emerald-soft)', border: 'var(--emerald-soft)' }
-  if (value < 0) return { color: 'var(--terra)', bg: 'var(--terra-soft)', border: 'var(--terra-soft)' }
+  if (value > 0) return { color: 'var(--forest)', bg: 'var(--forest-soft)', border: 'var(--forest-soft)' }
+  if (value < 0) return { color: 'var(--terracotta-2)', bg: 'var(--terra-soft)', border: 'var(--terra-soft)' }
   return { color: 'var(--ink-3)', bg: 'rgba(123,138,131,0.08)', border: 'rgba(123,138,131,0.18)' }
 }
 
 function SnapshotPill({ label, value, hint, accent }: { label: string; value: string; hint: string; accent: string }) {
   return (
-    <div
-      className="rounded-xl-1 p-4 bg-surface border border-line shadow-card-sm"
-    >
-      <p className="text-[10px] uppercase tracking-[0.18em] mb-1.5 font-semibold" style={{ color: accent }}>{label}</p>
-      <p className="text-[15px] font-semibold text-ink leading-tight break-words sm:text-base">{value}</p>
-      <p className="text-xs mt-2 leading-relaxed text-ink-4">{hint}</p>
+    <div style={{ borderRadius: 12, padding: 14, background: 'var(--paper)', border: '1px solid var(--line)' }}>
+      <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '.16em', marginBottom: 6, fontWeight: 600, color: accent }}>{label}</p>
+      <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink)', lineHeight: 1.2, wordBreak: 'break-all' }}>{value}</p>
+      <p style={{ fontSize: 11, marginTop: 6, lineHeight: 1.5, color: 'var(--ink-4)' }}>{hint}</p>
     </div>
   )
 }
 
 function PremiumStatCard({
   label,
-  shortLabel,
+  shortLabel: _shortLabel,
   value,
-  sub,
+  sub: _sub,
   accent,
   iconKind,
   delta,
@@ -178,34 +181,26 @@ function PremiumStatCard({
   const tone = deltaTone(delta)
 
   return (
-    <div className="relative overflow-hidden rounded-xl-1 bg-surface border border-line shadow-card p-4 md:p-5 transition">
-      <div className="absolute inset-x-0 top-0 h-[3px] rounded-t-xl-1" style={{ background: accent }} />
-      <div className="pt-1">
-        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="flex min-w-0 items-center gap-3">
-            <div
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-              style={{ background: `${accent}18`, border: `1px solid ${accent}30` }}
-            >
+    <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 16, background: 'var(--paper)', border: '1px solid var(--line)', boxShadow: 'var(--sh-card)', padding: '16px 20px 20px', transition: 'box-shadow 0.15s' }}>
+      <div style={{ position: 'absolute', inset: '0 0 auto 0', height: 3, borderRadius: '16px 16px 0 0', background: accent }} />
+      <div style={{ paddingTop: 4 }}>
+        <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ display: 'flex', minWidth: 0, alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 40, height: 40, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, background: `${accent}18`, border: `1px solid ${accent}30` }}>
               <AppMetricIcon kind={iconKind} />
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] uppercase tracking-[0.18em] text-ink-4">
-                <span className="md:hidden">{shortLabel}</span>
-                <span className="hidden md:inline">{label}</span>
-              </p>
-              <p className="mt-1 text-xl font-bold leading-tight text-ink break-words md:text-2xl">{value}</p>
+            <div style={{ minWidth: 0 }}>
+              <p className="sh-eyebrow">{label}</p>
+              <p style={{ marginTop: 4, fontSize: 22, fontFamily: 'var(--f-mono)', fontWeight: 500, lineHeight: 1.2, color: 'var(--ink)', wordBreak: 'break-all' }}>{value}</p>
             </div>
           </div>
           <span
-            className="self-start rounded-full border px-2.5 py-1 text-[11px] font-semibold sm:self-auto"
-            style={{ color: tone.color, background: tone.bg, borderColor: tone.border }}
+            style={{ alignSelf: 'start', borderRadius: 99, border: '1px solid', padding: '3px 10px', fontSize: 11, fontWeight: 600, color: tone.color, background: tone.bg, borderColor: tone.border }}
           >
             {fmtDelta(delta)}
           </span>
         </div>
-        <p className="text-xs md:text-sm leading-relaxed text-ink-3">{sub}</p>
-        <p className="text-[11px] mt-3 leading-relaxed text-ink-4">{insight}</p>
+        <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 8, lineHeight: 1.5 }}>{insight}</p>
       </div>
     </div>
   )
@@ -763,7 +758,30 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <div className="app-shell-gutter py-6 md:py-8">
+      {/* Inner sticky topbar */}
+      <AppTopbar
+        contextHint={
+          <Chip tone="forest" style={{ height: 32, padding: '0 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 6, height: 6, borderRadius: 99, background: 'var(--forest)', display: 'inline-block' }} />
+            {new Date().toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })}
+          </Chip>
+        }
+        headerActions={
+          <div style={{ display: 'flex', gap: 8 }}>
+            <a href="/laporan-keuangan" className="sh-btn sh-btn-ghost sh-btn-sm" style={{ borderRadius: 999, display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
+              <DownloadIcon size={14} />
+              Unduh laporan
+            </a>
+            <Link to="/panen/add" className="sh-btn sh-btn-amber sh-btn-sm" style={{ borderRadius: 999, display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
+              <PlusIcon size={14} />
+              Catat panen
+            </Link>
+          </div>
+        }
+      />
+
+      <div className="app-shell-gutter py-6 md:py-8" style={{ position: 'relative' }}>
+        <PalmLeaf size={180} style={{ position: 'absolute', right: 180, top: -40, color: 'var(--forest)', opacity: 0.07, transform: 'rotate(20deg)', pointerEvents: 'none' }} />
         <div className="app-shell-container space-y-6">
 
         {/* ── Page header ── */}
@@ -771,26 +789,23 @@ export default function Dashboard() {
           <div className="mb-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <p className="eyebrow mb-2">{greeting} · {hariIni}</p>
-                <h1 className="display text-3xl font-bold text-ink" style={{ letterSpacing: '-0.025em' }}>
+                <div className="sh-eyebrow" style={{ marginBottom: 10 }}>{greeting} · {hariIni}</div>
+                <h1 className="sh-h-2" style={{ maxWidth: 720 }}>
                   {firstName ? `${firstName}, kebun` : 'Kebun'} kamu{data && data.net_income !== 0 ? (
-                    <> untung <span style={{ color: 'var(--emerald)' }}>{rupiah(Math.abs(data.net_income))}</span> {period === 'month' ? 'bulan' : period === 'week' ? 'minggu' : 'tahun'} ini.</>
+                    <> untung <em className="sh-italic" style={{ color: 'var(--forest)' }}>{rupiah(Math.abs(data.net_income))}</em> {period === 'month' ? 'bulan' : period === 'week' ? 'minggu' : 'tahun'} ini.</>
                   ) : ' terpantau.'}
                 </h1>
-                <p className="mt-2 text-sm text-ink-3">
+                <p style={{ marginTop: 8, fontSize: 14, color: 'var(--ink-3)' }}>
                   {performanceSummary.totalUpcoming > 0 ? `${performanceSummary.totalUpcoming} jadwal kerja ke depan` : 'Catat panen atau biaya untuk melihat laporan.'}
-                  {data?.last_harga_per_kg ? ` · Harga TBS Rp ${data.last_harga_per_kg.toLocaleString('id-ID')}/kg` : ''}
+                  {data?.last_harga_per_kg ? <> · Harga TBS <span className="sh-num" style={{ fontWeight: 500, color: 'var(--ink-2)' }}>Rp&nbsp;{data.last_harga_per_kg.toLocaleString('id-ID')}/kg</span></> : ''}
                 </p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span
-                    className="inline-flex items-center rounded-full border border-emerald-soft bg-emerald-tint px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-emerald"
-                    title="Periode yang dikirim ke ReportingDashboardService — samakan dengan filter Laporan Keuangan untuk angka yang setara."
+                <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+                  <Chip tone="forest"
+                    style={{ fontSize: 11 }}
                   >
-                    Periode data: {dashboardPeriodLabel}
-                  </span>
-                  <span className="text-xs text-ink-4">
-                    {selectedLahanName}
-                  </span>
+                    {dashboardPeriodLabel}
+                  </Chip>
+                  <span style={{ fontSize: 12, color: 'var(--ink-4)' }}>{selectedLahanName}</span>
                 </div>
               </div>
               {farm.subscription && ['trialing', 'pending_payment', 'free_limited'].includes(
@@ -798,12 +813,13 @@ export default function Dashboard() {
               ) ? (
                 <Link
                   to="/subscription"
-                  className="inline-flex shrink-0 items-center gap-2 rounded-full border border-emerald-soft bg-emerald-tint px-3 py-1.5 text-xs font-semibold text-emerald transition hover:bg-emerald-soft"
+                  className="sh-btn sh-btn-ghost sh-btn-sm"
+                  style={{ borderRadius: 999, textDecoration: 'none' }}
                 >
                   Langganan
                   {farm.subscription.days_remaining != null && farm.subscription.days_remaining >= 0 ? (
-                    <span className="text-ink-4">
-                      {farm.subscription.days_remaining === 0 ? '• perlu perhatian' : `• sisa ${farm.subscription.days_remaining} hari`}
+                    <span style={{ color: 'var(--ink-4)', marginLeft: 4 }}>
+                      {farm.subscription.days_remaining === 0 ? '· perlu perhatian' : `· sisa ${farm.subscription.days_remaining} hari`}
                     </span>
                   ) : null}
                 </Link>
@@ -812,23 +828,23 @@ export default function Dashboard() {
           </div>
 
           {/* ── Filter row ── */}
-          <div className="flex flex-wrap items-center gap-3 p-3 rounded-2xl bg-surface border border-line">
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, padding: 10, background: 'var(--paper)', border: '1px solid var(--line-2)', borderRadius: 16 }}>
             {/* Period tabs */}
-            <div className="flex rounded-xl overflow-hidden text-sm flex-shrink-0 bg-paper-2 border border-line">
+            <div style={{ display: 'flex', background: 'var(--cream)', borderRadius: 10, padding: 3, border: '1px solid var(--line-2)' }}>
               {(['week','month','year'] as Period[]).map(p => (
                 <button key={p} onClick={() => setPeriod(p)}
-                  className="px-4 py-2 font-medium transition"
-                  style={period === p
-                    ? { background: 'var(--ink)', color: 'var(--paper)' }
-                    : { color: 'var(--ink-4)' }}
-                  onMouseOver={e => period !== p && (e.currentTarget.style.color = 'var(--ink)')}
-                  onMouseOut={e => period !== p && (e.currentTarget.style.color = 'var(--ink-4)')}>
+                  style={{
+                    padding: '6px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                    border: 0, cursor: 'pointer',
+                    background: period === p ? 'var(--forest)' : 'transparent',
+                    color: period === p ? 'var(--paper)' : 'var(--ink-3)',
+                  }}>
                   {p === 'week' ? 'Minggu' : p === 'month' ? 'Bulan' : 'Tahun'}
                 </button>
               ))}
             </div>
 
-            <div className="w-px h-6 bg-line" />
+            <div style={{ width: 1, height: 24, background: 'var(--line)' }} />
 
             {/* Year dropdown — always visible */}
             <select value={selYear} onChange={e => setSelYear(Number(e.target.value))}
@@ -858,19 +874,19 @@ export default function Dashboard() {
           <div className="mt-4 grid grid-cols-3 gap-2 md:hidden">
             <Link
               to="/pendapatan"
-              className="rounded-xl border border-line bg-surface px-2 py-2.5 text-center text-[11px] font-semibold leading-tight text-ink"
+              style={{ borderRadius: 10, border: '1px solid var(--line)', background: 'var(--paper)', padding: '8px 6px', textAlign: 'center', fontSize: 11, fontWeight: 600, color: 'var(--ink)', textDecoration: 'none' }}
             >
               Pendapatan
             </Link>
             <Link
               to="/harga-tbs"
-              className="rounded-xl border border-line bg-surface px-2 py-2.5 text-center text-[11px] font-semibold leading-tight text-ink"
+              style={{ borderRadius: 10, border: '1px solid var(--line)', background: 'var(--paper)', padding: '8px 6px', textAlign: 'center', fontSize: 11, fontWeight: 600, color: 'var(--ink)', textDecoration: 'none' }}
             >
               Harga TBS
             </Link>
             <Link
               to="/keuangan"
-              className="rounded-xl border border-emerald-soft bg-emerald-tint px-2 py-2.5 text-center text-[11px] font-semibold leading-tight text-emerald"
+              style={{ borderRadius: 10, border: '1px solid rgba(45,90,61,.25)', background: 'var(--forest-soft)', padding: '8px 6px', textAlign: 'center', fontSize: 11, fontWeight: 600, color: 'var(--forest)', textDecoration: 'none' }}
             >
               Keuangan
             </Link>
@@ -892,22 +908,26 @@ export default function Dashboard() {
 
         {/* ── Lahan tabs ── */}
         {data && data.lahan_list.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1">
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 6 }}>
             <button onClick={() => setLahanId('')}
-              className="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition"
-              style={lahanId === ''
-                ? { background: 'var(--emerald-soft)', border: '1px solid var(--emerald)', color: 'var(--emerald)' }
-                : { background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--ink-3)' }}>
+              style={{
+                flexShrink: 0, padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                background: lahanId === '' ? 'var(--forest-soft)' : 'var(--paper)',
+                border: lahanId === '' ? '1px solid rgba(45,90,61,.25)' : '1px solid var(--line)',
+                color: lahanId === '' ? 'var(--forest)' : 'var(--ink-3)',
+              }}>
               Semua Kebun
             </button>
             {data.lahan_list.map((l: LahanInfo, i: number) => (
               <button key={l.id_lahan} onClick={() => setLahanId(l.id_lahan)}
-                className="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition whitespace-nowrap"
-                style={lahanId === l.id_lahan
-                  ? { background: `${LINE_COLORS[i % LINE_COLORS.length]}18`, border: `1px solid ${LINE_COLORS[i % LINE_COLORS.length]}55`, color: LINE_COLORS[i % LINE_COLORS.length] }
-                  : { background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--ink-3)' }}>
+                style={{
+                  flexShrink: 0, padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
+                  background: lahanId === l.id_lahan ? `${LINE_COLORS[i % LINE_COLORS.length]}18` : 'var(--paper)',
+                  border: lahanId === l.id_lahan ? `1px solid ${LINE_COLORS[i % LINE_COLORS.length]}55` : '1px solid var(--line)',
+                  color: lahanId === l.id_lahan ? LINE_COLORS[i % LINE_COLORS.length] : 'var(--ink-3)',
+                }}>
                 {l.nama_kebun}
-                <span className="ml-1.5 text-xs opacity-60">{l.luas_ha} ha</span>
+                <span style={{ marginLeft: 6, fontSize: 11, opacity: 0.65 }}>{l.luas_ha} ha</span>
               </button>
             ))}
           </div>
@@ -918,15 +938,14 @@ export default function Dashboard() {
         )}
 
         {data && !loading && data.lahan_list?.length === 0 && (
-          <div className="rounded-3xl p-12 text-center border border-emerald-soft bg-emerald-tint">
-            <div className="text-6xl mb-6 opacity-80">🌴</div>
-            <div className="max-w-xs mx-auto">
-              <h2 className="text-ink font-bold text-xl mb-2">Mulai Isi Data Kebun</h2>
-              <p className="text-sm mb-8 text-ink-3">
+          <div style={{ borderRadius: 24, padding: '48px 24px', textAlign: 'center', border: '1px solid var(--forest-soft)', background: 'var(--forest-tint)' }}>
+            <div style={{ fontSize: 48, marginBottom: 20, opacity: 0.8 }}>🌴</div>
+            <div style={{ maxWidth: 320, margin: '0 auto' }}>
+              <h2 className="sh-h-4" style={{ marginBottom: 10 }}>Mulai Isi Data Kebun</h2>
+              <p style={{ fontSize: 14, marginBottom: 24, color: 'var(--ink-3)' }}>
                 Tambahkan data kebun dulu supaya panen, biaya, dan jadwal bisa langsung terlihat.
               </p>
-              <Link to="/lahan/add"
-                className="inline-block px-6 py-3 rounded-xl text-sm font-semibold text-paper bg-ink transition hover:bg-emerald-2">
+              <Link to="/lahan/add" className="sh-btn sh-btn-primary" style={{ borderRadius: 999, textDecoration: 'none', display: 'inline-flex' }}>
                 + Tambah Lahan Kebun
               </Link>
             </div>
@@ -935,87 +954,79 @@ export default function Dashboard() {
 
         {data && !loading && data.lahan_list?.length > 0 && (
           <>
-            <section className="rounded-xl-1 border border-emerald-soft bg-emerald-tint p-5 md:p-6">
-              <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald">Hari ini yang perlu dilihat</p>
-                  <h2 className="mt-2 text-xl font-semibold text-ink">Mulai dari 4 hal ini dulu.</h2>
-                </div>
-                <p className="max-w-2xl text-sm leading-6 text-ink-3">
-                  Ringkasan ini dibuat lebih sederhana untuk pengguna baru: cek kebun, panen, biaya, lalu laporan.
-                </p>
+            <Card style={{ padding: '20px 24px', background: 'var(--forest-tint)', borderColor: 'var(--forest-soft)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
+                <div className="sh-eyebrow" style={{ color: 'var(--forest)' }}>Hari ini yang perlu dilihat</div>
+                <h2 className="sh-h-4">Mulai dari 4 hal ini dulu.</h2>
               </div>
-              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
                 {todayFocusCards.map(card => (
-                  <article key={card.label} className="rounded-xl-1 border border-line bg-surface p-4 shadow-card-sm">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald">{card.label}</p>
-                    <h3 className="mt-2 text-base font-semibold text-ink">{card.title}</h3>
-                    <p className="mt-2 text-[15px] leading-7 text-ink-3">{card.copy}</p>
-                    <Link to={card.to} className="mt-4 inline-flex min-h-10 items-center rounded-xl border border-emerald-soft bg-emerald-tint px-3 text-sm font-semibold text-emerald transition hover:bg-emerald-soft">
+                  <article key={card.label} style={{ borderRadius: 12, border: '1px solid var(--line)', background: 'var(--paper)', padding: 16 }}>
+                    <p className="sh-eyebrow" style={{ color: 'var(--forest)', marginBottom: 8 }}>{card.label}</p>
+                    <h3 style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>{card.title}</h3>
+                    <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--ink-3)', marginBottom: 12 }}>{card.copy}</p>
+                    <Link to={card.to} className="sh-btn sh-btn-ghost sh-btn-sm" style={{ borderRadius: 999, textDecoration: 'none', display: 'inline-flex' }}>
                       {card.cta}
                     </Link>
                   </article>
                 ))}
               </div>
-            </section>
+            </Card>
 
             {!hasAnyOperationalRecord && (
-              <section className="rounded-xl-1 border border-line bg-surface p-5 md:p-6 shadow-card-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-terra">Data masih kosong</p>
-                <h2 className="mt-2 text-xl font-semibold text-ink">Dashboard akan lebih berguna setelah panen atau biaya pertama dicatat.</h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-ink-3">
+              <Card style={{ padding: '20px 24px' }}>
+                <p className="sh-eyebrow" style={{ color: 'var(--terracotta-2)', marginBottom: 8 }}>Data masih kosong</p>
+                <h2 className="sh-h-4" style={{ marginBottom: 8 }}>Dashboard akan lebih berguna setelah panen atau biaya pertama dicatat.</h2>
+                <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--ink-3)', marginBottom: 16 }}>
                   Kebun sudah ada. Langkah berikutnya adalah mencatat panen pertama atau biaya perawatan supaya grafik, hasil bersih, dan laporan mulai muncul.
                 </p>
-                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                  <Link to="/panen/add" className="inline-flex min-h-11 items-center justify-center rounded-full bg-ink px-5 text-sm font-semibold text-paper transition hover:bg-emerald-2">Catat Panen Pertama</Link>
-                  <Link to="/perawatan/add" className="inline-flex min-h-11 items-center justify-center rounded-full border border-line bg-surface px-5 text-sm font-semibold text-ink transition hover:bg-paper-2">Catat Biaya Perawatan</Link>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  <Link to="/panen/add" className="sh-btn sh-btn-primary" style={{ borderRadius: 999, textDecoration: 'none', display: 'inline-flex' }}>Catat Panen Pertama</Link>
+                  <Link to="/perawatan/add" className="sh-btn sh-btn-ghost" style={{ borderRadius: 999, textDecoration: 'none', display: 'inline-flex' }}>Catat Biaya Perawatan</Link>
                 </div>
-              </section>
+              </Card>
             )}
 
             {!isStandalonePWA && (
-              <section className="rounded-xl-1 border border-line bg-surface p-6 md:p-8 shadow-card">
-                <span className="inline-flex items-center rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.2em] mb-4 border border-emerald-soft bg-emerald-tint text-emerald">
-                  Ringkasan Kebun
-                </span>
-                <h2 className="text-2xl md:text-3xl font-semibold text-ink leading-tight mb-3">
+              <Card style={{ padding: '20px 24px' }}>
+                <Chip tone="forest" style={{ marginBottom: 14 }}>Ringkasan Kebun</Chip>
+                <h2 className="sh-h-4" style={{ marginBottom: 8 }}>
                   Semua keadaan kebun bisa dilihat lebih cepat di sini.
                 </h2>
-                <p className="max-w-3xl text-sm md:text-base leading-7 text-ink-3">
+                <p style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--ink-3)', marginBottom: 16 }}>
                   Lihat hasil panen, harga, biaya, dan jadwal kerja dalam satu halaman.
-                  Jadi Anda lebih cepat tahu bagian mana yang bagus, mana yang menekan hasil, dan apa yang perlu dikerjakan berikutnya.
                 </p>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
                   <SnapshotPill
                     label="Untung Bersih"
                     value={`${performanceSummary.marginPct.toFixed(1)}%`}
                     hint={data.net_income >= 0 ? 'Masih bagus dibanding uang masuk periode ini.' : 'Biaya lebih besar dari hasil bersih.'}
-                    accent={data.net_income >= 0 ? 'var(--emerald)' : 'var(--terra)'}
+                    accent={data.net_income >= 0 ? 'var(--forest)' : 'var(--terracotta-2)'}
                   />
                   <SnapshotPill
                     label="Harga Rata-rata"
                     value={`${fmtRupiahFull(performanceSummary.avgHargaAll)}/kg`}
                     hint={`Harga terakhir ${data.last_harga_per_kg > 0 ? `${rupiah(data.last_harga_per_kg)}/kg` : 'belum tersedia'}`}
-                    accent="#b45309"
+                    accent="var(--amber-2)"
                   />
                   <SnapshotPill
                     label="Biaya per Ton"
                     value={fmtRupiahFull(performanceSummary.biayaPerTon)}
                     hint="Mudah melihat biaya untuk tiap ton hasil panen."
-                    accent="var(--terra)"
+                    accent="var(--terracotta-2)"
                   />
                   <SnapshotPill
                     label="Jadwal Dekat"
                     value={`${performanceSummary.totalUpcoming} jadwal`}
                     hint={performanceSummary.nearestUpcoming ? `Paling dekat ${fmtDateShortWithYear(performanceSummary.nearestUpcoming.tanggal)}` : 'Belum ada jadwal terdekat.'}
-                    accent="#0284c7"
+                    accent="var(--c-sky)"
                   />
                 </div>
-              </section>
+              </Card>
             )}
 
             {/* ── Stat cards ── */}
-            <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 xl:grid-cols-4">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
               {statCards.map(c => (
                 <PremiumStatCard key={c.label} {...c} />
               ))}
@@ -1047,28 +1058,27 @@ export default function Dashboard() {
               }
 
               return (
-                <div className="rounded-xl-1 p-5 md:p-6 bg-surface border border-line shadow-card">
+                <Card padded={false} style={{ padding: '20px 24px', position: 'relative', overflow: 'hidden' }}>
+                  <SunRays size={120} style={{ position: 'absolute', right: 24, top: 24, color: 'var(--amber)', opacity: 0.06, pointerEvents: 'none' }} />
                   {/* header */}
-                  <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
                     <div>
-                      <div className="font-semibold text-ink text-lg">Grafik Panen</div>
-                      <div className="mt-1 text-xs text-ink-4">
-                        {selectedLahanName} · {dashboardPeriodLabel}
-                      </div>
-                      <div className="mt-2 text-sm leading-relaxed text-ink-3">
-                        Lihat titik paling tinggi lalu bandingkan dengan garis rata-rata supaya cepat tahu kapan hasil panen sedang bagus atau turun.
+                      <div className="sh-eyebrow" style={{ marginBottom: 6 }}>Performa kebun</div>
+                      <div className="sh-h-4">Grafik Panen — {selectedLahanName}</div>
+                      <div style={{ marginTop: 6, fontSize: 13, color: 'var(--ink-3)' }}>
+                        {dashboardPeriodLabel} · Lihat titik tertinggi dan bandingkan dengan rata-rata.
                       </div>
                     </div>
                     {/* metric tabs */}
-                    <div className="flex gap-1 flex-wrap">
+                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                       {PERFORMANCE_METRICS.map(mx => (
                         <button key={mx.key} onClick={() => setMetric(mx.key)}
-                          className="text-xs px-3 py-1.5 rounded-lg font-medium transition"
-                          style={metric === mx.key
-                            ? { background: `${mx.color}18`, border: `1px solid ${mx.color}55`, color: mx.color }
-                            : { background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--ink-4)' }}
-                          onMouseOver={e => metric !== mx.key && (e.currentTarget.style.color = 'var(--ink)')}
-                          onMouseOut={e => metric !== mx.key && (e.currentTarget.style.color = 'var(--ink-4)')}>
+                          style={{
+                            padding: '5px 11px', borderRadius: 8, fontSize: 12, fontWeight: 500,
+                            background: metric === mx.key ? 'var(--ink)' : 'transparent',
+                            color: metric === mx.key ? 'var(--paper)' : 'var(--ink-3)',
+                            border: 0, cursor: 'pointer',
+                          }}>
                           {mx.label}
                         </button>
                       ))}
@@ -1092,13 +1102,13 @@ export default function Dashboard() {
                       label="Perkiraan Berikutnya"
                       value={estimasiPanen > 0 ? fmtRupiahFull(estimasiPanen) : '-'}
                       hint={`Berdasar rata-rata ${data.avg_ton_per_period.toFixed(2)} ton tiap periode`}
-                      accent="var(--emerald)"
+                      accent="var(--forest)"
                     />
                     <SnapshotPill
                       label="Jumlah Kebun"
                       value={`${data.lahan_list.length} lokasi`}
                       hint={lahanId ? 'Sekarang sedang lihat satu kebun.' : 'Sekarang sedang lihat semua kebun.'}
-                      accent="#0284c7"
+                      accent="var(--c-sky)"
                     />
                   </div>
 
@@ -1108,30 +1118,30 @@ export default function Dashboard() {
                     </div>
                   ) : (
                     <>
-                      <div className="mb-4 grid gap-3 md:grid-cols-3">
-                        <div className="rounded-xl border border-line bg-paper-2 p-3">
-                          <div className="text-[11px] uppercase tracking-[0.18em] text-ink-4">Rata-rata</div>
-                          <div className="mt-1 text-lg font-semibold text-ink">
+                      <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', marginBottom: 16 }}>
+                        <div style={{ borderRadius: 10, border: '1px solid var(--line-2)', background: 'var(--cream)', padding: 12 }}>
+                          <div className="sh-eyebrow">Rata-rata</div>
+                          <div style={{ marginTop: 4, fontSize: 16, fontWeight: 600, color: 'var(--ink)' }}>
                             {isMultiLahanPerformance ? 'Per kebun' : m.fmt(performanceAverage)}
                           </div>
-                          <div className="mt-1 text-xs text-ink-4">
-                            {isMultiLahanPerformance ? 'Sedang membandingkan semua kebun.' : 'Sebagai patokan selama periode yang dipilih.'}
+                          <div style={{ marginTop: 4, fontSize: 11, color: 'var(--ink-4)' }}>
+                            {isMultiLahanPerformance ? 'Membandingkan semua kebun.' : 'Patokan periode ini.'}
                           </div>
                         </div>
-                        <div className="rounded-xl border border-line bg-paper-2 p-3">
-                          <div className="text-[11px] uppercase tracking-[0.18em] text-ink-4">Titik Tertinggi</div>
-                          <div className="mt-1 text-lg font-semibold text-ink">{peakMetricPoint?.label ?? '-'}</div>
-                          <div className="mt-1 text-xs text-ink-4">
+                        <div style={{ borderRadius: 10, border: '1px solid var(--line-2)', background: 'var(--cream)', padding: 12 }}>
+                          <div className="sh-eyebrow">Titik Tertinggi</div>
+                          <div style={{ marginTop: 4, fontSize: 16, fontWeight: 600, color: 'var(--ink)' }}>{peakMetricPoint?.label ?? '-'}</div>
+                          <div style={{ marginTop: 4, fontSize: 11, color: 'var(--ink-4)' }}>
                             {peakMetricPoint ? `${m.label} tertinggi ${m.fmt(peakMetricPoint[metric])}` : 'Belum ada data puncak.'}
                           </div>
                         </div>
-                        <div className="rounded-xl border border-line bg-paper-2 p-3">
-                          <div className="text-[11px] uppercase tracking-[0.18em] text-ink-4">Nilai Terakhir</div>
-                          <div className="mt-1 text-lg font-semibold text-ink">
+                        <div style={{ borderRadius: 10, border: '1px solid var(--line-2)', background: 'var(--cream)', padding: 12 }}>
+                          <div className="sh-eyebrow">Nilai Terakhir</div>
+                          <div style={{ marginTop: 4, fontSize: 16, fontWeight: 600, color: 'var(--ink)' }}>
                             {m.fmt(Number(performanceSummary.latestPoint?.[metric] ?? 0))}
                           </div>
-                          <div className="mt-1 text-xs text-ink-4">
-                            Dibanding data sebelumnya: {fmtDelta(percentChange(Number(performanceSummary.latestPoint?.[metric] ?? 0), Number(performanceSummary.previousPoint?.[metric] ?? 0)))}
+                          <div style={{ marginTop: 4, fontSize: 11, color: 'var(--ink-4)' }}>
+                            vs. sebelumnya: {fmtDelta(percentChange(Number(performanceSummary.latestPoint?.[metric] ?? 0), Number(performanceSummary.previousPoint?.[metric] ?? 0)))}
                           </div>
                         </div>
                       </div>
@@ -1206,7 +1216,7 @@ export default function Dashboard() {
                       </div>
                     </>
                   )}
-                </div>
+                </Card>
               )
             })()}
 
@@ -1214,239 +1224,202 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
               {/* Jadwal mendatang */}
-              <div className="rounded-xl-1 p-5 bg-surface border border-line shadow-card">
-                <div className="flex items-center justify-between gap-4 mb-4">
+              <Card padded={false} style={{ padding: '20px 24px', position: 'relative', overflow: 'hidden' }}>
+                <PalmLeaf size={90} style={{ position: 'absolute', right: -10, bottom: -10, color: 'var(--amber-2)', opacity: 0.1, pointerEvents: 'none' }} />
+                <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: 18 }}>
                   <div>
-                    <div className="font-semibold text-ink text-lg">Jadwal Kerja Berikutnya</div>
-                    <div className="text-xs mt-1 text-ink-4">
+                    <div className="sh-eyebrow" style={{ marginBottom: 6, color: 'var(--amber-2)' }}>—— Jadwal kerja</div>
+                    <div className="sh-h-4">
                       {performanceSummary.totalUpcoming > 0
-                        ? `${performanceSummary.totalUpcoming} jadwal sudah dibuat`
-                        : 'Belum ada jadwal yang dibuat'}
+                        ? `${performanceSummary.totalUpcoming} hari ke depan`
+                        : 'Belum ada jadwal'}
                     </div>
                   </div>
-                  <div className="rounded-full px-3 py-1 text-xs font-medium border border-emerald-soft bg-emerald-tint text-emerald">
-                    Jadwal Kebun
-                  </div>
+                  <Link to="/jadwal-perawatan" className="sh-btn sh-btn-ghost sh-btn-sm" style={{ borderRadius: 999, textDecoration: 'none' }}>Buka kalender</Link>
                 </div>
                 {data.upcoming_perawatan.length === 0 ? (
-                  <div className="text-sm py-6 text-center text-ink-4">
+                  <div style={{ padding: '24px 0', textAlign: 'center', fontSize: 14, color: 'var(--ink-4)' }}>
                     Tidak ada jadwal mendatang.
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    {data.upcoming_perawatan.map((item, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center justify-between gap-3 rounded-xl p-3 bg-paper-2 border border-line"
-                      >
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="w-1.5 h-12 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: UP_COLORS[i % UP_COLORS.length] }} />
-                          <div className="min-w-0">
-                            <div className="text-sm font-medium text-ink truncate">
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                    {data.upcoming_perawatan.slice(0, 3).map((item, i) => {
+                      const color = UP_COLORS[i % UP_COLORS.length]
+                      const d = new Date(item.tanggal)
+                      const dayName = d.toLocaleDateString('id-ID', { weekday: 'short' })
+                      const dayNum = d.getDate()
+                      return (
+                        <div key={i} style={{ display: 'flex', gap: 14, padding: '14px 0', borderBottom: i < Math.min(data.upcoming_perawatan.length, 3) - 1 ? '1px solid var(--line-2)' : 0 }}>
+                          <div style={{ width: 52, textAlign: 'center', paddingTop: 2, flexShrink: 0 }}>
+                            <div style={{ fontSize: 11, color: 'var(--ink-4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em' }}>{dayName}</div>
+                            <div className="sh-num" style={{ fontSize: 22, fontWeight: 500, color: 'var(--ink)', marginTop: 2 }}>{dayNum}</div>
+                          </div>
+                          <div style={{ flex: 1, paddingLeft: 14, borderLeft: `3px solid ${color}` }}>
+                            <div style={{ fontSize: 14, fontWeight: 600 }}>
                               {JENIS_LABEL[item.jenis_perawatan] ?? item.jenis_perawatan.replace(/_/g,' ')}
-                              {item.nama_blok ? ` – ${item.nama_blok}` : ''}
+                              {item.nama_blok ? ` — ${item.nama_blok}` : ''}
                             </div>
                             {item.keterangan && (
-                              <div className="text-xs truncate mt-1 text-ink-4">{item.keterangan}</div>
+                              <div style={{ fontSize: 12, color: 'var(--ink-4)', marginTop: 2 }}>{item.keterangan}</div>
                             )}
+                            {i === 0 && <Chip tone="amber" style={{ marginTop: 6 }}>Berikutnya</Chip>}
                           </div>
                         </div>
-                        <div className="text-right flex-shrink-0">
-                          <div className="text-xs font-semibold" style={{ color: UP_COLORS[i % UP_COLORS.length] }}>{fmtDateShortWithYear(item.tanggal)}</div>
-                          <div className="text-[11px] mt-1 text-ink-4">Agenda #{i + 1}</div>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 )}
-              </div>
+              </Card>
 
               {/* Harga TBS & estimasi */}
-              <div className="rounded-xl-1 p-5 bg-surface border border-line shadow-card">
-                <div className="flex items-start justify-between gap-4 mb-4">
+              <Card padded={false} style={{ padding: '20px 24px' }}>
+                <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
                   <div>
-                    <div className="font-semibold text-ink text-lg mb-1">Harga TBS Terakhir</div>
-                    <div className="text-xs text-ink-4">{selectedLahanName}</div>
+                    <div className="sh-eyebrow" style={{ marginBottom: 6 }}>Harga TBS Terakhir</div>
+                    <div className="sh-h-4">{selectedLahanName}</div>
                   </div>
-                  <div className="rounded-full px-3 py-1 text-xs font-medium border border-emerald-soft bg-emerald-tint text-emerald">
-                    Harga Terkini
-                  </div>
+                  <Chip tone="forest">Terkini</Chip>
                 </div>
-                <div className="text-3xl md:text-4xl font-bold text-ink mb-1">
+                <div className="sh-num" style={{ fontSize: 36, fontWeight: 400, letterSpacing: '-0.025em', marginBottom: 4 }}>
                   {data.last_harga_per_kg > 0
-                    ? `Rp ${data.last_harga_per_kg.toLocaleString('id-ID')} / kg`
+                    ? `Rp ${data.last_harga_per_kg.toLocaleString('id-ID')}`
                     : '–'}
+                  {data.last_harga_per_kg > 0 && <span style={{ fontSize: 16, color: 'var(--ink-4)', fontFamily: 'var(--f-body)' }}>&thinsp;/ kg</span>}
                 </div>
-                <div className="text-xs mb-5 text-ink-4">
+                <div style={{ fontSize: 12, marginBottom: 16, color: 'var(--ink-4)' }}>
                   Berdasarkan panen terakhir yang tercatat
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mb-5">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
                   <SnapshotPill
                     label="Perkiraan Panen"
                     value={estimasiPanen > 0 ? fmtRupiahFull(estimasiPanen) : '-'}
                     hint="Perkiraan nilai panen berikutnya"
-                    accent="var(--emerald)"
+                    accent="var(--forest)"
                   />
                   <SnapshotPill
                     label="Rata-rata Produksi"
                     value={fmtTonCompact(data.avg_ton_per_period)}
                     hint={period === 'week' ? 'per hari' : period === 'month' ? 'per minggu' : 'per bulan'}
-                    accent="#0284c7"
+                    accent="var(--c-sky)"
                   />
                 </div>
 
-                <div className="border-t border-line pt-4">
-                  <div className="text-xs mb-1 text-ink-4">Baca singkat:</div>
-                  <p className="text-sm leading-6 text-ink-3">
+                <div style={{ borderTop: '1px solid var(--line-2)', paddingTop: 14 }}>
+                  <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--ink-3)' }}>
                     {data.last_harga_per_kg > performanceSummary.avgHargaAll
                       ? 'Harga terakhir ada di atas rata-rata. Hasil jual sedang cukup baik.'
                       : 'Harga terakhir masih di bawah rata-rata. Cek lagi biaya dan waktu panen berikutnya.'}
                   </p>
                 </div>
-              </div>
+              </Card>
             </div>
 
-            <section className="rounded-xl-1 p-5 md:p-6 bg-surface border border-line shadow-card">
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-5">
+            <Card padded={false} style={{ padding: '20px 24px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, marginBottom: 20 }}>
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.18em] mb-1 text-ink-4">Lihat Tiap Kebun</p>
-                  <h2 className="text-xl md:text-2xl font-semibold text-ink">Ringkasan tiap kebun</h2>
-                  <p className="text-sm mt-1 text-ink-3">
+                  <div className="sh-eyebrow" style={{ marginBottom: 6 }}>Lihat Tiap Kebun</div>
+                  <h2 className="sh-h-4">Ringkasan tiap kebun</h2>
+                  <p style={{ fontSize: 13, marginTop: 4, color: 'var(--ink-3)' }}>
                     Lihat kebun mana yang hasilnya bagus dan mana yang perlu dicek lagi.
                   </p>
                 </div>
-                <div className="rounded-full px-3 py-1 text-xs font-medium border border-line bg-paper-2 text-ink-3">
-                  Data terbaru
-                </div>
+                <Chip tone="neutral">Data terbaru</Chip>
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
                 {estateExecutiveCards.map((estate, index) => {
-                  const accent = index === 0 ? '#22c55e' : index === 1 ? '#38bdf8' : index === 2 ? '#f59e0b' : '#a78bfa'
+                  const accent = index === 0 ? 'var(--forest)' : index === 1 ? 'var(--forest-3)' : index === 2 ? 'var(--amber-2)' : 'var(--c-sky)'
+                  const accentHex = index === 0 ? '#1A3D2B' : index === 1 ? '#2D5A3D' : index === 2 ? '#B88E1F' : '#4A7A8C'
                   const statusTone = estate.status === 'Bagus'
-                    ? { color: 'var(--emerald)', bg: 'var(--emerald-soft)' }
+                    ? { color: 'var(--forest)', bg: 'var(--forest-soft)' }
                     : estate.status === 'Cukup'
-                      ? { color: '#b45309', bg: 'rgba(180,83,9,0.08)' }
-                      : { color: 'var(--terra)', bg: 'var(--terra-soft)' }
+                      ? { color: 'var(--amber-2)', bg: 'var(--amber-soft)' }
+                      : { color: 'var(--terracotta-2)', bg: 'var(--terra-soft)' }
                   return (
                     <div
                       key={estate.id_lahan}
-                      className="relative overflow-hidden rounded-xl-1 p-5 bg-surface border border-line shadow-card-sm"
+                      style={{ position: 'relative', overflow: 'hidden', borderRadius: 14, padding: '16px 18px', background: 'var(--paper)', border: '1px solid var(--line)', boxShadow: 'var(--sh-card)' }}
                     >
-                      <div className="absolute inset-x-0 top-0 h-[3px] rounded-t-xl-1" style={{ background: accent }} />
-                      <div className="pt-1">
-                      <div className="flex items-start justify-between gap-3 mb-4">
-                        <div>
-                          <p className="text-sm font-semibold text-ink">{estate.nama_kebun}</p>
-                          <p className="text-xs mt-1 text-ink-4">{estate.luas_ha} ha · {estate.panenCount} panen terbaru</p>
+                      <div style={{ position: 'absolute', inset: '0 0 auto 0', height: 3, borderRadius: '14px 14px 0 0', background: accent }} />
+                      <div style={{ paddingTop: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                          <Ring pct={estate.score} color={accentHex} size={48} label={String(estate.score)} strokeWidth={5} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{estate.nama_kebun}</div>
+                            <div style={{ fontSize: 11.5, color: 'var(--ink-4)', marginTop: 2 }}>{estate.luas_ha} ha · {estate.status}</div>
+                          </div>
+                          <span style={{ borderRadius: 99, border: '1px solid', padding: '3px 10px', fontSize: 11, fontWeight: 600, color: statusTone.color, background: statusTone.bg, borderColor: statusTone.bg }}>{estate.status}</span>
                         </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-semibold text-ink">{estate.score}</div>
-                          <span className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold mt-1" style={{ color: statusTone.color, background: statusTone.bg }}>
-                            {estate.status}
-                          </span>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+                          <SnapshotPill label="Pendapatan" value={fmtRupiahFull(estate.pendapatan)} hint={`${fmtRupiahFull(estate.revenuePerHa)}/ha`} accent={accentHex} />
+                          <SnapshotPill label="Bersih" value={fmtRupiahFull(estate.bersih)} hint={`${fmtRupiahFull(estate.netPerHa)}/ha`} accent={estate.bersih >= 0 ? 'var(--forest)' : 'var(--terracotta-2)'} />
+                          <SnapshotPill label="Volume" value={fmtTonCompact(estate.beratTon)} hint={`${fmtTonCompact(estate.avgTonPerPanen)} per panen`} accent="var(--c-sky)" />
+                          <SnapshotPill label="Perawatan" value={`${estate.perawatanCount} kegiatan`} hint={estate.biayaRawat > 0 ? fmtRupiahFull(estate.biayaRawat) : 'Belum ada biaya'} accent="var(--amber-2)" />
                         </div>
-                      </div>
 
-                      <div className="h-2 rounded-full overflow-hidden mb-4 bg-paper-2">
-                        <div
-                          className="h-full rounded-full"
-                          style={{ width: `${Math.min(100, estate.score)}%`, background: accent }}
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3 mb-4">
-                        <SnapshotPill
-                          label="Pendapatan"
-                          value={fmtRupiahFull(estate.pendapatan)}
-                          hint={`${fmtRupiahFull(estate.revenuePerHa)}/ha`}
-                          accent={accent}
-                        />
-                        <SnapshotPill
-                          label="Bersih"
-                          value={fmtRupiahFull(estate.bersih)}
-                          hint={`${fmtRupiahFull(estate.netPerHa)}/ha`}
-                          accent={estate.bersih >= 0 ? 'var(--emerald)' : 'var(--terra)'}
-                        />
-                        <SnapshotPill
-                          label="Volume"
-                          value={fmtTonCompact(estate.beratTon)}
-                          hint={`${fmtTonCompact(estate.avgTonPerPanen)} per panen`}
-                          accent="#0284c7"
-                        />
-                        <SnapshotPill
-                          label="Perawatan"
-                          value={`${estate.perawatanCount} kegiatan`}
-                          hint={estate.biayaRawat > 0 ? fmtRupiahFull(estate.biayaRawat) : 'Belum ada biaya'}
-                          accent="#b45309"
-                        />
-                      </div>
-
-                      <p className="text-sm leading-6 text-ink-3">
-                        {estate.status === 'Bagus'
-                          ? 'Kebun ini sedang bagus. Pola kerja dan hasilnya bisa dijadikan contoh.'
-                          : estate.status === 'Cukup'
-                            ? 'Hasilnya cukup baik, tapi masih bisa ditingkatkan lagi.'
-                            : 'Kebun ini perlu dicek lagi. Lihat panen, biaya rawat, dan hasil per hektarenya.'}
-                      </p>
+                        <p style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--ink-3)' }}>
+                          {estate.status === 'Bagus'
+                            ? 'Kebun ini sedang bagus. Pola kerja dan hasilnya bisa dijadikan contoh.'
+                            : estate.status === 'Cukup'
+                              ? 'Hasilnya cukup baik, tapi masih bisa ditingkatkan lagi.'
+                              : 'Kebun ini perlu dicek lagi. Lihat panen, biaya rawat, dan hasil per hektarenya.'}
+                        </p>
                       </div>
                     </div>
                   )
                 })}
               </div>
-            </section>
+            </Card>
 
             {/* ── Biaya Perawatan Trend ── */}
             {data && data.recent_perawatan && data.recent_perawatan.length > 0 && (
-              <div className="rounded-xl-1 p-5 md:p-6 bg-surface border border-line shadow-card">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <Card padded={false} style={{ padding: '20px 24px' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
                   <div>
-                    <div className="font-semibold text-ink">Grafik Biaya Perawatan</div>
-                    <div className="text-xs mt-0.5 text-ink-4">
-                      {selectedLahanName} · {dashboardPeriodLabel}
-                    </div>
-                    <div className="mt-2 text-sm leading-relaxed text-ink-3">
-                      Batang menunjukkan biaya bahan dan pekerja. Garis kuning menunjukkan total biaya tiap tanggal.
+                    <div className="sh-eyebrow" style={{ marginBottom: 6 }}>Biaya Perawatan</div>
+                    <div className="sh-h-4">Grafik Biaya — {selectedLahanName}</div>
+                    <div style={{ marginTop: 6, fontSize: 13, color: 'var(--ink-3)' }}>
+                      {dashboardPeriodLabel} · Batang = bahan & pekerja. Garis = total biaya.
                     </div>
                   </div>
                   {/* metric tabs */}
-                  <div className="flex gap-1 flex-wrap">
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                     {[
-                      { key: 'all', label: 'Semua', color: '#d97706' },
-                      { key: 'material', label: 'Material', color: '#f97316' },
-                      { key: 'pekerja', label: 'Pekerja', color: '#7c3aed' },
-                      { key: 'total', label: 'Total', color: '#b45309' },
+                      { key: 'all', label: 'Semua', color: 'var(--amber-2)' },
+                      { key: 'material', label: 'Material', color: 'var(--terracotta)' },
+                      { key: 'pekerja', label: 'Pekerja', color: 'var(--c-sky)' },
+                      { key: 'total', label: 'Total', color: 'var(--forest)' },
                     ].map(mx => (
                       <button key={mx.key} onClick={() => setPerawatanMetric(mx.key as PerawatanMetric)}
-                        className="text-xs px-3 py-1.5 rounded-lg font-medium transition"
-                        style={perawatanMetric === mx.key
-                          ? { background: `${mx.color}18`, border: `1px solid ${mx.color}55`, color: mx.color }
-                          : { background: 'var(--surface)', border: '1px solid var(--line)', color: 'var(--ink-4)' }}
-                        onMouseOver={e => perawatanMetric !== mx.key && (e.currentTarget.style.color = 'var(--ink)')}
-                        onMouseOut={e => perawatanMetric !== mx.key && (e.currentTarget.style.color = 'var(--ink-4)')}>
+                        style={{
+                          padding: '5px 11px', borderRadius: 8, fontSize: 12, fontWeight: 500,
+                          background: perawatanMetric === mx.key ? 'var(--ink)' : 'transparent',
+                          color: perawatanMetric === mx.key ? 'var(--paper)' : 'var(--ink-3)',
+                          border: 0, cursor: 'pointer',
+                        }}>
                         {mx.label}
                       </button>
                     ))}
                   </div>
                 </div>
-                <div className="mb-4 grid gap-3 md:grid-cols-3">
-                  <div className="rounded-xl border border-line bg-paper-2 p-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-ink-4">Rata-rata</div>
-                    <div className="mt-1 text-base font-semibold leading-tight text-ink break-words md:text-lg">{fmtRupiahFull(perawatanAverage)}</div>
-                    <div className="mt-1 text-xs text-ink-4">Patokan biaya rawat tiap tanggal pada periode ini.</div>
+                <div style={{ display: 'grid', gap: 10, gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', marginBottom: 16 }}>
+                  <div style={{ borderRadius: 10, border: '1px solid var(--line-2)', background: 'var(--cream)', padding: 12 }}>
+                    <div className="sh-eyebrow">Rata-rata</div>
+                    <div style={{ marginTop: 4, fontSize: 15, fontWeight: 600, color: 'var(--ink)', wordBreak: 'break-all' }}>{fmtRupiahFull(perawatanAverage)}</div>
+                    <div style={{ marginTop: 4, fontSize: 11, color: 'var(--ink-4)' }}>Patokan biaya tiap tanggal.</div>
                   </div>
-                  <div className="rounded-xl border border-line bg-paper-2 p-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-ink-4">Tanggal Tersibuk</div>
-                    <div className="mt-1 text-lg font-semibold text-ink">
+                  <div style={{ borderRadius: 10, border: '1px solid var(--line-2)', background: 'var(--cream)', padding: 12 }}>
+                    <div className="sh-eyebrow">Tanggal Tersibuk</div>
+                    <div style={{ marginTop: 4, fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>
                       {perawatanChartRows.reduce((best, row) => row.agendaCount > best.agendaCount ? row : best, perawatanChartRows[0])?.label || '-'}
                     </div>
-                    <div className="mt-1 text-xs text-ink-4">Tanggal dengan pekerjaan rawat paling banyak.</div>
+                    <div style={{ marginTop: 4, fontSize: 11, color: 'var(--ink-4)' }}>Pekerjaan rawat paling banyak.</div>
                   </div>
-                  <div className="rounded-xl border border-line bg-paper-2 p-3">
-                    <div className="text-[11px] uppercase tracking-[0.18em] text-ink-4">Biaya Tertinggi</div>
-                    <div className="mt-1 text-base font-semibold leading-tight text-ink break-words md:text-lg">
+                  <div style={{ borderRadius: 10, border: '1px solid var(--line-2)', background: 'var(--cream)', padding: 12 }}>
+                    <div className="sh-eyebrow">Biaya Tertinggi</div>
+                    <div style={{ marginTop: 4, fontSize: 15, fontWeight: 600, color: 'var(--ink)', wordBreak: 'break-all' }}>
                       {fmtRupiahFull(Math.max(...perawatanChartRows.map(row => row.total), 0))}
                     </div>
                     <div className="mt-1 text-xs text-ink-4">Bandingkan hari ini dengan hasil panen sesudahnya.</div>
@@ -1554,53 +1527,53 @@ export default function Dashboard() {
                   </ComposedChart>
                 </ResponsiveContainer>
 
-                <div className="mt-4 rounded-xl border border-line bg-paper-2 px-4 py-3 text-sm text-ink-3">
+                <div style={{ marginTop: 14, borderRadius: 10, border: '1px solid var(--line-2)', background: 'var(--cream)', padding: '10px 14px', fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.5 }}>
                   Perhatikan tanggal saat garis total jauh di atas rata-rata. Biasanya di situlah biaya bahan, pekerja, atau banyaknya pekerjaan sedang naik.
                 </div>
-              </div>
+              </Card>
             )}
 
             {/* ── Recent panen ── */}
-            <div className="rounded-xl-1 p-4 md:p-5" style={CARD}>
-              <h2 className="font-semibold text-ink mb-4">Riwayat Panen Terbaru</h2>
+            <Card padded={false} style={{ padding: '20px 24px' }}>
+              <div className="sh-h-4" style={{ marginBottom: 16 }}>Riwayat Panen Terbaru</div>
 
               {/* Mobile card list */}
-              <div className="md:hidden space-y-2">
+              <div className="md:hidden" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {data.recent_panen.length === 0 ? (
-                  <p className="text-center py-6 text-sm text-ink-4">Belum ada data panen.</p>
+                  <p style={{ textAlign: 'center', padding: '24px 0', fontSize: 14, color: 'var(--ink-4)' }}>Belum ada data panen.</p>
                 ) : data.recent_panen.map(p => {
                   const kebun = data.lahan_list.find(l => l.id_lahan === p.id_lahan)?.nama_kebun ?? `Lahan ${p.id_lahan}`
                   return (
-                    <div key={p.id_panen} className="rounded-xl p-3 bg-paper-2 border border-line">
-                      <div className="flex items-start justify-between mb-2.5">
+                    <div key={p.id_panen} style={{ borderRadius: 10, padding: 12, background: 'var(--cream)', border: '1px solid var(--line)' }}>
+                      <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: 10 }}>
                         <div>
-                          <div className="text-xs font-semibold text-ink">{fmtDateFull(p.tanggal_panen)}</div>
-                          <div className="text-[11px] mt-0.5 text-ink-4">{kebun}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{fmtDateFull(p.tanggal_panen)}</div>
+                          <div style={{ fontSize: 11, marginTop: 2, color: 'var(--ink-4)' }}>{kebun}</div>
                         </div>
-                        <div className="flex gap-1 flex-shrink-0">
-                          <button onClick={() => openView(p)} className="p-1.5 rounded-lg" style={{ color: '#0284c7', background: 'rgba(2,132,199,0.08)' }}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                          <button onClick={() => openView(p)} style={{ padding: 6, borderRadius: 8, color: 'var(--c-sky)', background: 'rgba(74,122,140,0.1)', border: 0, cursor: 'pointer' }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                           </button>
-                          <button onClick={() => openEdit(p)} className="p-1.5 rounded-lg" style={{ color: '#7c3aed', background: 'rgba(124,58,237,0.08)' }}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          <button onClick={() => openEdit(p)} style={{ padding: 6, borderRadius: 8, color: 'var(--forest)', background: 'var(--forest-soft)', border: 0, cursor: 'pointer' }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                           </button>
-                          <button onClick={() => handleDelete(p.id_panen)} className="p-1.5 rounded-lg" style={{ color: '#dc2626', background: 'rgba(220,38,38,0.08)' }}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                          <button onClick={() => handleDelete(p.id_panen)} style={{ padding: 6, borderRadius: 8, color: 'var(--terracotta-2)', background: 'var(--terra-soft)', border: 0, cursor: 'pointer' }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
                           </button>
                         </div>
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="rounded-lg p-2 bg-surface">
-                          <div className="text-[10px] mb-0.5 text-ink-4">Berat</div>
-                          <div className="text-xs font-semibold text-ink">{parseFloat(p.berat_ton.toFixed(2))} ton</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+                        <div style={{ borderRadius: 8, padding: 8, background: 'var(--paper)' }}>
+                          <div style={{ fontSize: 10, marginBottom: 2, color: 'var(--ink-4)' }}>Berat</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{parseFloat(p.berat_ton.toFixed(2))} ton</div>
                         </div>
-                        <div className="rounded-lg p-2 bg-surface">
-                          <div className="text-[10px] mb-0.5 text-ink-4">Pendapatan</div>
-                          <div className="text-xs font-semibold text-emerald">{rupiah(p.total_pendapatan)}</div>
+                        <div style={{ borderRadius: 8, padding: 8, background: 'var(--paper)' }}>
+                          <div style={{ fontSize: 10, marginBottom: 2, color: 'var(--ink-4)' }}>Pendapatan</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--forest)' }}>{rupiah(p.total_pendapatan)}</div>
                         </div>
-                        <div className="rounded-lg p-2 bg-surface">
-                          <div className="text-[10px] mb-0.5 text-ink-4">Bersih</div>
-                          <div className="text-xs font-semibold text-emerald">{rupiah(p.hasil_bersih)}</div>
+                        <div style={{ borderRadius: 8, padding: 8, background: 'var(--paper)' }}>
+                          <div style={{ fontSize: 10, marginBottom: 2, color: 'var(--ink-4)' }}>Bersih</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--forest)' }}>{rupiah(p.hasil_bersih)}</div>
                         </div>
                       </div>
                     </div>
@@ -1638,8 +1611,8 @@ export default function Dashboard() {
                         <td className="px-2 py-3 text-xs font-medium text-ink">{parseFloat(p.berat_ton.toFixed(2))}</td>
                         <td className="px-2 py-3 text-xs text-ink-3">{(p.berat_kg / p.jumlah_janjang).toFixed(2)} kg</td>
                         <td className="px-2 py-3 text-xs text-ink-3">{rupiah(p.harga_per_kg)}</td>
-                        <td className="px-2 py-3 text-xs font-medium text-emerald">{rupiah(p.total_pendapatan)}</td>
-                        <td className="px-2 py-3 text-xs font-medium text-emerald">{rupiah(p.hasil_bersih)}</td>
+                        <td className="px-2 py-3 text-xs font-medium" style={{ color: "var(--forest)" }}>{rupiah(p.total_pendapatan)}</td>
+                        <td className="px-2 py-3 text-xs font-medium" style={{ color: "var(--forest)" }}>{rupiah(p.hasil_bersih)}</td>
                         <td className="px-2 py-3 whitespace-nowrap">
                           <div className="flex items-center gap-1">
                             <button onClick={() => openView(p)} title="Detail"
@@ -1676,23 +1649,23 @@ export default function Dashboard() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
 
             {/* ── Recent perawatan ── */}
-            <div className="rounded-xl-1 p-4 md:p-5" style={CARD}>
-              <h2 className="font-semibold text-ink mb-4">Riwayat Perawatan Terbaru</h2>
+            <Card padded={false} style={{ padding: '20px 24px' }}>
+              <div className="sh-h-4" style={{ marginBottom: 16 }}>Riwayat Perawatan Terbaru</div>
 
               {/* Mobile card list */}
-              <div className="md:hidden space-y-2">
+              <div className="md:hidden" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {(!data.recent_perawatan || data.recent_perawatan.length === 0) ? (
-                  <p className="text-center py-6 text-sm text-ink-4">Belum ada data perawatan.</p>
+                  <p style={{ textAlign: 'center', padding: '24px 0', fontSize: 14, color: 'var(--ink-4)' }}>Belum ada data perawatan.</p>
                 ) : data.recent_perawatan.map((p: PerawatanRow) => {
                   const kebun = data.lahan_list.find(l => l.id_lahan === p.id_lahan)?.nama_kebun ?? `Lahan ${p.id_lahan}`
                   return (
-                    <div key={p.id_perawatan} className="rounded-xl p-3 bg-paper-2 border border-line">
-                      <div className="flex items-start justify-between mb-2.5">
+                    <div key={p.id_perawatan} style={{ borderRadius: 10, padding: 12, background: 'var(--cream)', border: '1px solid var(--line)' }}>
+                      <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: 10 }}>
                         <div>
-                          <div className="text-xs font-semibold text-ink">{JENIS_LABEL[p.jenis_perawatan] ?? p.jenis_perawatan.replace(/_/g,' ')}</div>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{JENIS_LABEL[p.jenis_perawatan] ?? p.jenis_perawatan.replace(/_/g,' ')}</div>
                           <div className="text-[11px] mt-0.5 text-ink-4">{fmtDateShort(p.tanggal_perawatan)} · {kebun}</div>
                         </div>
                         <div className="flex gap-1 flex-shrink-0">
@@ -1714,7 +1687,7 @@ export default function Dashboard() {
                         </div>
                         <div className="rounded-lg p-2 bg-surface">
                           <div className="text-[10px] mb-0.5 text-ink-4">Total Biaya</div>
-                          <div className="text-xs font-semibold text-terra">{p.biaya ? rupiah(p.biaya) : '-'}</div>
+                          <div className="text-xs font-semibold" style={{ color: "var(--terracotta-2)" }}>{p.biaya ? rupiah(p.biaya) : '-'}</div>
                         </div>
                       </div>
                       {p.bahan && <div className="mt-2 text-[11px] text-ink-4">{p.bahan}</div>}
@@ -1734,13 +1707,14 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {!data.recent_perawatan || data.recent_perawatan.length === 0 ? (
+                    {(!data.recent_perawatan || data.recent_perawatan.length === 0) && (
                       <tr>
                         <td colSpan={12} className="text-center py-10 text-sm text-ink-4">
                           Belum ada data perawatan.
                         </td>
                       </tr>
-                    ) : data.recent_perawatan.map((p: PerawatanRow) => (
+                    )}
+                    {(data.recent_perawatan ?? []).map((p: PerawatanRow) => (
                       <tr key={p.id_perawatan} className="border-b border-line transition hover:bg-paper-2">
                         <td className="px-2 py-3 whitespace-nowrap text-xs text-ink-3">
                           {fmtDateFull(p.tanggal_perawatan)}
@@ -1755,7 +1729,7 @@ export default function Dashboard() {
                         <td className="px-2 py-3 text-xs text-ink-3">{p.harga_satuan ? rupiah(p.harga_satuan) : '-'}</td>
                         <td className="px-2 py-3 text-xs text-ink-3">{p.total_harga_material ? rupiah(p.total_harga_material) : '-'}</td>
                         <td className="px-2 py-3 text-xs text-ink-3">{p.biaya_pekerja ? rupiah(p.biaya_pekerja) : '-'}</td>
-                        <td className="px-2 py-3 text-xs font-medium text-terra">{p.biaya ? rupiah(p.biaya) : '-'}</td>
+                        <td className="px-2 py-3 text-xs font-medium" style={{ color: "var(--terracotta-2)" }}>{p.biaya ? rupiah(p.biaya) : '-'}</td>
                         <td className="px-2 py-3 text-xs truncate text-ink-4">{p.keterangan || '-'}</td>
                         <td className="px-2 py-3 whitespace-nowrap">
                           <div className="flex items-center gap-1">
@@ -1793,11 +1767,11 @@ export default function Dashboard() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
 
             {/* ── Recent pendapatan ── */}
-            <div className="rounded-xl-1 p-4 md:p-5" style={CARD}>
-              <h2 className="font-semibold text-ink mb-4">Riwayat Pendapatan Terbaru</h2>
+            <Card padded={false} style={{ padding: '20px 24px' }}>
+              <div className="sh-h-4" style={{ marginBottom: 16 }}>Riwayat Pendapatan Terbaru</div>
 
               {/* Mobile card list */}
               <div className="md:hidden space-y-2">
@@ -1831,11 +1805,11 @@ export default function Dashboard() {
                         </div>
                         <div className="rounded-lg p-2 bg-surface">
                           <div className="text-[10px] mb-0.5 text-ink-4">Kotor</div>
-                          <div className="text-xs font-semibold text-emerald">{rupiah(p.pendapatan_kotor)}</div>
+                          <div className="text-xs font-semibold" style={{ color: "var(--forest)" }}>{rupiah(p.pendapatan_kotor)}</div>
                         </div>
                         <div className="rounded-lg p-2 bg-surface">
                           <div className="text-[10px] mb-0.5 text-ink-4">Bersih</div>
-                          <div className="text-xs font-semibold text-emerald">{rupiah(p.pendapatan_bersih)}</div>
+                          <div className="text-xs font-semibold" style={{ color: "var(--forest)" }}>{rupiah(p.pendapatan_bersih)}</div>
                         </div>
                       </div>
                     </div>
@@ -1854,13 +1828,14 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {!data.recent_pendapatan || data.recent_pendapatan.length === 0 ? (
+                    {(!data.recent_pendapatan || data.recent_pendapatan.length === 0) && (
                       <tr>
                         <td colSpan={9} className="text-center py-10 text-sm text-ink-4">
                           Belum ada data pendapatan.
                         </td>
                       </tr>
-                    ) : data.recent_pendapatan.map((p: PendapatanRow) => (
+                    )}
+                    {(data.recent_pendapatan ?? []).map((p: PendapatanRow) => (
                       <tr key={p.id_pendapatan} className="border-b border-line transition hover:bg-paper-2">
                         <td className="px-2 py-3 whitespace-nowrap text-xs text-ink-3">
                           {fmtDateFull(p.tanggal_panen)}
@@ -1870,9 +1845,9 @@ export default function Dashboard() {
                         </td>
                         <td className="px-2 py-3 text-xs font-medium text-ink">{p.total_berat_kg.toLocaleString('id-ID', {maximumFractionDigits: 2})}</td>
                         <td className="px-2 py-3 text-xs text-ink-3">{p.total_janjang || '-'}</td>
-                        <td className="px-2 py-3 text-xs font-medium text-emerald">{rupiah(p.pendapatan_kotor)}</td>
+                        <td className="px-2 py-3 text-xs font-medium" style={{ color: "var(--forest)" }}>{rupiah(p.pendapatan_kotor)}</td>
                         <td className="px-2 py-3 text-xs text-ink-3">{rupiah(p.biaya_total)}</td>
-                        <td className="px-2 py-3 text-xs font-medium text-emerald">{rupiah(p.pendapatan_bersih)}</td>
+                        <td className="px-2 py-3 text-xs font-medium" style={{ color: "var(--forest)" }}>{rupiah(p.pendapatan_bersih)}</td>
                         <td className="px-2 py-3 text-xs truncate text-ink-4">{p.catatan || '-'}</td>
                         <td className="px-2 py-3 whitespace-nowrap">
                           <div className="flex items-center gap-1">
@@ -1910,11 +1885,11 @@ export default function Dashboard() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
 
             {/* ── Recent lahan ── */}
-            <div className="rounded-xl-1 p-4 md:p-5" style={CARD}>
-              <h2 className="font-semibold text-ink mb-4">Riwayat Lahan Terbaru</h2>
+            <Card padded={false} style={{ padding: '20px 24px' }}>
+              <div className="sh-h-4" style={{ marginBottom: 16 }}>Riwayat Lahan Terbaru</div>
 
               {/* Mobile card list */}
               <div className="md:hidden space-y-2">
@@ -1969,13 +1944,14 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {!data.lahan_list || data.lahan_list.length === 0 ? (
+                    {(!data.lahan_list || data.lahan_list.length === 0) && (
                       <tr>
                         <td colSpan={7} className="text-center py-10 text-sm text-ink-4">
                           Belum ada data lahan.
                         </td>
                       </tr>
-                    ) : data.lahan_list.map(l => (
+                    )}
+                    {data.lahan_list.map(l => (
                       <tr key={l.id_lahan} className="border-b border-line transition hover:bg-paper-2">
                         <td className="px-2 py-3 text-xs font-medium text-ink">{l.nama_kebun}</td>
                         <td className="px-2 py-3 text-xs text-ink-3">{l.jenis_bibit || '-'}</td>
@@ -2019,7 +1995,7 @@ export default function Dashboard() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </Card>
           </>
         )}
         </div>
@@ -2031,14 +2007,14 @@ export default function Dashboard() {
           style={{ background: 'rgba(0,0,0,0.75)' }}
           onClick={e => { if (e.target === e.currentTarget) setModal(null) }}>
           <div className="w-full max-w-md rounded-2xl p-6"
-            style={{ background: 'var(--surface)', border: '1px solid var(--line)' }}>
+            style={{ background: 'var(--paper)', border: '1px solid var(--line)', boxShadow: 'var(--sh-card-3)' }}>
 
             {/* Header */}
             <div className="flex justify-between items-center mb-5">
-              <h2 className="text-ink font-bold text-lg">
+              <h2 className="sh-h-4">
                 {modal.mode === 'view' ? 'Detail Panen' : 'Edit Data Panen'}
               </h2>
-              <button onClick={() => setModal(null)} className="text-ink-4 hover:text-ink transition text-xl leading-none">×</button>
+              <button onClick={() => setModal(null)} style={{ color: 'var(--ink-4)', background: 'none', border: 0, fontSize: 24, lineHeight: 1, cursor: 'pointer' }}>×</button>
             </div>
 
             {modal.mode === 'view' ? (
@@ -2052,8 +2028,8 @@ export default function Dashboard() {
                   { label: 'Berat',          value: `${modal.row.berat_kg} kg (${modal.row.berat_ton.toFixed(3)} ton)` },
                   { label: 'Harga / kg',     value: rupiah(modal.row.harga_per_kg) },
                   { label: 'Biaya Panen',    value: rupiah(modal.row.biaya_panen) },
-                  { label: 'Total Pendapatan', value: rupiah(modal.row.total_pendapatan), color: 'var(--emerald)' },
-                  { label: 'Pendapatan Bersih', value: rupiah(modal.row.hasil_bersih), color: 'var(--emerald)' },
+                  { label: 'Total Pendapatan', value: rupiah(modal.row.total_pendapatan), color: 'var(--forest)' },
+                  { label: 'Pendapatan Bersih', value: rupiah(modal.row.hasil_bersih), color: 'var(--forest)' },
                 ].map(r => (
                   <div key={r.label} className="flex justify-between items-center py-2"
                     style={{ borderBottom: '1px solid var(--line)' }}>
@@ -2062,15 +2038,15 @@ export default function Dashboard() {
                   </div>
                 ))}
                 <button onClick={() => openEdit(modal.row)}
-                  className="w-full mt-3 py-2.5 text-sm font-bold rounded-xl transition"
-                  style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.2)', color: '#7c3aed' }}>
+                  className="sh-btn sh-btn-ghost w-full mt-3"
+                  style={{ borderRadius: 999 }}>
                   Edit Data Ini
                 </button>
               </div>
             ) : (
               /* ── Edit mode ── */
               (() => {
-                const INP = 'w-full px-3 py-2.5 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-emerald transition'
+                const INP = 'w-full px-3 py-2.5 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:ring-forest transition'
                 const LBL = 'block text-xs font-medium uppercase tracking-wide mb-1' as const
                 const LBL_ST = { color: 'var(--ink-3)' }
                 const ef = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -2168,7 +2144,7 @@ export default function Dashboard() {
               </div>
             ) : (
               (() => {
-                const INP = 'w-full px-3 py-2.5 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-emerald transition'
+                const INP = 'w-full px-3 py-2.5 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:ring-forest transition'
                 const LBL = 'block text-xs font-medium uppercase tracking-wide mb-1' as const
                 const LBL_ST = { color: 'var(--ink-3)' }
                 const ef = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -2247,7 +2223,7 @@ export default function Dashboard() {
                   { label: 'Harga/Satuan',   value: rupiah(perawatanModal.row.harga_satuan) },
                   { label: 'Total Material',  value: rupiah(perawatanModal.row.total_harga_material) },
                   { label: 'Biaya Pekerja',   value: rupiah(perawatanModal.row.biaya_pekerja) },
-                  { label: 'Total Biaya',     value: rupiah(perawatanModal.row.biaya), color: 'var(--terra)' },
+                  { label: 'Total Biaya',     value: rupiah(perawatanModal.row.biaya), color: 'var(--terracotta-2)' },
                   { label: 'Keterangan',      value: perawatanModal.row.keterangan || '-' },
                 ].map(r => (
                   <div key={r.label} className="flex justify-between items-center py-2"
@@ -2264,7 +2240,7 @@ export default function Dashboard() {
               </div>
             ) : (
               (() => {
-                const INP = 'w-full px-3 py-2.5 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-emerald transition'
+                const INP = 'w-full px-3 py-2.5 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:ring-forest transition'
                 const LBL = 'block text-xs font-medium uppercase tracking-wide mb-1' as const
                 const LBL_ST = { color: 'var(--ink-3)' }
                 const ef = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -2353,9 +2329,9 @@ export default function Dashboard() {
                   { label: 'Tanggal',             value: fmtDateFull(pendapatanModal.row.tanggal_panen) },
                   { label: 'Berat TBS',           value: `${pendapatanModal.row.total_berat_kg} kg` },
                   { label: 'Janjang',             value: `${pendapatanModal.row.total_janjang} janjang` },
-                  { label: 'Pendapatan Kotor',    value: rupiah(pendapatanModal.row.pendapatan_kotor), color: 'var(--emerald)' },
-                  { label: 'Biaya Total',         value: rupiah(pendapatanModal.row.biaya_total), color: 'var(--terra)' },
-                  { label: 'Pendapatan Bersih',   value: rupiah(pendapatanModal.row.pendapatan_bersih), color: 'var(--emerald)' },
+                  { label: 'Pendapatan Kotor',    value: rupiah(pendapatanModal.row.pendapatan_kotor), color: 'var(--forest)' },
+                  { label: 'Biaya Total',         value: rupiah(pendapatanModal.row.biaya_total), color: 'var(--terracotta-2)' },
+                  { label: 'Pendapatan Bersih',   value: rupiah(pendapatanModal.row.pendapatan_bersih), color: 'var(--forest)' },
                   { label: 'Catatan',             value: pendapatanModal.row.catatan || '-' },
                 ].map(r => (
                   <div key={r.label} className="flex justify-between items-center py-2"
@@ -2372,7 +2348,7 @@ export default function Dashboard() {
               </div>
             ) : (
               (() => {
-                const INP = 'w-full px-3 py-2.5 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-emerald transition'
+                const INP = 'w-full px-3 py-2.5 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:ring-forest transition'
                 const LBL = 'block text-xs font-medium uppercase tracking-wide mb-1' as const
                 const LBL_ST = { color: 'var(--ink-3)' }
                 const ef = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>

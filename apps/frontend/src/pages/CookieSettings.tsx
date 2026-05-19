@@ -20,10 +20,10 @@ export default function CookieSettings() {
       description="Atur ulang persetujuan cookie analitik kapan saja. Cookie penting tetap dipakai agar situs berjalan aman dan stabil."
     >
       <div className="space-y-6 text-[15px] leading-7 text-ink-3 sm:text-base">
-        <MarketingCard as="section" className="border-emerald-soft bg-emerald-tint">
+        <MarketingCard as="section" className="border-forest-soft bg-forest-tint">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-sm font-semibold text-emerald">Preferensi cookie</p>
+              <p className="text-sm font-semibold text-forest">Preferensi cookie</p>
               <h2 className="mt-2 text-2xl font-semibold leading-tight text-ink">Buka panel persetujuan cookie</h2>
               <p className="mt-3 max-w-2xl text-base leading-7 text-ink-3">
                 Gunakan tombol ini untuk menolak atau menyetujui cookie analitik. Pilihan Anda akan disimpan di browser yang sedang dipakai.

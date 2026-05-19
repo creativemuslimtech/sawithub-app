@@ -25,7 +25,7 @@ export default function Privacy() {
       description="Kebijakan ini menjelaskan data apa yang dikumpulkan SawitHub, untuk apa digunakan, siapa yang membantu memprosesnya, dan bagaimana Anda dapat meminta akses, koreksi, atau penghapusan data."
     >
       <div className="space-y-6 text-[15px] leading-7 text-ink-3 sm:text-base">
-        <section className="rounded-xl-1 border border-emerald-soft bg-emerald-tint p-6">
+        <section className="rounded-xl-1 border border-forest-soft bg-forest-tint p-6">
           <h2 className="text-xl font-semibold text-ink">Ringkasan singkat</h2>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {[
@@ -34,7 +34,7 @@ export default function Privacy() {
               'Analitik hanya dipakai jika Anda menyetujui cookie analitik.',
               'Anda dapat meminta akses, koreksi, atau penghapusan data melalui privacy@sawithub.com atau halaman kontak.',
             ].map(item => (
-              <li key={item} className="rounded-xl border border-emerald-soft bg-surface p-3 text-ink-3">{item}</li>
+              <li key={item} className="rounded-xl border border-forest-soft bg-surface p-3 text-ink-3">{item}</li>
             ))}
           </ul>
         </section>
@@ -42,7 +42,7 @@ export default function Privacy() {
         <section className="rounded-xl-1 border border-line bg-surface p-5 shadow-card-sm sm:p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald">Baca cepat</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-forest">Baca cepat</p>
               <h2 className="mt-2 text-xl font-semibold text-ink">Baca cepat tentang data Anda</h2>
             </div>
             <p className="max-w-xl text-base leading-7 text-ink-3">Tiga pegangan utama sebelum membaca detail kebijakan.</p>
@@ -54,7 +54,7 @@ export default function Privacy() {
               ['3', 'Anda bisa meminta tindakan', 'Anda dapat meminta akses, koreksi, atau penghapusan data melalui privacy@sawithub.com. Kami menargetkan respons awal maksimal 7 hari kerja.'],
             ].map(([number, title, copy]) => (
               <article key={title} className="rounded-xl border border-line bg-paper-2 p-4">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-tint text-sm font-bold text-emerald">{number}</span>
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-forest-tint text-sm font-bold text-forest">{number}</span>
                 <h3 className="mt-3 text-lg font-semibold text-ink">{title}</h3>
                 <p className="mt-2 text-base leading-7 text-ink-3">{copy}</p>
               </article>
@@ -136,7 +136,7 @@ export default function Privacy() {
 
         <section className="rounded-xl-1 border border-line bg-surface p-6 shadow-card-sm">
           <h2 className="text-xl font-semibold text-ink">8. Kontak privasi</h2>
-          <p className="mt-3">Jika Anda ingin bertanya tentang privasi, meminta penghapusan data, atau mengajukan koreksi, hubungi email privasi <a href="mailto:privacy@sawithub.com" className="font-semibold text-emerald hover:text-emerald-2">privacy@sawithub.com</a> atau halaman <Link to="/tentang-kami#kontak" className="font-semibold text-emerald hover:text-emerald-2">Tentang Kami</Link>.</p>
+          <p className="mt-3">Jika Anda ingin bertanya tentang privasi, meminta penghapusan data, atau mengajukan koreksi, hubungi email privasi <a href="mailto:privacy@sawithub.com" className="font-semibold text-forest hover:text-forest-3">privacy@sawithub.com</a> atau halaman <Link to="/tentang-kami#kontak" className="font-semibold text-forest hover:text-forest-3">Tentang Kami</Link>.</p>
           <p className="mt-3">Untuk menjaga keamanan, permintaan akses, koreksi, atau penghapusan data akan diverifikasi terlebih dahulu. Respons awal ditargetkan maksimal 7 hari kerja dan penghapusan/anonimisasi data ditargetkan maksimal 30 hari kalender setelah verifikasi selesai, kecuali ada kewajiban hukum yang mengharuskan penyimpanan lebih lama.</p>
           <p className="mt-6 text-xs text-ink-4">Terakhir diperbarui: {new Date().getFullYear()}</p>
         </section>

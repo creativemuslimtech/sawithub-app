@@ -7,6 +7,8 @@ import {
 import api from '../api/client'
 import toast from 'react-hot-toast'
 import AppLayout from '../components/AppLayout'
+import AppTopbar from '../components/AppTopbar'
+import { PlusIcon } from '../components/ds/icons'
 import type { PanenRow, Lahan } from '../types'
 import { formatRupiahDisplay } from '../utils/rupiah'
 
@@ -53,25 +55,20 @@ export default function Panen() {
 
   return (
     <AppLayout>
-      <div className="px-7 py-7 pb-12">
-        {/* Page header */}
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="eyebrow mb-2">Catat Panen</p>
-            <h1 className="display text-4xl font-bold text-ink" style={{ letterSpacing: '-0.025em' }}>Riwayat Panen</h1>
-            <p className="mt-2 text-sm text-ink-3 max-w-xl">
-              Tanggal, berat janjang, harga, dan biaya panen — hitungan harga rata-rata dan uang masuk otomatis.
-            </p>
-          </div>
-          <div className="flex gap-2 shrink-0">
-            <Link
-              to="/panen/add"
-              className="inline-flex items-center gap-2 rounded-full bg-emerald px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-            >
-              + Catat Panen
-            </Link>
-          </div>
-        </div>
+      <AppTopbar
+        title="Riwayat Panen"
+        subtitle="Catat Panen"
+        actions={
+          <Link
+            to="/panen/add"
+            className="sh-btn sh-btn-primary sh-btn-sm"
+            style={{ borderRadius: 999, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <PlusIcon size={14} /> Catat Panen
+          </Link>
+        }
+      />
+      <div style={{ padding: '32px 36px 48px' }}>
 
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {/* Left: chart + table */}
@@ -80,12 +77,12 @@ export default function Panen() {
             <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <p className="eyebrow mb-1">Hasil panen · {panens.length} catatan</p>
+                  <p className="sh-eyebrow mb-1">Hasil panen · {panens.length} catatan</p>
                   <div className="flex items-baseline gap-3 mt-1.5">
                     <span className="num text-3xl font-bold text-ink" style={{ letterSpacing: '-0.025em' }}>
                       {totalTon.toFixed(1)} ton
                     </span>
-                    <span className="chip chip-emerald text-[11px]">Total TBS</span>
+                    <span className="sh-chip-forest text-[11px]">Total TBS</span>
                   </div>
                 </div>
               </div>
@@ -123,7 +120,7 @@ export default function Panen() {
               ) : sorted.length === 0 ? (
                 <div className="py-16 text-center">
                   <p className="text-sm text-ink-4">Belum ada data panen.</p>
-                  <Link to="/panen/add" className="mt-3 inline-flex text-sm font-semibold" style={{ color: 'var(--emerald-2)' }}>+ Catat panen pertama →</Link>
+                  <Link to="/panen/add" className="mt-3 inline-flex text-sm font-semibold" style={{ color: 'var(--forest-3)' }}>+ Catat panen pertama →</Link>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
@@ -152,7 +149,7 @@ export default function Panen() {
                             <td className="py-3.5 text-right font-mono text-xs">{p.jumlah_janjang?.toLocaleString('id-ID') || '—'}</td>
                             <td className="py-3.5 text-right font-mono text-xs">{p.berat_kg?.toLocaleString('id-ID')} kg</td>
                             <td className="py-3.5 text-right font-mono text-xs">{rp(p.harga_per_kg)}</td>
-                            <td className="py-3.5 text-right font-mono text-xs" style={{ color: 'var(--terra-2)' }}>{rp(p.biaya_panen)}</td>
+                            <td className="py-3.5 text-right font-mono text-xs" style={{ color: 'var(--terracotta-2)' }}>{rp(p.biaya_panen)}</td>
                             <td className="px-6 py-3.5 text-right font-bold num">{rp(p.hasil_bersih || p.total_pendapatan - p.biaya_panen)}</td>
                           </tr>
                         )
@@ -164,7 +161,7 @@ export default function Panen() {
                           <td className="px-6 py-3.5 font-bold text-ink" colSpan={3}>Total</td>
                           <td className="py-3.5 text-right font-bold num font-mono text-xs">{totalTon.toFixed(1)} ton</td>
                           <td className="py-3.5" />
-                          <td className="py-3.5 text-right font-bold font-mono text-xs" style={{ color: 'var(--terra-2)' }}>{rp(panens.reduce((s, p) => s + (p.biaya_panen || 0), 0))}</td>
+                          <td className="py-3.5 text-right font-bold font-mono text-xs" style={{ color: 'var(--terracotta-2)' }}>{rp(panens.reduce((s, p) => s + (p.biaya_panen || 0), 0))}</td>
                           <td className="px-6 py-3.5 text-right font-bold num">{rp(totalBersih || totalPendapatan)}</td>
                         </tr>
                       </tfoot>
@@ -175,7 +172,7 @@ export default function Panen() {
               {sorted.length > 0 && (
                 <div className="px-6 py-3 border-t border-line flex justify-between items-center text-xs text-ink-3">
                   <span>Menampilkan {sorted.length} panen</span>
-                  <Link to="/panen/add" className="font-semibold" style={{ color: 'var(--emerald-2)' }}>+ Catat panen baru →</Link>
+                  <Link to="/panen/add" className="font-semibold" style={{ color: 'var(--forest-3)' }}>+ Catat panen baru →</Link>
                 </div>
               )}
             </div>
@@ -185,13 +182,13 @@ export default function Panen() {
           <div className="flex flex-col gap-4">
             {/* Summary stat card */}
             <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-6">
-              <p className="eyebrow mb-1">Ringkasan</p>
+              <p className="sh-eyebrow mb-1">Ringkasan</p>
               <h3 className="display text-xl font-bold text-ink mt-1 mb-5">Semua waktu</h3>
               <div className="flex flex-col gap-4">
                 {[
                   { label: 'Total produksi', value: `${totalTon.toFixed(2)} ton`, color: 'var(--c1)' },
                   { label: 'Total pendapatan', value: rp(totalPendapatan), color: 'var(--c4)' },
-                  { label: 'Bersih setelah biaya', value: rp(totalBersih || totalPendapatan), color: 'var(--emerald-2)' },
+                  { label: 'Bersih setelah biaya', value: rp(totalBersih || totalPendapatan), color: 'var(--forest-3)' },
                   { label: 'Jumlah catatan', value: `${panens.length} panen`, color: 'var(--c2)' },
                 ].map(({ label, value, color }) => (
                   <div key={label}>
@@ -205,9 +202,9 @@ export default function Panen() {
             {/* Quick add */}
             <div
               className="rounded-lg-1 p-6"
-              style={{ background: 'var(--emerald-soft)', border: '1px solid rgba(10,120,71,0.18)' }}
+              style={{ background: 'var(--forest-soft)', border: '1px solid rgba(10,120,71,0.18)' }}
             >
-              <p className="eyebrow mb-1" style={{ color: 'var(--emerald-2)' }}>Catat panen baru</p>
+              <p className="sh-eyebrow mb-1" style={{ color: 'var(--forest-3)' }}>Catat panen baru</p>
               <h3 className="display text-lg font-bold text-ink mt-1 mb-3">Formulir lengkap</h3>
               <p className="text-sm text-ink-3 mb-5 leading-relaxed">
                 Isi tanggal, berat janjang, harga/kg, dan biaya panen. Total bersih dihitung otomatis.
@@ -215,7 +212,7 @@ export default function Panen() {
               <Link
                 to="/panen/add"
                 className="w-full flex items-center justify-center gap-2 rounded-full py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                style={{ background: 'var(--emerald)' }}
+                style={{ background: 'var(--forest)' }}
               >
                 Buka formulir panen →
               </Link>
@@ -224,7 +221,7 @@ export default function Panen() {
             {/* Per-farm breakdown */}
             {!loading && lahans.length > 0 && (
               <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-6">
-                <p className="eyebrow mb-3">Per kebun</p>
+                <p className="sh-eyebrow mb-3">Per kebun</p>
                 <div className="flex flex-col gap-3">
                   {lahans.map((l, i) => {
                     const lahanPanens = panens.filter(p => String(p.id_lahan) === String(l.id_lahan))

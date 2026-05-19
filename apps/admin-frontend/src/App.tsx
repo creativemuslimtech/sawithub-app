@@ -16,6 +16,12 @@ const AdminAnalytics = lazy(() => import('./pages/admin/AdminAnalytics'))
 const AdminMonitoring = lazy(() => import('./pages/admin/AdminMonitoring'))
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'))
 const AdminAudit = lazy(() => import('./pages/admin/AdminAudit'))
+const AdminRevenue = lazy(() => import('./pages/admin/AdminRevenue'))
+const AdminApps = lazy(() => import('./pages/admin/AdminApps'))
+const PwaDetail = lazy(() => import('./pages/admin/PwaDetail'))
+const PwaVitals = lazy(() => import('./pages/admin/PwaVitals'))
+const AndroidDetail = lazy(() => import('./pages/admin/AndroidDetail'))
+const AndroidAnr = lazy(() => import('./pages/admin/AndroidAnr'))
 
 export default function App() {
   return (
@@ -30,11 +36,8 @@ export default function App() {
               }}
             />
             <style>{`
-              body { padding-top: env(safe-area-inset-top); background-color: #0f0f23; }
-              html { background-color: #0f0f23; }
-              select { background-color: #13102a; color: white; }
-              select option { background-color: #13102a; color: white; }
-              select option:checked { background-color: #1e1640; }
+              body { padding-top: env(safe-area-inset-top); background-color: var(--cream, #F5F0E8); }
+              html { background-color: var(--cream, #F5F0E8); }
             `}</style>
             <Suspense
               fallback={
@@ -53,6 +56,12 @@ export default function App() {
                 <Route path="/admin/monitoring" element={<AdminRoute><AdminMonitoring /></AdminRoute>} />
                 <Route path="/admin/settings" element={<AdminRoute><AdminSettings /></AdminRoute>} />
                 <Route path="/admin/audit" element={<AdminRoute><AdminAudit /></AdminRoute>} />
+                <Route path="/admin/revenue" element={<AdminRoute><AdminRevenue /></AdminRoute>} />
+                <Route path="/admin/apps" element={<AdminRoute><AdminApps /></AdminRoute>} />
+                <Route path="/admin/apps/pwa" element={<AdminRoute><PwaDetail /></AdminRoute>} />
+                <Route path="/admin/apps/pwa/vitals" element={<AdminRoute><PwaVitals /></AdminRoute>} />
+                <Route path="/admin/apps/android" element={<AdminRoute><AndroidDetail /></AdminRoute>} />
+                <Route path="/admin/apps/android/anr" element={<AdminRoute><AndroidAnr /></AdminRoute>} />
 
                 {/* Backward-compatible redirects */}
                 <Route path="/dashboard" element={<Navigate to="/admin" replace />} />

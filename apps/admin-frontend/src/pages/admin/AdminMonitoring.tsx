@@ -218,7 +218,7 @@ export default function AdminMonitoring() {
               eyebrow="Monitoring"
               title="Monitoring API dan database."
               description="Pantau status endpoint, error, dan latency dalam tampilan ringkas."
-              accent={dbHealthy ? '#22c55e' : '#f87171'}
+              accent={dbHealthy ? 'var(--forest)' : '#f87171'}
             />
 
             {loading ? (
@@ -263,7 +263,7 @@ export default function AdminMonitoring() {
                       checked={globalApiEnabled}
                       disabled={globalToggleLoading || loading || !data}
                       onChange={e => handleGlobalApiToggle(e.target.checked)}
-                      className="h-5 w-5 accent-emerald-500"
+                      className="h-5 w-5 accent-forest"
                     />
                     <span className="text-sm font-semibold text-white whitespace-nowrap">
                       {globalToggleLoading ? 'Menyimpan…' : globalApiEnabled ? 'API publik ON' : 'API publik OFF'}
@@ -409,7 +409,7 @@ export default function AdminMonitoring() {
                                       checked={endpointEnabled}
                                       disabled={rowToggleLoading}
                                       onChange={e => handleToggleEndpointAPI(endpoint, e.target.checked)}
-                                      className="h-4 w-4 accent-emerald-500"
+                                      className="h-4 w-4 accent-forest"
                                     />
                                     <span className="text-xs font-medium text-white/80">
                                       {rowToggleLoading ? '...' : (endpointEnabled ? 'ON' : 'OFF')}

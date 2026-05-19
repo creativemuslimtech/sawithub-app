@@ -84,7 +84,7 @@ export default function AdminDashboard() {
                   eyebrow="Admin Command Center"
                   title="Kontrol sistem yang lebih tajam, rapi, dan cepat dibaca."
                   description="Pantau kunjungan, pengguna aktif, kualitas data, dan aktivitas panen dari satu pusat kendali. Setiap menu admin dibuat konsisten agar keputusan harian lebih mudah diambil dari desktop maupun mobile."
-                  accent="#22c55e"
+                  accent="var(--forest)"
                 />
 
                 {/* ── Kunjungan Website ── */}

@@ -38,7 +38,7 @@ function FarmSwitcher() {
         value={activeFarmId}
         onChange={(e) => void setActiveFarm(e.target.value)}
         aria-label="Pilih kebun aktif"
-        className="max-w-[9rem] truncate rounded-full border border-line bg-paper-2 px-2.5 py-1 text-xs font-medium text-ink outline-none focus:border-emerald transition-colors"
+        className="max-w-[9rem] truncate rounded-full border border-line bg-paper-2 px-2.5 py-1 text-xs font-medium text-ink outline-none focus:border-forest transition-colors"
       >
         <option value="">Semua kebun</option>
         {lahans.map((l) => (
@@ -111,11 +111,11 @@ function UserMenu() {
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label="Menu akun"
-        className="flex items-center gap-2 rounded-full border border-line bg-paper px-2.5 py-1.5 text-sm font-medium text-ink hover:bg-paper-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
+        className="flex items-center gap-2 rounded-full border border-line bg-paper px-2.5 py-1.5 text-sm font-medium text-ink hover:bg-paper-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
       >
         <span
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
-          style={{ background: 'linear-gradient(135deg, var(--emerald), var(--emerald-2))' }}
+          style={{ background: 'linear-gradient(135deg, var(--forest), var(--forest-3))' }}
         >
           {letter}
         </span>
@@ -134,7 +134,7 @@ function UserMenu() {
             <p className="truncate text-sm font-semibold text-ink">{displayName}</p>
             {user.email && <p className="mt-0.5 truncate text-xs text-ink-4">{user.email}</p>}
             {isAdmin && (
-              <span className="mt-1.5 inline-block rounded px-2 py-0.5 text-[10px] font-semibold bg-emerald-soft text-emerald-2">Admin</span>
+              <span className="mt-1.5 inline-block rounded px-2 py-0.5 text-[10px] font-semibold bg-forest-soft text-forest-3">Admin</span>
             )}
           </div>
 
@@ -209,7 +209,7 @@ function BellButton() {
     <Link
       to="/notifikasi"
       aria-label="Notifikasi"
-      className="relative flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-3 hover:bg-paper-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald"
+      className="relative flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-3 hover:bg-paper-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-forest"
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
         <path d="M6 16V11a6 6 0 1 1 12 0v5l2 2H4l2-2Zm4 4a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
@@ -262,7 +262,7 @@ function MobileMenu({ pathname }: { pathname: string }) {
                   onClick={() => setOpen(false)}
                   className={[
                     'block px-4 py-2.5 text-sm font-medium transition-colors',
-                    active ? 'bg-emerald-soft text-emerald-2' : 'text-ink-3 hover:bg-paper hover:text-ink',
+                    active ? 'bg-forest-soft text-forest-3' : 'text-ink-3 hover:bg-paper hover:text-ink',
                   ].join(' ')}
                 >
                   {label}
@@ -283,47 +283,26 @@ export default function AppTopNav() {
 
   return (
     <header
-      className="fixed inset-x-0 top-0 z-40"
+      className="md:hidden fixed inset-x-0 top-0 z-40"
       style={{
-        background: 'rgba(255,255,255,0.9)',
+        background: 'rgba(245,240,232,0.92)',
         backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid var(--line)',
+        borderBottom: '1px solid var(--line-2)',
         height: 'var(--shell-topnav-height)',
       }}
     >
       <div className="app-shell-gutter h-full">
-        <div className="app-shell-container flex h-full items-center gap-4 md:gap-6">
+        <div className="app-shell-container flex h-full items-center gap-4">
           {/* Wordmark */}
-          <Link to="/dashboard" className="shrink-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald rounded-md" aria-label="Ke beranda">
+          <Link to="/dashboard" className="shrink-0" aria-label="Ke beranda">
             <Logo size="sm" />
           </Link>
 
           {/* Farm switcher */}
           <FarmSwitcher />
 
-          {/* Nav items — desktop only */}
-          <nav className="hidden md:flex items-center gap-0.5 flex-1" aria-label="Navigasi utama">
-            {NAV_ITEMS.map(({ key, label, to }) => {
-              const active = isActive(pathname, to)
-              return (
-                <Link
-                  key={key}
-                  to={to}
-                  className={[
-                    'rounded-full px-3 py-1.5 text-sm font-medium transition-colors duration-150',
-                    active
-                      ? 'bg-emerald-soft text-ink border border-emerald/20'
-                      : 'text-ink-3 hover:bg-paper-2 hover:text-ink border border-transparent',
-                  ].join(' ')}
-                >
-                  {label}
-                </Link>
-              )
-            })}
-          </nav>
-
           {/* Right actions */}
-          <div className="flex shrink-0 items-center gap-2 ml-auto md:ml-0">
+          <div className="flex shrink-0 items-center gap-2 ml-auto">
             <BellButton />
             <UserMenu />
             <MobileMenu pathname={pathname} />

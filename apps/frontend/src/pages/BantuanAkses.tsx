@@ -15,7 +15,7 @@ export default function BantuanAkses() {
 
           <ul className="space-y-4 rounded-xl-1 border border-line bg-surface p-6 text-sm leading-relaxed text-ink-3 shadow-card-sm">
             <li className="flex gap-3">
-              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald" />
+              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-forest" />
               <span>
                 <strong className="text-ink">Panen & kebun:</strong> tambah panen atau kebun baru dapat dibatasi oleh paket atau status pembayaran.
               </span>

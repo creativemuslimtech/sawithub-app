@@ -339,10 +339,10 @@ export default function AdminAnalytics() {
                   <p className="font-semibold text-white/80">Pelacakan konversi langganan (GA4 · aplikasi pengguna)</p>
                   <p className="mt-1">
                     Event yang dipancarkan dari SPA untuk funnel revenue:{' '}
-                    <code className="text-emerald-200/90">trial_banner_click</code>,{' '}
-                    <code className="text-emerald-200/90">checkout_start</code> — selaras dengan{' '}
-                    <code className="text-emerald-200/90">export_excel</code> /{' '}
-                    <code className="text-emerald-200/90">export_pdf</code> pada laporan.
+                    <code className="text-forest-3">trial_banner_click</code>,{' '}
+                    <code className="text-forest-3">checkout_start</code> — selaras dengan{' '}
+                    <code className="text-forest-3">export_excel</code> /{' '}
+                    <code className="text-forest-3">export_pdf</code> pada laporan.
                   </p>
                 </aside>
 
@@ -366,7 +366,7 @@ export default function AdminAnalytics() {
                     value={fmtRp(data.revenue_month)}
                     delta={data.revenue_growth_pct}
                     sub="Nilai bruto dari t_sawit_hub_panen — ekonomi kebun pengguna, bukan MRR SaaS."
-                    accent="#22c55e"
+                    accent="var(--forest)"
                   />
                   <KpiCard
                     label="Volume Panen"
@@ -513,7 +513,7 @@ export default function AdminAnalytics() {
                           label="Pengguna Aktif 30H"
                           value={fmtNumber(data.active_users_30d)}
                           hint="user yang mencatat panen dalam 30 hari"
-                          accent="#22c55e"
+                          accent="var(--forest)"
                         />
                         <GlassStat
                           label="Lahan Aktif 90H"
@@ -602,7 +602,7 @@ export default function AdminAnalytics() {
                                   style={{
                                     width: `${share}%`,
                                     background: index === 0
-                                      ? 'linear-gradient(90deg, #22c55e 0%, #4ade80 100%)'
+                                      ? 'linear-gradient(90deg, var(--forest) 0%, var(--forest-3) 100%)'
                                       : 'linear-gradient(90deg, #38bdf8 0%, #60a5fa 100%)',
                                   }}
                                 />

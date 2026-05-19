@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import api from '../../api/client'
 import AppLayout from '../../components/AppLayout'
+import AppTopbar from '../../components/AppTopbar'
+import { DownloadIcon, MailIcon } from '../../components/ds/icons'
+import PalmFrond from '../../components/ds/botanical/PalmFrond'
 import SubscriptionGateSheet from '../../components/SubscriptionGateSheet'
 import { useAuth } from '../../context/useAuth'
 import { useLaporanData } from '../../hooks/useLaporanData'
@@ -150,7 +153,7 @@ export default function LaporanKeuanganPage() {
               <span>Batas trial ekspor tercapai. Upgrade langganan untuk kirim salinan email tanpa batas.</span>
               <Link
                 to="/subscription"
-                className="font-semibold text-emerald underline-offset-2 hover:underline"
+                style={{ fontWeight: 600, color: 'var(--forest)', textDecoration: 'underline' }}
                 onClick={() => toast.dismiss(t.id)}
               >
                 Buka Langganan →
@@ -171,35 +174,56 @@ export default function LaporanKeuanganPage() {
     }
   }
 
+  const topbarActions = (
+    <div style={{ display: 'flex', gap: 8 }}>
+      <button
+        className="sh-btn sh-btn-ghost sh-btn-sm"
+        style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+        onClick={() => data && void handleExport('pdf')}
+        disabled={!data || !!exporting}
+      >
+        <MailIcon size={14} /> Kirim ke email
+      </button>
+      <button
+        className="sh-btn sh-btn-primary sh-btn-sm"
+        style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+        onClick={() => data && void handleExport('xlsx')}
+        disabled={!data || !!exporting}
+      >
+        <DownloadIcon size={14} /> Unduh PDF
+      </button>
+    </div>
+  )
+
   return (
     <AppLayout>
-      <div className="app-shell-gutter py-6 md:py-8">
-        <div className="app-shell-container space-y-6">
-          <div className="flex items-end justify-between mb-2">
-            <div>
-              <p className="eyebrow mb-2">Laporan</p>
-              <h1 className="display text-4xl font-bold text-ink" style={{ letterSpacing: '-0.025em' }}>Laporan Keuangan</h1>
-              <p className="mt-2 text-sm text-ink-3 max-w-xl">
-                Pendapatan, biaya, dan laba bersih per kebun — siap diunduh sebagai PDF atau Excel untuk koperasi, bank, atau pajak.
-              </p>
-            </div>
-            {data && (
-              <div className="hidden shrink-0 items-center gap-2 md:flex">
-                <ExportActionButtons
-                  className="flex items-center gap-2"
-                  exporting={exporting}
-                  exportRecipient={exportRecipient}
-                  onExcel={() => void handleExport('xlsx')}
-                  onPdf={() => void handleExport('pdf')}
-                />
+      <AppTopbar title="Laporan Keuangan" headerActions={topbarActions} />
+      <div style={{ padding: '32px 36px 48px' }}>
+        <div className="space-y-6">
+          {/* Editorial header */}
+          <div style={{ position: 'relative', marginBottom: 28 }}>
+            <PalmFrond size={240} style={{ position: 'absolute', right: 0, top: -40, color: 'var(--forest)', opacity: 0.07, pointerEvents: 'none' }} />
+            <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between' }}>
+              <div>
+                <div className="sh-eyebrow" style={{ marginBottom: 10 }}>—— Laporan keuangan kebun</div>
+                <h1 className="sh-h-2">
+                  {periodLabel} · <em className="sh-italic" style={{ color: 'var(--forest)' }}>
+                    {(data?.summary.hasil_bersih ?? 0) > 0 ? 'untung' : 'rugi'}
+                  </em>{' '}
+                  {data ? `Rp ${((data.summary.hasil_bersih) / 1_000_000).toFixed(1)} jt` : '—'}
+                </h1>
+                <p style={{ fontSize: 14, color: 'var(--ink-3)', marginTop: 8 }}>
+                  Pendapatan, biaya, dan laba bersih per kebun — siap diunduh sebagai PDF atau Excel untuk koperasi, bank, atau pajak.
+                </p>
               </div>
-            )}
+            </div>
           </div>
+
           {trialExportBanner ? (
-            <div className="mt-4 rounded-2xl px-4 py-3 text-sm border border-line bg-paper-2">
-              <span className="font-semibold text-terra">Ekspor email trial habis.</span>{' '}
+            <div style={{ padding: '12px 16px', borderRadius: 12, border: '1px solid var(--line)', background: 'var(--paper-2)', fontSize: 13 }}>
+              <span style={{ fontWeight: 600, color: 'var(--terracotta-2)' }}>Ekspor email trial habis.</span>{' '}
               Unduhan file tetap tersedia di browser; untuk mengirim salinan email tanpa batas,{' '}
-              <Link to="/subscription" className="font-semibold text-emerald underline-offset-2 hover:underline">
+              <Link to="/subscription" style={{ fontWeight: 600, color: 'var(--forest)', textDecoration: 'underline' }}>
                 kelola langganan
               </Link>
               .

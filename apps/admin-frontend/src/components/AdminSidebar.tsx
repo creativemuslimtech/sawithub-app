@@ -59,16 +59,19 @@ const icons = {
   ),
 }
 
-const BRAND = '#22c55e'
+const BRAND_BG = 'rgba(212,168,39,0.14)'
+const BRAND_BORDER = 'rgba(212,168,39,0.3)'
 
 const NAV_ITEMS = [
   { to: '/admin',            label: 'Overview',   short: 'Ov',  note: 'Ringkasan sistem',     Icon: icons.overview  },
-  { to: '/admin/users',      label: 'Pengguna',   short: 'Usr', note: 'Kelola akun pengguna', Icon: icons.users     },
-  { to: '/admin/data',       label: 'Data',       short: 'Dat', note: 'Semua data platform',  Icon: icons.data      },
-  { to: '/admin/analytics',  label: 'Analytics',  short: 'Ana', note: 'Analitik & tren',      Icon: icons.analytics },
-  { to: '/admin/monitoring', label: 'Monitor',    short: 'Mon', note: 'Status sistem & API',  Icon: icons.monitor   },
-  { to: '/admin/settings',   label: 'Pengaturan', short: 'Set', note: 'Konfigurasi aplikasi', Icon: icons.settings  },
-  { to: '/admin/audit',      label: 'Audit',      short: 'Aud', note: 'Log aktivitas audit',  Icon: icons.audit     },
+  { to: '/admin/users',      label: 'Pengguna',   short: 'Usr', note: 'Kelola akun',          Icon: icons.users     },
+  { to: '/admin/revenue',    label: 'Revenue',    short: 'Rev', note: 'Subscription MRR',     Icon: icons.analytics },
+  { to: '/admin/apps',       label: 'Apps',       short: 'App', note: 'PWA · Android · iOS',  Icon: icons.monitor   },
+  { to: '/admin/data',       label: 'Data',       short: 'Dat', note: 'Semua data',           Icon: icons.data      },
+  { to: '/admin/analytics',  label: 'Analytics',  short: 'Ana', note: 'Tren & cohort',        Icon: icons.analytics },
+  { to: '/admin/monitoring', label: 'Monitor',    short: 'Mon', note: 'API & layanan',        Icon: icons.monitor   },
+  { to: '/admin/audit',      label: 'Audit',      short: 'Aud', note: 'Log aktivitas',        Icon: icons.audit     },
+  { to: '/admin/settings',   label: 'Pengaturan', short: 'Set', note: 'Konfigurasi',          Icon: icons.settings  },
 ]
 
 export default function AdminSidebar() {
@@ -82,10 +85,9 @@ export default function AdminSidebar() {
       className="hidden md:flex fixed left-0 top-0 h-screen z-30 flex-col overflow-hidden"
       style={{
         width: 'var(--admin-sidebar-w)',
-        background: 'linear-gradient(180deg, rgba(5,8,12,0.98) 0%, rgba(10,6,20,0.98) 52%, rgba(7,16,12,0.98) 100%)',
-        borderRight: '1px solid rgba(255,255,255,0.07)',
-        backdropFilter: 'blur(18px)',
-        boxShadow: '24px 0 60px rgba(0,0,0,0.28)',
+        background: 'var(--forest)',
+        borderRight: 'none',
+        boxShadow: '4px 0 24px rgba(26,61,43,0.18)',
       }}
     >
       <style>{`
@@ -99,16 +101,15 @@ export default function AdminSidebar() {
         @media (min-width: 1100px) { .adm-short { display: none; } }
       `}</style>
 
-      {/* Brand mark — h-14 matches the topbar's inner height so they sit flush */}
-      <div className="border-b h-14 flex items-center px-3 min-[1100px]:px-4" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+      {/* Brand mark */}
+      <div className="h-14 flex items-center px-3 min-[1100px]:px-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <Link
           to="/admin"
           className="flex justify-center min-[1100px]:justify-start rounded-xl p-2 transition"
           style={{ border: '1px solid transparent' }}
-          onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
+          onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
           onMouseOut={e => { e.currentTarget.style.background = 'transparent' }}
         >
-          {/* Icon-only at 768–1099px where sidebar is 104px wide */}
           <Logo size="sm" showText={false} className="min-[1100px]:hidden justify-center" />
           <Logo size="sm" className="hidden min-[1100px]:flex justify-start" />
         </Link>
@@ -116,7 +117,7 @@ export default function AdminSidebar() {
 
       {/* Section label */}
       <div className="adm-label px-4 pt-4">
-        <p className="text-[11px] uppercase tracking-[0.22em]" style={{ color: 'rgba(255,255,255,0.28)' }}>Navigasi</p>
+        <p className="text-[11px] uppercase tracking-[0.22em]" style={{ color: 'var(--amber-3)', fontFamily: 'var(--f-mono)' }}>Navigasi</p>
       </div>
 
       {/* Nav links */}
@@ -128,28 +129,31 @@ export default function AdminSidebar() {
               key={to}
               to={to}
               title={label}
-              className="w-full rounded-xl transition font-medium block"
+              className="w-full rounded-xl transition font-medium block relative"
               style={{
-                background: active ? `${BRAND}18` : 'transparent',
-                border: active ? `1px solid ${BRAND}35` : '1px solid transparent',
-                color: active ? BRAND : 'rgba(255,255,255,0.55)',
-                boxShadow: active ? `0 4px 16px ${BRAND}12` : 'none',
+                background: active ? BRAND_BG : 'transparent',
+                border: active ? `1px solid ${BRAND_BORDER}` : '1px solid transparent',
+                color: active ? 'var(--paper)' : 'rgba(251,248,241,0.7)',
               }}
-              onMouseOver={e => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)' } }}
-              onMouseOut={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.55)' } }}
+              onMouseOver={e => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'var(--paper)' } }}
+              onMouseOut={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(251,248,241,0.7)' } }}
             >
+              {active && (
+                <span style={{ position: 'absolute', left: -12, top: 8, bottom: 8, width: 3, background: 'var(--amber)', borderRadius: '0 2px 2px 0' }} />
+              )}
               <div className="flex items-center justify-center gap-3 px-3 py-2.5 min-[1100px]:justify-start">
                 <div
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
                   style={{
-                    background: active ? `${BRAND}16` : 'rgba(255,255,255,0.04)',
+                    background: active ? 'rgba(212,168,39,0.18)' : 'rgba(255,255,255,0.06)',
+                    color: active ? 'var(--amber-3)' : 'rgba(251,248,241,0.55)',
                   }}
                 >
                   <NavIcon size={18} />
                 </div>
                 <div className="adm-label min-w-0 flex-1">
                   <div className="text-sm font-medium truncate">{label}</div>
-                  <div className="text-[11px] truncate" style={{ color: 'rgba(255,255,255,0.32)' }}>{note}</div>
+                  <div className="text-[11px] truncate" style={{ color: 'rgba(251,248,241,0.4)' }}>{note}</div>
                 </div>
                 <span className="adm-short text-[11px] font-semibold tracking-wide">{short}</span>
               </div>

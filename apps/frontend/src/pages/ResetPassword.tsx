@@ -11,7 +11,7 @@ function ResetPanel({ step }: { step: 'code' | 'password' }) {
   return (
     <div>
       <div className="mb-7 flex h-16 w-16 items-center justify-center rounded-xl-1"
-        style={{ background: step === 'password' ? 'var(--emerald)' : 'var(--terra)' }}>
+        style={{ background: step === 'password' ? 'var(--forest)' : 'var(--terracotta)' }}>
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden>
           {step === 'code'
             ? <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
@@ -28,9 +28,9 @@ function ResetPanel({ step }: { step: 'code' | 'password' }) {
           return (
             <div key={s} className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition"
               style={active
-                ? { background: 'rgba(10,120,71,0.15)', borderColor: 'rgba(10,120,71,0.4)', color: 'var(--emerald-3)' }
+                ? { background: 'rgba(45,90,61,0.18)', borderColor: 'rgba(45,90,61,0.4)', color: 'var(--forest-3)' }
                 : done
-                  ? { background: 'rgba(10,120,71,0.1)', borderColor: 'rgba(10,120,71,0.25)', color: 'var(--emerald-3)' }
+                  ? { background: 'rgba(45,90,61,0.12)', borderColor: 'rgba(45,90,61,0.25)', color: 'var(--forest-3)' }
                   : { background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }
               }>
               <span className="font-bold">{done ? '✓' : i + 1}</span>
@@ -142,11 +142,11 @@ export default function ResetPassword() {
         Kembali
       </Link>
 
-      <p className="eyebrow mb-2">Reset Password</p>
+      <div className="sh-eyebrow" style={{ marginBottom: 12 }}>—— Reset Password</div>
 
       {step === 'code' ? (
         <>
-          <h1 className="display text-3xl font-bold text-ink mb-2" style={{ letterSpacing: '-0.025em' }}>
+          <h1 className="sh-h-3" style={{ marginBottom: 10 }}>
             Masukkan kode verifikasi.
           </h1>
           <p className="mb-8 text-sm leading-6 text-ink-3">
@@ -185,7 +185,7 @@ export default function ResetPassword() {
                 required
                 maxLength={6}
                 placeholder="· · · · · ·"
-                className="w-full rounded-md-1 border border-line bg-surface px-4 py-4 text-center text-2xl font-bold tracking-[0.5em] text-ink placeholder:text-ink-4 placeholder:tracking-widest transition-colors focus:border-emerald focus:outline-none"
+                className="w-full rounded-md-1 border border-line bg-surface px-4 py-4 text-center text-2xl font-bold tracking-[0.5em] text-ink placeholder:text-ink-4 placeholder:tracking-widest transition-colors focus:border-forest focus:outline-none"
               />
               <p className="mt-1.5 text-xs text-center text-ink-4">Cek email Anda (termasuk folder spam)</p>
             </div>
@@ -202,20 +202,20 @@ export default function ResetPassword() {
                 <div className="relative h-8 w-8">
                   <svg className="h-8 w-8 -rotate-90" viewBox="0 0 32 32">
                     <circle cx="16" cy="16" r="13" fill="none" stroke="var(--line)" strokeWidth="2.5" />
-                    <circle cx="16" cy="16" r="13" fill="none" stroke="var(--emerald)" strokeWidth="2.5"
+                    <circle cx="16" cy="16" r="13" fill="none" stroke="var(--forest)" strokeWidth="2.5"
                       strokeDasharray={`${2 * Math.PI * 13}`}
                       strokeDashoffset={`${2 * Math.PI * 13 * (1 - countdown / RESEND_COOLDOWN)}`}
                       strokeLinecap="round"
                       style={{ transition: 'stroke-dashoffset 1s linear' }}
                     />
                   </svg>
-                  <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-emerald">
+                  <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-forest">
                     {countdown}
                   </span>
                 </div>
                 <span className="text-xs text-ink-4">
                   Kirim ulang dalam{' '}
-                  <span className="font-semibold text-emerald">{countdown}s</span>
+                  <span className="font-semibold text-forest">{countdown}s</span>
                 </span>
               </div>
             ) : (
@@ -232,7 +232,7 @@ export default function ResetPassword() {
         </>
       ) : (
         <>
-          <h1 className="display text-3xl font-bold text-ink mb-2" style={{ letterSpacing: '-0.025em' }}>
+          <h1 className="sh-h-3" style={{ marginBottom: 10 }}>
             Buat password baru.
           </h1>
           <p className="mb-8 text-sm leading-6 text-ink-3">
@@ -259,7 +259,7 @@ export default function ResetPassword() {
                   minLength={8}
                   placeholder="Min. 8 karakter"
                   autoComplete="new-password"
-                  className="w-full rounded-md-1 border border-line bg-surface py-3.5 pl-10 pr-12 text-sm text-ink placeholder:text-ink-4 transition-colors focus:border-emerald focus:outline-none"
+                  className="w-full rounded-md-1 border border-line bg-surface py-3.5 pl-10 pr-12 text-sm text-ink placeholder:text-ink-4 transition-colors focus:border-forest focus:outline-none"
                 />
                 <AuthPasswordToggle show={showPw} onClick={() => setShowPw(p => !p)} />
               </div>
@@ -267,7 +267,7 @@ export default function ResetPassword() {
                 {[8, 10, 12].map((len, i) => (
                   <div key={len} className={`h-1 flex-1 rounded-full transition-all ${
                     password.length >= len
-                      ? i === 0 ? 'bg-red-400' : i === 1 ? 'bg-yellow-400' : 'bg-emerald'
+                      ? i === 0 ? 'bg-terracotta' : i === 1 ? 'bg-amber' : 'bg-forest'
                       : 'bg-line'
                   }`} />
                 ))}
@@ -290,12 +290,12 @@ export default function ResetPassword() {
                 aria-describedby={confirmPw && confirmPw !== password ? 'reset-confirm-error' : undefined}
                 className={`w-full rounded-md-1 border bg-surface px-3.5 py-3.5 text-sm text-ink placeholder:text-ink-4 transition-colors focus:outline-none ${
                   confirmPw && confirmPw !== password
-                    ? 'border-terra-2 focus:border-terra-2'
-                    : 'border-line focus:border-emerald'
+                    ? 'border-terracotta-2 focus:border-terracotta-2'
+                    : 'border-line focus:border-forest'
                 }`}
               />
               {confirmPw && confirmPw !== password ? (
-                <p id="reset-confirm-error" role="alert" className="mt-1.5 text-xs text-terra-2">
+                <p id="reset-confirm-error" role="alert" className="mt-1.5 text-xs text-terracotta-2">
                   Password tidak cocok
                 </p>
               ) : null}

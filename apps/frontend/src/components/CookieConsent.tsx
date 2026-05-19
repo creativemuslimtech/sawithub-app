@@ -56,14 +56,14 @@ export default function CookieConsent() {
         <button
           type="button"
           onClick={() => choose('declined')}
-          className="min-h-11 rounded-lg border border-white/15 px-4 text-sm font-semibold text-white/80 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70"
+          className="min-h-11 rounded-lg border border-white/15 px-4 text-sm font-semibold text-white/80 transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
         >
           Tolak analitik
         </button>
         <button
           type="button"
           onClick={() => choose('accepted')}
-          className="min-h-11 rounded-lg bg-emerald-500 px-4 text-sm font-bold text-[#04210f] transition hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/70"
+          className="min-h-11 rounded-lg bg-forest px-4 text-sm font-bold text-[#04210f] transition hover:bg-forest-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
         >
           Setuju
         </button>

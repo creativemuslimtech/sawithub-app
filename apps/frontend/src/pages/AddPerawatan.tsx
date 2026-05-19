@@ -8,7 +8,7 @@ import type { Lahan } from '../types'
 import { parseRupiahInput } from '../utils/rupiah'
 import { trackEvent, GAEvents } from '../utils/analytics'
 
-const INP = 'w-full px-4 py-3 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-emerald transition'
+const INP = 'w-full px-4 py-3 bg-paper-2 border border-line rounded-xl text-ink text-sm placeholder-ink-4 focus:outline-none focus:border-forest transition'
 const LBL_CLS = 'block text-xs font-medium uppercase tracking-wide mb-1.5'
 const LBL_ST = { color: 'var(--ink-3)' }
 

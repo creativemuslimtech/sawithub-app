@@ -27,13 +27,13 @@ export default function PublicPageLayout({
           <div className="flex items-center gap-2">
             <Link
               to="/bantuan"
-              className="hidden min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-ink-3 transition hover:bg-paper-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald sm:inline-flex"
+              className="hidden min-h-11 items-center rounded-lg px-3 text-sm font-semibold text-ink-3 transition hover:bg-paper-2 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest sm:inline-flex"
             >
               Bantuan
             </Link>
             <Link
               to="/signup"
-              className="inline-flex min-h-11 items-center rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper transition hover:bg-emerald-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
+              className="inline-flex min-h-11 items-center rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper transition hover:bg-forest-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink"
             >
               Coba Gratis 14 Hari
             </Link>

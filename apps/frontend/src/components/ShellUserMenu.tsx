@@ -248,7 +248,7 @@ export default function ShellUserMenu({ accentColor = '#22c55e' }: ShellUserMenu
               className={menuItemClass}
               onClick={() => setOpen(false)}
             >
-              <IconCard className="text-emerald-300/90" />
+              <IconCard className="text-forest-3" />
               Langganan
             </Link>
             <Link
@@ -257,7 +257,7 @@ export default function ShellUserMenu({ accentColor = '#22c55e' }: ShellUserMenu
               className={menuItemClass}
               onClick={() => setOpen(false)}
             >
-              <IconCard className="text-emerald-200/75" />
+              <IconCard className="text-forest-3" />
               Riwayat pembayaran
             </Link>
             <Link

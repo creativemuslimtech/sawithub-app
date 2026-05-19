@@ -17,7 +17,7 @@ function DetailTotalsFoot({ summary }: { summary: LaporanSummary }) {
         <td className="px-4 py-3 text-right text-sm font-bold text-terra">
           {fmtRpFull(summary.total_biaya_panen)}
         </td>
-        <td className="px-4 py-3 text-right text-sm font-bold" style={{ color: summary.hasil_bersih >= 0 ? 'var(--emerald)' : 'var(--terra)' }}>
+        <td className="px-4 py-3 text-right text-sm font-bold" style={{ color: summary.hasil_bersih >= 0 ? 'var(--forest)' : 'var(--terracotta)' }}>
           {fmtRpFull(summary.hasil_bersih)}
         </td>
         <td className="px-4 py-3 text-right text-xs text-ink-4">rata-rata<br />{fmtNum(summary.rata_produktivitas, 2)} t/ha</td>
@@ -43,7 +43,7 @@ function DetailDataRows({ rows }: { rows: DetailRow[] }) {
           <td className="px-4 py-3 text-right text-sm text-ink-3">{fmtRp(row.harga_per_kg)}</td>
           <td className="px-4 py-3 text-right text-sm text-ink">{fmtRpFull(row.total_pendapatan)}</td>
           <td className="px-4 py-3 text-right text-sm text-terra">{fmtRpFull(row.biaya_panen)}</td>
-          <td className="px-4 py-3 text-right text-sm font-semibold" style={{ color: row.hasil_bersih >= 0 ? 'var(--emerald)' : 'var(--terra)' }}>
+          <td className="px-4 py-3 text-right text-sm font-semibold" style={{ color: row.hasil_bersih >= 0 ? 'var(--forest)' : 'var(--terracotta)' }}>
             {fmtRpFull(row.hasil_bersih)}
           </td>
           <td className="px-4 py-3 text-right text-sm text-ink-4">{fmtNum(row.produktivitas, 2)} t/ha</td>
@@ -117,7 +117,7 @@ function VirtualizedDetailBody({ detail, summary }: { detail: DetailRow[]; summa
               <td className="px-4 py-3 text-right text-sm text-ink-3 align-middle">{fmtRp(row.harga_per_kg)}</td>
               <td className="px-4 py-3 text-right text-sm text-ink align-middle">{fmtRpFull(row.total_pendapatan)}</td>
               <td className="px-4 py-3 text-right text-sm text-terra align-middle">{fmtRpFull(row.biaya_panen)}</td>
-              <td className="px-4 py-3 text-right text-sm font-semibold align-middle" style={{ color: row.hasil_bersih >= 0 ? 'var(--emerald)' : 'var(--terra)' }}>
+              <td className="px-4 py-3 text-right text-sm font-semibold align-middle" style={{ color: row.hasil_bersih >= 0 ? 'var(--forest)' : 'var(--terracotta)' }}>
                 {fmtRpFull(row.hasil_bersih)}
               </td>
               <td className="px-4 py-3 text-right text-sm text-ink-4 align-middle">{fmtNum(row.produktivitas, 2)} t/ha</td>
@@ -148,7 +148,7 @@ export function HarvestDetailTable({ detail, summary }: { detail: DetailRow[]; s
           <p className="mt-1 text-sm text-ink-3">Lihat catatan panen per tanggal supaya mudah memeriksa hasil dan biaya.</p>
         </div>
         <div className="flex flex-col items-start gap-2 md:items-end">
-          <div className="rounded-full px-3 py-1 text-xs font-medium border border-emerald-soft bg-emerald-tint text-emerald">
+          <div className="rounded-full px-3 py-1 text-xs font-medium border border-forest-soft bg-forest-tint text-forest">
             {detail.length} catatan panen
           </div>
           {useVirtual && (

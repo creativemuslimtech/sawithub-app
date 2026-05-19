@@ -6,6 +6,8 @@ import {
 import api from '../api/client'
 import toast from 'react-hot-toast'
 import AppLayout from '../components/AppLayout'
+import AppTopbar from '../components/AppTopbar'
+import { PlusIcon } from '../components/ds/icons'
 import type { PendapatanRow, Lahan } from '../types'
 import { formatRupiahDisplay } from '../utils/rupiah'
 
@@ -91,25 +93,20 @@ export default function Pendapatan() {
 
   return (
     <AppLayout>
-      <div className="px-7 py-7 pb-12">
-        {/* Page header */}
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <p className="eyebrow mb-2">Keuangan</p>
-            <h1 className="display text-4xl font-bold text-ink" style={{ letterSpacing: '-0.025em' }}>Pendapatan Lain</h1>
-            <p className="mt-2 text-sm text-ink-3 max-w-xl">
-              Catat pendapatan di luar penjualan TBS — subsidi, hibah, penjualan brondolan, atau pendapatan sampingan.
-            </p>
-          </div>
-          <div className="flex gap-2 shrink-0">
-            <Link
-              to="/pendapatan/add"
-              className="inline-flex items-center gap-2 rounded-full bg-emerald px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-            >
-              + Catat Pendapatan
-            </Link>
-          </div>
-        </div>
+      <AppTopbar
+        title="Pendapatan Lain"
+        subtitle="Keuangan"
+        actions={
+          <Link
+            to="/pendapatan/add"
+            className="sh-btn sh-btn-primary sh-btn-sm"
+            style={{ borderRadius: 999, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <PlusIcon size={14} /> Catat Pendapatan
+          </Link>
+        }
+      />
+      <div style={{ padding: '32px 36px 48px' }}>
 
         {/* Tab filters */}
         <div
@@ -180,7 +177,7 @@ export default function Pendapatan() {
                 className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-5"
                 style={{ borderTop: `3px solid ${accent}` }}
               >
-                <p className="eyebrow mb-0.5">{label}</p>
+                <p className="sh-eyebrow mb-0.5">{label}</p>
                 <p className="num text-2xl font-bold text-ink mt-1" style={{ letterSpacing: '-0.02em' }}>{value}</p>
                 <p className="text-xs text-ink-4 mt-0.5">{sub}</p>
                 {data.length > 1 && (
@@ -219,7 +216,7 @@ export default function Pendapatan() {
           ) : filtered.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-sm text-ink-4">Belum ada data pendapatan.</p>
-              <Link to="/pendapatan/add" className="mt-3 inline-flex text-sm font-semibold" style={{ color: 'var(--emerald-2)' }}>
+              <Link to="/pendapatan/add" className="mt-3 inline-flex text-sm font-semibold" style={{ color: 'var(--forest-3)' }}>
                 + Catat pendapatan pertama →
               </Link>
             </div>
@@ -257,10 +254,10 @@ export default function Pendapatan() {
                         <td className="py-3.5 text-right font-mono text-xs text-ink-3">
                           {p.total_berat_kg ? `${p.total_berat_kg.toLocaleString('id-ID')} kg` : '—'}
                         </td>
-                        <td className="py-3.5 text-right font-mono text-xs" style={{ color: 'var(--emerald-2)' }}>
+                        <td className="py-3.5 text-right font-mono text-xs" style={{ color: 'var(--forest-3)' }}>
                           {rp(p.pendapatan_kotor)}
                         </td>
-                        <td className="py-3.5 text-right font-mono text-xs" style={{ color: 'var(--terra-2)' }}>
+                        <td className="py-3.5 text-right font-mono text-xs" style={{ color: 'var(--terracotta-2)' }}>
                           {rp(p.biaya_total)}
                         </td>
                         <td className="px-6 py-3.5 text-right font-bold num">{rp(p.pendapatan_bersih)}</td>
@@ -272,10 +269,10 @@ export default function Pendapatan() {
                   <tfoot>
                     <tr className="border-t-2 border-ink bg-paper" style={{ fontSize: 13 }}>
                       <td className="px-6 py-3.5 font-bold text-ink" colSpan={4}>Total</td>
-                      <td className="py-3.5 text-right font-bold font-mono text-xs" style={{ color: 'var(--emerald-2)' }}>
+                      <td className="py-3.5 text-right font-bold font-mono text-xs" style={{ color: 'var(--forest-3)' }}>
                         {rp(filtered.reduce((s, p) => s + (p.pendapatan_kotor || 0), 0))}
                       </td>
-                      <td className="py-3.5 text-right font-bold font-mono text-xs" style={{ color: 'var(--terra-2)' }}>
+                      <td className="py-3.5 text-right font-bold font-mono text-xs" style={{ color: 'var(--terracotta-2)' }}>
                         {rp(filtered.reduce((s, p) => s + (p.biaya_total || 0), 0))}
                       </td>
                       <td className="px-6 py-3.5 text-right font-bold num">
@@ -291,7 +288,7 @@ export default function Pendapatan() {
           {filtered.length > 0 && (
             <div className="px-6 py-3 border-t border-line flex justify-between items-center text-xs text-ink-3">
               <span>Menampilkan {filtered.length} catatan</span>
-              <Link to="/pendapatan/add" className="font-semibold" style={{ color: 'var(--emerald-2)' }}>+ Catat pendapatan baru →</Link>
+              <Link to="/pendapatan/add" className="font-semibold" style={{ color: 'var(--forest-3)' }}>+ Catat pendapatan baru →</Link>
             </div>
           )}
         </div>
@@ -301,8 +298,8 @@ export default function Pendapatan() {
           <div className="grid grid-cols-3 gap-4 mt-4">
             {[
               { label: 'Total pendapatan kotor', value: rp(totalKotor), color: 'var(--c1)' },
-              { label: 'Total biaya', value: rp(totalBiaya), color: 'var(--terra-2)' },
-              { label: 'Total bersih', value: rp(totalBersih), color: 'var(--emerald-2)' },
+              { label: 'Total biaya', value: rp(totalBiaya), color: 'var(--terracotta-2)' },
+              { label: 'Total bersih', value: rp(totalBersih), color: 'var(--forest-3)' },
             ].map(({ label, value, color }) => (
               <div key={label} className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-4">
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-4">{label}</p>
