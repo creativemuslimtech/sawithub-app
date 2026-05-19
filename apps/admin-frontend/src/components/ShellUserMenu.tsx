@@ -5,71 +5,46 @@ import { useAuth } from '../context/AuthContext'
 import { shellProfileChipClass } from '../constants/appShellChrome'
 
 type ShellUserMenuProps = {
-  /** Avatar circle fill (page accent), default green */
   accentColor?: string
 }
 
-function IconUser({ className }: { className?: string }) {
+function IconUser({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
-    <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4ZM4 20.5c0-3.5 4-5.5 8-5.5s8 2 8 5.5"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg className={className} style={style} width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4ZM4 20.5c0-3.5 4-5.5 8-5.5s8 2 8 5.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
 
-function IconShield({ className }: { className?: string }) {
+function IconShield({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
-    <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M12 3 5 6v5c0 5 3.5 8.5 7 10 3.5-1.5 7-5 7-10V6l-7-3Z"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg className={className} style={style} width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M12 3 5 6v5c0 5 3.5 8.5 7 10 3.5-1.5 7-5 7-10V6l-7-3Z" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
 
-function IconLogout({ className }: { className?: string }) {
+function IconLogout({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
-    <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+    <svg className={className} style={style} width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
 
-function IconChevron({ open, className }: { open: boolean; className?: string }) {
+function IconChevron({ open, className, style }: { open: boolean; className?: string; style?: React.CSSProperties }) {
   return (
     <svg
       className={`${className ?? ''} shrink-0 transition-transform duration-200 ${open ? '-rotate-180' : ''}`}
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden
+      style={style}
+      width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden
     >
       <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
 
-const menuItemClass =
-  'flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-xs font-medium text-white/90 transition hover:bg-white/[0.06]'
-
-export default function ShellUserMenu({ accentColor = '#22c55e' }: ShellUserMenuProps) {
+export default function ShellUserMenu({ accentColor = 'var(--amber)' }: ShellUserMenuProps) {
   const { user, logout, logoutAll } = useAuth()
   const [open, setOpen] = useState(false)
   const [logoutAllBusy, setLogoutAllBusy] = useState(false)
@@ -80,9 +55,7 @@ export default function ShellUserMenu({ accentColor = '#22c55e' }: ShellUserMenu
     const onDoc = (e: MouseEvent) => {
       if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false)
     }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
-    }
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
     document.addEventListener('mousedown', onDoc)
     document.addEventListener('keydown', onKey)
     return () => {
@@ -102,7 +75,13 @@ export default function ShellUserMenu({ accentColor = '#22c55e' }: ShellUserMenu
     <div className="relative shrink-0" ref={rootRef}>
       <button
         type="button"
-        className={`${shellProfileChipClass} max-w-[min(100vw-5rem,17rem)] text-white/90`}
+        className={shellProfileChipClass}
+        style={{
+          background: 'var(--paper)',
+          border: '1px solid var(--line-2)',
+          color: 'var(--ink)',
+          maxWidth: 'min(100vw - 5rem, 17rem)',
+        }}
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label="Menu akun"
@@ -114,97 +93,80 @@ export default function ShellUserMenu({ accentColor = '#22c55e' }: ShellUserMenu
         >
           {letter}
         </span>
-        <span className="hidden min-w-0 flex-1 truncate text-left font-medium text-white/80 sm:block">
+        <span className="hidden min-w-0 flex-1 truncate text-left font-medium sm:block" style={{ color: 'var(--ink-2)', fontSize: 13 }}>
           {displayName}
         </span>
         {isAdmin ? (
-          <span
-            className="hidden shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-sky-200 sm:inline-block"
-            style={{ background: 'rgba(56,189,248,0.22)' }}
-          >
+          <span className="sh-chip hidden sm:inline-block" style={{ color: 'var(--c-sky)', background: 'rgba(74,122,140,0.12)', fontSize: 10, fontWeight: 700, letterSpacing: '0.05em' }}>
             Admin
           </span>
         ) : (
-          <span
-            className="hidden shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-white/55 sm:inline-block"
-            style={{ background: 'rgba(255,255,255,0.08)' }}
-          >
+          <span className="sh-chip hidden sm:inline-block" style={{ color: 'var(--ink-4)', fontSize: 10, fontWeight: 600 }}>
             Pengguna
           </span>
         )}
-        <IconChevron open={open} className="text-white/45" />
+        <IconChevron open={open} style={{ color: 'var(--ink-4)' } as React.CSSProperties} />
       </button>
 
       {open ? (
         <div
-          className="absolute right-0 top-[calc(100%+6px)] z-[60] w-[min(calc(100vw-1.5rem),17.5rem)] overflow-hidden rounded-xl py-1 shadow-2xl backdrop-blur-xl"
+          className="absolute right-0 top-[calc(100%+6px)] z-[60] overflow-hidden rounded-xl py-1"
           style={{
-            background: 'rgba(10,12,20,0.97)',
-            boxShadow: '0 24px 56px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
+            width: 'min(calc(100vw - 1.5rem), 17.5rem)',
+            background: 'var(--paper)',
+            border: '1px solid var(--line-2)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06)',
           }}
           role="menu"
         >
-          <div className="border-b border-white/[0.08] px-3 pb-3 pt-2.5">
-            <p className="truncate text-sm font-semibold text-white">{displayName}</p>
+          <div style={{ borderBottom: '1px solid var(--line-2)', padding: '10px 14px 12px' }}>
+            <p style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayName}</p>
             {email ? (
-              <p className="mt-0.5 truncate text-[11px] leading-snug text-white/45">{email}</p>
+              <p style={{ marginTop: 2, fontSize: 11, color: 'var(--ink-4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</p>
             ) : null}
-            <div className="mt-2">
+            <div style={{ marginTop: 8 }}>
               {isAdmin ? (
-                <span
-                  className="inline-block rounded-md px-2 py-0.5 text-[10px] font-semibold text-sky-200"
-                  style={{ background: 'rgba(56,189,248,0.22)' }}
-                >
-                  Admin
-                </span>
+                <span className="sh-chip" style={{ color: 'var(--c-sky)', background: 'rgba(74,122,140,0.12)', fontSize: 10, fontWeight: 700 }}>Admin</span>
               ) : (
-                <span
-                  className="inline-block rounded-md px-2 py-0.5 text-[10px] font-semibold text-white/55"
-                  style={{ background: 'rgba(255,255,255,0.08)' }}
-                >
-                  Pengguna
-                </span>
+                <span className="sh-chip" style={{ color: 'var(--ink-4)', fontSize: 10 }}>Pengguna</span>
               )}
             </div>
           </div>
 
-          <div className="border-b border-white/[0.08] py-1" role="none">
+          <div style={{ borderBottom: '1px solid var(--line-2)', padding: '4px 0' }} role="none">
             <Link
               to="/admin/settings"
               role="menuitem"
-              className={menuItemClass}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 14px', fontSize: 13, color: 'var(--ink-2)', textDecoration: 'none', transition: 'background 0.1s' }}
+              className="hover:bg-[var(--cream)]"
               onClick={() => setOpen(false)}
             >
-              <IconUser className="text-white/55" />
+              <IconUser style={{ color: 'var(--ink-4)' } as React.CSSProperties} />
               Pengaturan Profil
             </Link>
             {isAdmin ? (
               <Link
                 to="/admin"
                 role="menuitem"
-                className={`${menuItemClass} text-emerald-400 hover:text-emerald-300`}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 14px', fontSize: 13, color: 'var(--forest)', textDecoration: 'none', transition: 'background 0.1s' }}
+                className="hover:bg-[var(--cream)]"
                 onClick={() => setOpen(false)}
               >
-                <IconShield className="text-emerald-400/90" />
+                <IconShield style={{ color: 'var(--forest-3)' } as React.CSSProperties} />
                 Dashboard Admin
               </Link>
             ) : null}
           </div>
 
-          <div className="py-1" role="none">
+          <div style={{ padding: '4px 0' }} role="none">
             <button
               type="button"
               role="menuitem"
-              className={`${menuItemClass} text-amber-200/90 hover:text-amber-100`}
+              style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 10, padding: '9px 14px', fontSize: 13, color: 'var(--amber-2)', background: 'none', border: 'none', cursor: logoutAllBusy ? 'default' : 'pointer', textAlign: 'left', transition: 'background 0.1s', opacity: logoutAllBusy ? 0.5 : 1 }}
+              className="hover:bg-[var(--cream)]"
               disabled={logoutAllBusy}
               onClick={async () => {
-                if (
-                  !window.confirm(
-                    'Keluar dari semua perangkat? Semua sesi admin lain akan ikut berakhir.',
-                  )
-                ) {
-                  return
-                }
+                if (!window.confirm('Keluar dari semua perangkat? Semua sesi admin lain akan ikut berakhir.')) return
                 setLogoutAllBusy(true)
                 setOpen(false)
                 try {
@@ -215,19 +177,17 @@ export default function ShellUserMenu({ accentColor = '#22c55e' }: ShellUserMenu
                 }
               }}
             >
-              <IconLogout className="text-amber-400/80" />
+              <IconLogout style={{ color: 'var(--amber-2)' } as React.CSSProperties} />
               {logoutAllBusy ? 'Memproses…' : 'Keluar semua perangkat'}
             </button>
             <button
               type="button"
               role="menuitem"
-              className={`${menuItemClass} text-red-300/95 hover:text-red-200`}
-              onClick={() => {
-                setOpen(false)
-                logout()
-              }}
+              style={{ display: 'flex', width: '100%', alignItems: 'center', gap: 10, padding: '9px 14px', fontSize: 13, color: 'var(--terracotta-2)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s' }}
+              className="hover:bg-[var(--cream)]"
+              onClick={() => { setOpen(false); logout() }}
             >
-              <IconLogout className="text-red-400/80" />
+              <IconLogout style={{ color: 'var(--terracotta-2)' } as React.CSSProperties} />
               Keluar
             </button>
           </div>
