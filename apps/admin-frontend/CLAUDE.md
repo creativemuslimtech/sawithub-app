@@ -2,18 +2,8 @@
 
 ## Branch Rules
 
-- **All changes go to `staging` only.** Never commit directly to `main` and never push to `main`.
-- Before starting any work, ensure the local `staging` branch is in sync with `origin/staging`:
-  ```bash
-  git fetch origin
-  git rebase origin/staging
-  ```
-  If the rebase produces conflicts, resolve them before proceeding — do not force-push or discard remote changes.
-- After finishing a set of changes, push to `origin/staging`:
-  ```bash
-  git push origin staging
-  ```
-- PRs from `staging` → `main` are the only path to production. Do not bypass this.
+- Work directly on `main`. There is only one environment (production).
+- Push to `origin/main` when changes are ready to deploy.
 
 ## Skill routing
 
