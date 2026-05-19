@@ -2,7 +2,7 @@
 nixPkgs = ["nodejs_22"]
 
 [phases.install]
-cmds = ["npm cache clean --force", "npm install"]
+cmds = ["npm install --include=optional --ignore-engines"]
 
 [phases.build]
 cmds = ["tsc -b && vite build"]
