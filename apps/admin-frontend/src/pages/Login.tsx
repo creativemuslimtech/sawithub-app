@@ -176,11 +176,14 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* 2FA OTP */}
+              {/* 2FA OTP — optional, shown only after backend enables it per-user */}
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: 'rgba(251,248,241,0.7)', letterSpacing: '.05em', display: 'block', marginBottom: 6 }}>
-                  Kode 2FA (TOTP)
-                </label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: 'rgba(251,248,241,0.7)', letterSpacing: '.05em' }}>
+                    Kode 2FA (TOTP)
+                  </label>
+                  <span style={{ fontSize: 10, color: 'rgba(251,248,241,0.35)', fontFamily: 'var(--f-mono)' }}>opsional · lewati jika belum dikonfigurasi</span>
+                </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6 }}>
                   {otp.map((digit, i) => (
                     <input
@@ -195,7 +198,7 @@ export default function Login() {
                       style={{
                         width: '100%', minWidth: 0, height: 48, textAlign: 'center',
                         borderRadius: 10, background: 'rgba(0,0,0,0.25)',
-                        border: i === 5 ? '1.5px solid var(--amber-3)' : '1px solid rgba(255,255,255,0.12)',
+                        border: '1px solid rgba(255,255,255,0.12)',
                         fontFamily: 'var(--f-mono)', fontSize: 18, fontWeight: 500, color: 'var(--paper)',
                         outline: 'none',
                       }}
