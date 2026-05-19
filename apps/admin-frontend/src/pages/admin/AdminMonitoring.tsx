@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import AdminLayout from '../../components/AdminLayout'
 import {
+  AdminMetricCard,
   AdminPageHero,
-  AdminSectionLabel,
+  AdminPanel,
   AdminSkeleton,
+  StatusDot,
 } from '../../components/AdminUI'
 import api, { setGlobalApiState } from '../../api/client'
 
@@ -66,66 +68,36 @@ interface SystemData {
   api_enabled?: boolean
   api_summary: ApiSummary
   internal_api_status: InternalApiStatus[]
-  recent_activity: Array<{
-    username: string
-    email: string
-    role: string
-    created_at: string
-  }>
+  recent_activity: Array<{ username: string; email: string; role: string; created_at: string }>
 }
 
 function fmtDate(raw: string) {
   if (!raw || raw === '-') return '-'
   const d = new Date(raw)
-  return isNaN(d.getTime()) ? raw : d.toLocaleString('id-ID', {
-    day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta',
-  })
+  return isNaN(d.getTime()) ? raw : d.toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })
 }
 
-function statusTone(status: string) {
-  if (status === 'healthy') return { label: 'Sehat', color: '#4ade80', bg: 'rgba(74,222,128,0.12)' }
-  if (status === 'degraded') return { label: 'Terganggu', color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' }
-  if (status === 'disabled') return { label: 'Nonaktif', color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' }
-  if (status === 'idle') return { label: 'Idle', color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' }
-  return { label: 'Kritis', color: '#f87171', bg: 'rgba(248,113,113,0.12)' }
+function statusTone(status: string): { label: string; sevClass: string; color: string; bg: string } {
+  if (status === 'healthy')  return { label: 'Sehat',     sevClass: 'sh-chip sh-chip-forest', color: 'var(--forest)',    bg: 'var(--forest-soft)' }
+  if (status === 'degraded') return { label: 'Terganggu', sevClass: 'sh-chip sh-chip-amber',  color: 'var(--amber-2)',   bg: 'var(--amber-soft)' }
+  if (status === 'disabled') return { label: 'Nonaktif',  sevClass: 'sh-chip',                color: 'var(--ink-4)',     bg: 'var(--line-soft)' }
+  if (status === 'idle')     return { label: 'Idle',      sevClass: 'sh-chip',                color: 'var(--ink-4)',     bg: 'var(--line-soft)' }
+  return                            { label: 'Kritis',    sevClass: 'sh-chip sh-chip-terra',  color: 'var(--terracotta-2)', bg: 'var(--terra-soft)' }
 }
 
 function accessTone(access: string) {
-  if (access === 'admin') return { label: 'Admin', color: '#f87171', bg: 'rgba(248,113,113,0.12)' }
-  if (access === 'protected') return { label: 'Login', color: '#38bdf8', bg: 'rgba(56,189,248,0.12)' }
-  if (access === 'public') return { label: 'Publik', color: '#4ade80', bg: 'rgba(74,222,128,0.12)' }
-  return { label: 'Unknown', color: '#94a3b8', bg: 'rgba(148,163,184,0.12)' }
+  if (access === 'admin')     return { label: 'Admin',   cls: 'sh-chip sh-chip-terra' }
+  if (access === 'protected') return { label: 'Login',   cls: 'sh-chip' }
+  if (access === 'public')    return { label: 'Publik',  cls: 'sh-chip sh-chip-forest' }
+  return                             { label: 'Unknown', cls: 'sh-chip' }
 }
 
-function methodTone(method: string) {
-  if (method === 'GET') return { color: '#38bdf8', bg: 'rgba(56,189,248,0.12)' }
-  if (method === 'POST') return { color: '#4ade80', bg: 'rgba(74,222,128,0.12)' }
-  if (method === 'PUT') return { color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' }
-  if (method === 'DELETE') return { color: '#f87171', bg: 'rgba(248,113,113,0.12)' }
-  return { color: '#a78bfa', bg: 'rgba(167,139,250,0.12)' }
-}
-
-function StatCard({
-  label, value, sub, accent, icon,
-}: { label: string; value: string; sub?: string; accent: string; icon: string }) {
-  return (
-    <div
-      className="rounded-[24px] p-4 md:p-5"
-      style={{
-        background: `linear-gradient(150deg, ${accent}16 0%, rgba(8,12,18,0.9) 72%)`,
-        border: `1px solid ${accent}30`,
-        boxShadow: `0 18px 42px ${accent}10`,
-      }}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-xs font-medium uppercase" style={{ color: `${accent}bb`, letterSpacing: '0.12em' }}>{label}</p>
-        <span className="text-xl">{icon}</span>
-      </div>
-      <p className="text-lg font-bold leading-tight text-white break-words md:text-xl xl:text-2xl">{value}</p>
-      {sub && <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>{sub}</p>}
-    </div>
-  )
+function methodColor(method: string) {
+  if (method === 'GET')    return 'var(--c-sky)'
+  if (method === 'POST')   return 'var(--forest)'
+  if (method === 'PUT')    return 'var(--amber-2)'
+  if (method === 'DELETE') return 'var(--terracotta-2)'
+  return 'var(--ink-3)'
 }
 
 export default function AdminMonitoring() {
@@ -137,32 +109,20 @@ export default function AdminMonitoring() {
 
   const fetchData = () => {
     api.get('/admin/system')
-      .then(r => {
-        setData(r.data)
-      })
+      .then(r => setData(r.data))
       .catch(() => {})
       .finally(() => setLoading(false))
   }
 
   const handleGlobalApiToggle = async (enabled: boolean) => {
-    if (!enabled) {
-      if (
-        !window.confirm(
-          'Nonaktifkan seluruh API publik? Aplikasi pengguna akan terblokir sampai dihidupkan lagi (perlu Redis).',
-        )
-      ) {
-        return
-      }
-    }
+    if (!enabled && !window.confirm('Nonaktifkan seluruh API publik? Aplikasi pengguna akan terblokir sampai dihidupkan lagi (perlu Redis).')) return
     setGlobalToggleLoading(true)
     setApiToggleError('')
     try {
       await setGlobalApiState(enabled)
       fetchData()
     } catch {
-      setApiToggleError(
-        'Gagal mengubah status API global. Pastikan Redis aktif di admin backend.',
-      )
+      setApiToggleError('Gagal mengubah status API global. Pastikan Redis aktif di admin backend.')
     } finally {
       setGlobalToggleLoading(false)
     }
@@ -173,11 +133,7 @@ export default function AdminMonitoring() {
     setEndpointToggleLoading(prev => ({ ...prev, [endpointKey]: true }))
     setApiToggleError('')
     try {
-      await api.put('/admin/system/api-endpoint-state', {
-        method: endpoint.method,
-        path: endpoint.path,
-        enabled,
-      })
+      await api.put('/admin/system/api-endpoint-state', { method: endpoint.method, path: endpoint.path, enabled })
       fetchData()
     } catch {
       setApiToggleError(`Gagal mengubah status endpoint ${endpoint.method} ${endpoint.path}`)
@@ -193,259 +149,198 @@ export default function AdminMonitoring() {
   }, [])
 
   const dbHealthy = data?.db_status === 'healthy'
-  const apiHealthyCount = useMemo(
-    () => data?.api_status.filter(apiItem => apiItem.status === 'healthy').length ?? 0,
-    [data],
-  )
-  const internalSummary = data?.api_summary ?? {
-    total: 0,
-    observed: 0,
-    healthy: 0,
-    degraded: 0,
-    critical: 0,
-    idle: 0,
-    total_requests: 0,
-    client_error_requests: 0,
-    server_error_requests: 0,
-  }
+  const apiHealthyCount = useMemo(() => data?.api_status.filter(a => a.status === 'healthy').length ?? 0, [data])
+  const internalSummary = data?.api_summary ?? { total: 0, observed: 0, healthy: 0, degraded: 0, critical: 0, idle: 0, total_requests: 0, client_error_requests: 0, server_error_requests: 0 }
   const internalProblemCount = internalSummary.degraded + internalSummary.critical
   const globalApiEnabled = data?.api_enabled !== false
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-            <AdminPageHero
-              eyebrow="Monitoring"
-              title="Monitoring API dan database."
-              description="Pantau status endpoint, error, dan latency dalam tampilan ringkas."
-              accent={dbHealthy ? 'var(--forest)' : '#f87171'}
-            />
+        <AdminPageHero
+          eyebrow="Monitoring"
+          title="Status API dan database dalam satu tampilan."
+          description="Pantau endpoint, error rate, dan latency. Toggle kill switch untuk kontrol darurat."
+        />
 
-            {loading ? (
-              <AdminSkeleton rows={5} height="h-28" />
-            ) : !data ? (
-              <p className="text-white/40">Gagal memuat data sistem</p>
-            ) : (
-              <>
-                {apiToggleError && (
-                  <div className="rounded-xl px-5 py-3 mb-6"
-                    style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)' }}>
-                    <p className="text-xs font-medium" style={{ color: '#f87171' }}>{apiToggleError}</p>
-                  </div>
-                )}
-                <AdminSectionLabel>Ringkasan API</AdminSectionLabel>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-                  <StatCard label="API Eksternal" value={`${apiHealthyCount}/${data.api_status.length}`} sub="layanan pihak ketiga sehat" accent="#0ea5e9" icon="🌐" />
-                  <StatCard label="API Internal" value={`${internalSummary.observed}/${internalSummary.total}`} sub={`${internalSummary.total_requests.toLocaleString('id-ID')} request tercatat`} accent="#ef4444" icon="🧭" />
-                  <StatCard label="API Bermasalah" value={String(internalProblemCount)} sub="endpoint lambat atau 5xx" accent="#f87171" icon="🚨" />
-                  <StatCard label="API Idle" value={String(internalSummary.idle)} sub="belum dipanggil sejak backend hidup" accent="#94a3b8" icon="⏸️" />
-                  <StatCard label="Client Error" value={internalSummary.client_error_requests.toLocaleString('id-ID')} sub="respons 4xx tercatat" accent="#f59e0b" icon="⚠️" />
-                  <StatCard label="Database" value={dbHealthy ? 'Sehat' : 'Kritis'} sub="status koneksi MySQL" accent={dbHealthy ? '#4ade80' : '#f87171'} icon={dbHealthy ? '🟢' : '🔴'} />
-                </div>
+        {loading ? (
+          <AdminSkeleton rows={5} height="h-28" />
+        ) : !data ? (
+          <p style={{ fontSize: 14, color: 'var(--ink-4)', padding: 24 }}>Gagal memuat data sistem</p>
+        ) : (
+          <>
+            {apiToggleError && (
+              <div className="sh-chip sh-chip-terra" style={{ padding: '10px 16px', borderRadius: 10, fontSize: 13, display: 'block' }}>
+                {apiToggleError}
+              </div>
+            )}
 
-                <AdminSectionLabel>Kill switch — API publik (global)</AdminSectionLabel>
-                <div
-                  className="rounded-2xl p-6 mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-                  style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.25)' }}
-                >
-                  <div className="min-w-0">
-                    <h2 className="text-lg font-semibold text-white mb-1">Master toggle API</h2>
-                    <p className="text-white/45 text-xs max-w-xl">
-                      Mengatur Redis key kontrol untuk seluruh API publik (user backend). Saat OFF, gate mengembalikan respons layanan tidak tersedia. Endpoint-per-endpoint di bawah tetap bisa dipakai untuk penyempitan lebih lanjut.
-                    </p>
-                  </div>
-                  <label
-                    className="flex items-center gap-3 shrink-0 rounded-xl px-4 py-3 cursor-pointer select-none"
-                    style={{ border: '1px solid rgba(255,255,255,0.16)', background: 'rgba(255,255,255,0.04)' }}
-                  >
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <AdminMetricCard label="API Eksternal" value={`${apiHealthyCount}/${data.api_status.length}`} hint="layanan pihak ketiga sehat" color="var(--c-sky)" />
+              <AdminMetricCard label="API Internal" value={`${internalSummary.observed}/${internalSummary.total}`} hint={`${internalSummary.total_requests.toLocaleString('id-ID')} request`} color="var(--forest-3)" />
+              <AdminMetricCard label="API Bermasalah" value={String(internalProblemCount)} hint="endpoint lambat atau 5xx" color={internalProblemCount > 0 ? 'var(--terracotta)' : 'var(--forest)'} />
+              <AdminMetricCard label="API Idle" value={String(internalSummary.idle)} hint="belum dipanggil" color="var(--ink-4)" />
+              <AdminMetricCard label="Client Error" value={internalSummary.client_error_requests.toLocaleString('id-ID')} hint="respons 4xx" color="var(--amber-2)" />
+              <AdminMetricCard label="Database" value={dbHealthy ? 'Sehat' : 'Kritis'} hint="status koneksi MySQL" color={dbHealthy ? 'var(--forest)' : 'var(--terracotta)'} />
+            </div>
+
+            {/* Kill switch */}
+            <AdminPanel eyebrow="Kontrol darurat" title="Kill switch API publik (global)">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <p style={{ fontSize: 13, color: 'var(--ink-3)', lineHeight: 1.6, maxWidth: 680 }}>
+                  Mengatur Redis key kontrol untuk seluruh API publik. Saat OFF, gate mengembalikan respons layanan tidak tersedia. Toggle endpoint individual di bawah untuk penyempitan lebih lanjut.
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '10px 16px', borderRadius: 10, border: '1px solid var(--line-2)', background: globalApiEnabled ? 'var(--forest-soft)' : 'var(--terra-soft)' }}>
                     <input
                       type="checkbox"
                       checked={globalApiEnabled}
                       disabled={globalToggleLoading || loading || !data}
                       onChange={e => handleGlobalApiToggle(e.target.checked)}
-                      className="h-5 w-5 accent-forest"
+                      style={{ accentColor: 'var(--forest)', width: 18, height: 18 }}
                     />
-                    <span className="text-sm font-semibold text-white whitespace-nowrap">
+                    <span style={{ fontSize: 13.5, fontWeight: 600, color: globalApiEnabled ? 'var(--forest)' : 'var(--terracotta-2)' }}>
                       {globalToggleLoading ? 'Menyimpan…' : globalApiEnabled ? 'API publik ON' : 'API publik OFF'}
                     </span>
                   </label>
                 </div>
+              </div>
+            </AdminPanel>
 
-                <div className="rounded-2xl p-6 mb-8"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <div className="flex items-center justify-between gap-3 mb-5">
-                    <div>
-                      <h2 className="text-lg font-semibold text-white mb-1">Status API Eksternal</h2>
-                      <p className="text-white/35 text-xs">API pihak ketiga yang digunakan backend SawitHub</p>
-                    </div>
-                  </div>
-                  {data.api_status.length === 0 ? (
-                    <p className="text-white/30 text-sm text-center py-8">Belum ada API eksternal yang dipantau</p>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {data.api_status.map(service => {
-                        const tone = statusTone(service.status)
-                        return (
-                          <div key={service.key} className="rounded-2xl p-5"
-                            style={{ background: `${tone.color}10`, border: `1px solid ${tone.color}30` }}>
-                            <div className="flex items-start justify-between gap-3 mb-3">
-                              <div>
-                                <h3 className="text-sm font-semibold text-white">{service.name}</h3>
-                                <p className="text-[11px] mt-1 break-all" style={{ color: 'rgba(255,255,255,0.35)' }}>{service.endpoint}</p>
-                              </div>
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ color: tone.color, background: tone.bg }}>
-                                {tone.label}
-                              </span>
+            {/* External API */}
+            <AdminPanel eyebrow="API Eksternal" title="Layanan pihak ketiga" description="API pihak ketiga yang digunakan backend SawitHub">
+              {data.api_status.length === 0 ? (
+                <p style={{ fontSize: 13, color: 'var(--ink-5)', textAlign: 'center', padding: '24px 0' }}>Belum ada API eksternal yang dipantau</p>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
+                  {data.api_status.map(service => {
+                    const tone = statusTone(service.status)
+                    return (
+                      <div key={service.key} style={{ padding: 18, borderRadius: 12, background: 'var(--cream)', border: '1px solid var(--line-2)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                              <StatusDot severity={service.status === 'healthy' ? 'ok' : service.status === 'degraded' ? 'warn' : service.status === 'idle' ? 'info' : 'critical'} />
+                              <h3 style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--ink)' }}>{service.name}</h3>
                             </div>
-                            <p className="text-sm mb-4" style={{ color: 'rgba(255,255,255,0.75)' }}>{service.message}</p>
-                            <div className="grid grid-cols-2 gap-3 text-xs">
-                              <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                                <p style={{ color: 'rgba(255,255,255,0.3)' }}>Latency</p>
-                                <p className="text-white font-semibold">{service.latency_ms} ms</p>
-                              </div>
-                              <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                                <p style={{ color: 'rgba(255,255,255,0.3)' }}>HTTP Code</p>
-                                <p className="text-white font-semibold">{service.code ?? '-'}</p>
-                              </div>
-                            </div>
-                            <p className="text-[11px] mt-3" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                              Dicek: {fmtDate(service.checked_at)}
-                            </p>
+                            <p style={{ fontSize: 11, color: 'var(--ink-4)', wordBreak: 'break-all' }}>{service.endpoint}</p>
                           </div>
+                          <span className={tone.sevClass}>{tone.label}</span>
+                        </div>
+                        <p style={{ fontSize: 13, color: 'var(--ink-2)', marginBottom: 12 }}>{service.message}</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                          {[['Latency', `${service.latency_ms} ms`], ['HTTP Code', String(service.code ?? '-')]].map(([l, v]) => (
+                            <div key={l} style={{ padding: '8px 10px', background: 'var(--paper)', borderRadius: 8, border: '1px solid var(--line-2)' }}>
+                              <p style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 2 }}>{l}</p>
+                              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)', fontFamily: 'var(--f-mono)' }}>{v}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <p style={{ fontSize: 11, color: 'var(--ink-5)', marginTop: 10, fontFamily: 'var(--f-mono)' }}>Dicek: {fmtDate(service.checked_at)}</p>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </AdminPanel>
+
+            {/* Internal API table */}
+            <AdminPanel eyebrow="API Internal" title="Endpoint SawitHub" description="Seluruh endpoint `/api` beserta request count, error bucket, dan latency">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 20 }}>
+                {[
+                  ['Total Endpoint', String(internalSummary.total)],
+                  ['Observed', String(internalSummary.observed)],
+                  ['5xx Errors', internalSummary.server_error_requests.toLocaleString('id-ID')],
+                  ['Total Request', internalSummary.total_requests.toLocaleString('id-ID')],
+                ].map(([l, v]) => (
+                  <div key={l} style={{ padding: '10px 14px', background: 'var(--cream)', borderRadius: 10, border: '1px solid var(--line-2)' }}>
+                    <p style={{ fontSize: 10.5, color: 'var(--ink-4)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '.08em', fontFamily: 'var(--f-mono)' }}>{l}</p>
+                    <p style={{ fontSize: 18, fontWeight: 500, color: 'var(--ink)', fontFamily: 'var(--f-mono)' }}>{v}</p>
+                  </div>
+                ))}
+              </div>
+
+              {data.internal_api_status.length === 0 ? (
+                <p style={{ fontSize: 13, color: 'var(--ink-5)', textAlign: 'center', padding: '24px 0' }}>Belum ada endpoint internal yang terpantau</p>
+              ) : (
+                <div style={{ overflowX: 'auto', borderRadius: 10, border: '1px solid var(--line-2)', overflow: 'hidden' }}>
+                  <table style={{ width: '100%', minWidth: 980, borderCollapse: 'collapse', fontSize: 13 }}>
+                    <thead>
+                      <tr style={{ background: 'var(--paper-2)', borderBottom: '1px solid var(--line-2)' }}>
+                        {['Endpoint', 'Akses', 'Status', 'Toggle', 'Request', '4xx / 5xx', 'Latency', 'Terakhir'].map(h => (
+                          <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.1em', color: 'var(--ink-4)', fontFamily: 'var(--f-mono)', whiteSpace: 'nowrap' }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.internal_api_status.map(endpoint => {
+                        const tone = statusTone(endpoint.status)
+                        const access = accessTone(endpoint.access)
+                        const endpointKey = `${endpoint.method} ${endpoint.path}`
+                        const endpointEnabled = endpoint.enabled !== false
+                        const rowToggleLoading = endpointToggleLoading[endpointKey] === true
+                        return (
+                          <tr key={endpoint.key} style={{ borderBottom: '1px solid var(--line-2)' }} className="transition hover:bg-[var(--paper-2)]">
+                            <td style={{ padding: '12px 16px', verticalAlign: 'top' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                <span style={{ padding: '2px 8px', borderRadius: 6, fontSize: 10.5, fontWeight: 700, fontFamily: 'var(--f-mono)', color: methodColor(endpoint.method), background: `${methodColor(endpoint.method)}14` }}>
+                                  {endpoint.method}
+                                </span>
+                                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{endpoint.name}</span>
+                                {endpoint.observed_unknown && (
+                                  <span className="sh-chip" style={{ fontSize: 10 }}>Runtime</span>
+                                )}
+                              </div>
+                              <p style={{ fontFamily: 'var(--f-mono)', fontSize: 11.5, color: 'var(--ink-2)', marginBottom: 2 }}>{endpoint.path}</p>
+                              <p style={{ fontSize: 11.5, color: 'var(--ink-4)' }}>{endpoint.group} · {endpoint.health_note || endpoint.description}</p>
+                            </td>
+                            <td style={{ padding: '12px 16px', verticalAlign: 'top' }}>
+                              <span className={access.cls}>{access.label}</span>
+                            </td>
+                            <td style={{ padding: '12px 16px', verticalAlign: 'top' }}>
+                              <span className={tone.sevClass}>{tone.label}</span>
+                            </td>
+                            <td style={{ padding: '12px 16px', verticalAlign: 'top' }}>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '6px 10px', borderRadius: 8, border: '1px solid var(--line-2)', background: endpointEnabled ? 'var(--forest-soft)' : 'var(--paper-2)', width: 'fit-content' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={endpointEnabled}
+                                  disabled={rowToggleLoading}
+                                  onChange={e => handleToggleEndpointAPI(endpoint, e.target.checked)}
+                                  style={{ accentColor: 'var(--forest)', width: 14, height: 14 }}
+                                />
+                                <span style={{ fontSize: 11.5, fontWeight: 600, color: endpointEnabled ? 'var(--forest)' : 'var(--ink-4)' }}>
+                                  {rowToggleLoading ? '...' : endpointEnabled ? 'ON' : 'OFF'}
+                                </span>
+                              </label>
+                            </td>
+                            <td style={{ padding: '12px 16px', verticalAlign: 'top' }}>
+                              <p style={{ fontWeight: 600, color: 'var(--ink)', fontFamily: 'var(--f-mono)' }}>{endpoint.total_requests.toLocaleString('id-ID')}</p>
+                            </td>
+                            <td style={{ padding: '12px 16px', verticalAlign: 'top' }}>
+                              <p style={{ fontWeight: 600, fontFamily: 'var(--f-mono)', color: (endpoint.client_error_requests + endpoint.server_error_requests) > 0 ? 'var(--terracotta-2)' : 'var(--ink)' }}>
+                                {endpoint.client_error_requests} / {endpoint.server_error_requests}
+                              </p>
+                              <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 2 }}>terakhir {endpoint.last_status_code ?? '-'}</p>
+                            </td>
+                            <td style={{ padding: '12px 16px', verticalAlign: 'top' }}>
+                              <p style={{ fontWeight: 600, fontFamily: 'var(--f-mono)', color: endpoint.avg_latency_ms > 500 ? 'var(--terracotta-2)' : 'var(--ink)' }}>{endpoint.avg_latency_ms} ms</p>
+                              <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 2 }}>last {endpoint.last_latency_ms} ms · max {endpoint.max_latency_ms} ms</p>
+                            </td>
+                            <td style={{ padding: '12px 16px', verticalAlign: 'top' }}>
+                              <p style={{ fontWeight: 600, color: 'var(--ink)', fontSize: 12 }}>{endpoint.last_seen_relative}</p>
+                              <p style={{ fontSize: 11, color: 'var(--ink-4)', marginTop: 2 }}>{fmtDate(endpoint.last_seen_at)}</p>
+                            </td>
+                          </tr>
                         )
                       })}
-                    </div>
-                  )}
+                    </tbody>
+                  </table>
                 </div>
-
-                <div className="rounded-2xl p-6 mb-8"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-5">
-                    <div>
-                      <h2 className="text-lg font-semibold text-white mb-1">API Internal SawitHub</h2>
-                      <p className="text-white/35 text-xs">Seluruh endpoint `/api` yang dipakai aplikasi, beserta request count, error bucket, dan latency</p>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                      <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                        <p style={{ color: 'rgba(255,255,255,0.3)' }}>Total Endpoint</p>
-                        <p className="text-white font-semibold">{internalSummary.total}</p>
-                      </div>
-                      <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                        <p style={{ color: 'rgba(255,255,255,0.3)' }}>Observed</p>
-                        <p className="text-white font-semibold">{internalSummary.observed}</p>
-                      </div>
-                      <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                        <p style={{ color: 'rgba(255,255,255,0.3)' }}>5xx</p>
-                        <p className="text-white font-semibold">{internalSummary.server_error_requests.toLocaleString('id-ID')}</p>
-                      </div>
-                      <div className="rounded-xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                        <p style={{ color: 'rgba(255,255,255,0.3)' }}>Total Request</p>
-                        <p className="text-white font-semibold">{internalSummary.total_requests.toLocaleString('id-ID')}</p>
-                      </div>
-                    </div>
-                  </div>
-                  {data.internal_api_status.length === 0 ? (
-                    <p className="text-white/30 text-sm text-center py-8">Belum ada endpoint internal yang terpantau</p>
-                  ) : (
-                    <div className="overflow-auto rounded-2xl" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
-                      <table className="w-full min-w-[980px] text-sm">
-                        <thead style={{ background: 'rgba(255,255,255,0.03)' }}>
-                          <tr className="text-left">
-                            <th className="px-4 py-3 text-white/40 font-medium">Endpoint</th>
-                            <th className="px-4 py-3 text-white/40 font-medium">Akses</th>
-                            <th className="px-4 py-3 text-white/40 font-medium">Status</th>
-                            <th className="px-4 py-3 text-white/40 font-medium">Toggle API</th>
-                            <th className="px-4 py-3 text-white/40 font-medium">Request</th>
-                            <th className="px-4 py-3 text-white/40 font-medium">4xx / 5xx</th>
-                            <th className="px-4 py-3 text-white/40 font-medium">Latency</th>
-                            <th className="px-4 py-3 text-white/40 font-medium">Terakhir</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data.internal_api_status.map((endpoint) => {
-                            const tone = statusTone(endpoint.status)
-                            const access = accessTone(endpoint.access)
-                            const method = methodTone(endpoint.method)
-                            const endpointKey = `${endpoint.method} ${endpoint.path}`
-                            const endpointEnabled = endpoint.enabled !== false
-                            const rowToggleLoading = endpointToggleLoading[endpointKey] === true
-                            return (
-                              <tr key={endpoint.key} style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                                <td className="px-4 py-4 align-top">
-                                  <div className="flex items-start gap-2 mb-2">
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ color: method.color, background: method.bg }}>
-                                      {endpoint.method}
-                                    </span>
-                                    <span className="text-white font-medium">{endpoint.name}</span>
-                                    {endpoint.observed_unknown && (
-                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ color: '#a78bfa', background: 'rgba(167,139,250,0.12)' }}>
-                                        Runtime
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="font-mono text-xs mb-1" style={{ color: 'rgba(255,255,255,0.8)' }}>{endpoint.path}</p>
-                                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                                    {endpoint.group} • {endpoint.health_note || endpoint.description}
-                                  </p>
-                                </td>
-                                <td className="px-4 py-4 align-top">
-                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ color: access.color, background: access.bg }}>
-                                    {access.label}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-4 align-top">
-                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ color: tone.color, background: tone.bg }}>
-                                    {tone.label}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-4 align-top">
-                                  <label
-                                    className="flex items-center gap-2 rounded-lg px-2 py-1 cursor-pointer select-none w-fit"
-                                    style={{ border: '1px solid rgba(255,255,255,0.16)', background: 'rgba(255,255,255,0.04)' }}
-                                    title={`Toggle ${endpoint.method} ${endpoint.path}`}
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={endpointEnabled}
-                                      disabled={rowToggleLoading}
-                                      onChange={e => handleToggleEndpointAPI(endpoint, e.target.checked)}
-                                      className="h-4 w-4 accent-forest"
-                                    />
-                                    <span className="text-xs font-medium text-white/80">
-                                      {rowToggleLoading ? '...' : (endpointEnabled ? 'ON' : 'OFF')}
-                                    </span>
-                                  </label>
-                                </td>
-                                <td className="px-4 py-4 align-top text-white">
-                                  <p className="font-semibold">{endpoint.total_requests.toLocaleString('id-ID')}</p>
-                                </td>
-                                <td className="px-4 py-4 align-top">
-                                  <p className="text-white font-semibold">{endpoint.client_error_requests} / {endpoint.server_error_requests}</p>
-                                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                                    status terakhir {endpoint.last_status_code ?? '-'}
-                                  </p>
-                                </td>
-                                <td className="px-4 py-4 align-top">
-                                  <p className="text-white font-semibold">{endpoint.avg_latency_ms} ms</p>
-                                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                                    last {endpoint.last_latency_ms} ms • max {endpoint.max_latency_ms} ms
-                                  </p>
-                                </td>
-                                <td className="px-4 py-4 align-top">
-                                  <p className="text-white font-semibold">{endpoint.last_seen_relative}</p>
-                                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>{fmtDate(endpoint.last_seen_at)}</p>
-                                </td>
-                              </tr>
-                            )
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-
-              </>
-            )}
+              )}
+            </AdminPanel>
+          </>
+        )}
       </div>
     </AdminLayout>
   )

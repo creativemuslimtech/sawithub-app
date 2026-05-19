@@ -25,7 +25,6 @@ interface UserItem {
   last_seen_at?: string
   last_seen_relative?: string
   deactivated_at?: string
-  /** PM-01: app onboarding wizard completed (from user preferences_json). */
   onboarding_done?: boolean
 }
 
@@ -47,6 +46,15 @@ function apiErrorMessage(err: unknown) {
   return response?.data?.error
 }
 
+/* ── small badge helper ── */
+function Chip({ children, tone }: { children: React.ReactNode; tone: 'forest' | 'amber' | 'terra' | 'neutral' }) {
+  const cls = tone === 'forest' ? 'sh-chip sh-chip-forest'
+    : tone === 'amber' ? 'sh-chip sh-chip-amber'
+    : tone === 'terra' ? 'sh-chip sh-chip-terra'
+    : 'sh-chip'
+  return <span className={cls}>{children}</span>
+}
+
 export default function AdminUsers() {
   const { user: currentUser } = useAuth()
   const [users, setUsers] = useState<UserItem[]>([])
@@ -62,16 +70,8 @@ export default function AdminUsers() {
   const [inactiveTotal, setInactiveTotal] = useState(0)
   const [onlineTotal, setOnlineTotal] = useState(0)
 
-  // Password change modal state
-  const [passwordModal, setPasswordModal] = useState<{
-    open: boolean
-    userId: string
-    username: string
-  } | null>(null)
-  const [passwordForm, setPasswordForm] = useState({
-    newPassword: '',
-    confirmPassword: '',
-  })
+  const [passwordModal, setPasswordModal] = useState<{ open: boolean; userId: string; username: string } | null>(null)
+  const [passwordForm, setPasswordForm] = useState({ newPassword: '', confirmPassword: '' })
   const [passwordLoading, setPasswordLoading] = useState(false)
 
   const fetchUsers = async (p: number) => {
@@ -93,9 +93,7 @@ export default function AdminUsers() {
     }
   }
 
-  useEffect(() => {
-    fetchUsers(page)
-  }, [page])
+  useEffect(() => { fetchUsers(page) }, [page])
 
   const handleRoleChange = async (userId: string, newRole: 'user' | 'admin') => {
     try {
@@ -110,17 +108,11 @@ export default function AdminUsers() {
 
   const handleToggleStatus = async (user: UserItem) => {
     const actionLabel = user.is_active ? 'Nonaktifkan' : 'Aktifkan'
-    const detail = user.is_active
-      ? 'Akun tidak bisa login lagi sampai diaktifkan kembali.'
-      : 'Akun akan bisa login kembali.'
-
+    const detail = user.is_active ? 'Akun tidak bisa login lagi sampai diaktifkan kembali.' : 'Akun akan bisa login kembali.'
     if (!confirm(`${actionLabel} akun "${user.username}"?\n\n${detail}`)) return
-
     try {
       const { data } = await api.put(`/admin/users/${user.user_id}/deactivate`, {})
-      if (editingUserId === user.user_id) {
-        setEditingUserId(null)
-      }
+      if (editingUserId === user.user_id) setEditingUserId(null)
       await fetchUsers(page)
       toast.success(data?.message || `Pengguna berhasil ${user.is_active ? 'dinonaktifkan' : 'diaktifkan'}`)
     } catch (err: unknown) {
@@ -130,29 +122,21 @@ export default function AdminUsers() {
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!passwordModal) return
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error('Password tidak cocok')
-      return
-    }
-    if (passwordForm.newPassword.length < 8) {
-      toast.error('Password minimal 8 karakter')
-      return
-    }
-
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) { toast.error('Password tidak cocok'); return }
+    if (passwordForm.newPassword.length < 8) { toast.error('Password minimal 8 karakter'); return }
     setPasswordLoading(true)
     try {
       await api.put(`/admin/users/${passwordModal.userId}/password`, {
         new_password: passwordForm.newPassword,
         confirm_password: passwordForm.confirmPassword,
       })
-
       toast.success('Password berhasil diubah')
       setPasswordModal(null)
       setPasswordForm({ newPassword: '', confirmPassword: '' })
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Gagal mengubah password')
+    } catch (error: unknown) {
+      const msg = (error as { response?: { data?: { error?: string } } })?.response?.data?.error
+      toast.error(msg || 'Gagal mengubah password')
     } finally {
       setPasswordLoading(false)
     }
@@ -173,76 +157,56 @@ export default function AdminUsers() {
         <AdminPageHero
           eyebrow="User Control"
           title="Manajemen pengguna yang mudah dipindai dan aman dieksekusi."
-          description="Pantau akun aktif, status online, role admin, dan histori akses dalam satu tampilan. Layout mobile memakai kartu agar aksi penting tetap jelas tanpa memaksa tabel lebar."
-          accent="#06b6d4"
+          description="Pantau akun aktif, status online, role admin, dan histori akses dalam satu tampilan."
         />
 
         <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-          <AdminMetricCard label="Total Akun" value={total.toLocaleString('id-ID')} hint="seluruh akun terdaftar" accent="#06b6d4" icon="👥" />
-          <AdminMetricCard label="Akun Aktif" value={activeTotal.toLocaleString('id-ID')} hint={`${activePct.toFixed(1)}% dari total akun`} accent="var(--forest)" icon="✅" />
-          <AdminMetricCard label="Online" value={onlineTotal.toLocaleString('id-ID')} hint={`${onlinePct.toFixed(1)}% sedang aktif sekarang`} accent="#84cc16" icon="●" />
-          <AdminMetricCard label="Nonaktif" value={inactiveTotal.toLocaleString('id-ID')} hint={`${inactivePct.toFixed(1)}% perlu tinjauan`} accent="#f87171" icon="!" />
+          <AdminMetricCard label="Total Akun" value={total.toLocaleString('id-ID')} hint="seluruh akun terdaftar" color="var(--c-sky)" />
+          <AdminMetricCard label="Akun Aktif" value={activeTotal.toLocaleString('id-ID')} hint={`${activePct.toFixed(1)}% dari total`} color="var(--forest)" />
+          <AdminMetricCard label="Online" value={onlineTotal.toLocaleString('id-ID')} hint={`${onlinePct.toFixed(1)}% aktif sekarang`} color="var(--forest-3)" live />
+          <AdminMetricCard label="Nonaktif" value={inactiveTotal.toLocaleString('id-ID')} hint={`${inactivePct.toFixed(1)}% perlu tinjauan`} color="var(--terracotta)" />
         </div>
 
         <AdminPanel
           eyebrow="Direktori"
           title="Daftar pengguna"
-          description="Gunakan pencarian untuk mengecek akun tertentu, atau pindah halaman untuk memantau seluruh basis pengguna."
-          action={searchTerm ? <span className="text-sm text-white/45">{filteredUsers.length} hasil ditemukan</span> : undefined}
+          description="Gunakan pencarian untuk mengecek akun tertentu."
+          action={searchTerm ? <span style={{ fontSize: 12, color: 'var(--ink-4)' }}>{filteredUsers.length} hasil</span> : undefined}
         >
-          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center">
-            <AdminSearchField
-              value={searchTerm}
-              onChange={setSearchTerm}
-              placeholder="Cari email, username, atau nama..."
-              className="flex-1"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="rounded-2xl px-4 py-3 text-sm font-medium transition"
-                style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.62)', border: '1px solid rgba(255,255,255,0.1)' }}
-              >
-                Bersihkan
-              </button>
-            )}
+          <div style={{ marginBottom: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <AdminSearchField value={searchTerm} onChange={setSearchTerm} placeholder="Cari email, username, atau nama..." className="flex-1" />
+              {searchTerm && (
+                <button onClick={() => setSearchTerm('')} className="sh-btn sh-btn-ghost sh-btn-sm" style={{ borderRadius: 10 }}>
+                  Bersihkan
+                </button>
+              )}
+            </div>
           </div>
 
           {loading ? (
             <AdminSkeleton rows={6} height="h-16" />
           ) : fetchError ? (
-            <div className="rounded-[28px] py-12 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              <div className="mb-3 text-3xl">⚠️</div>
-              <p className="text-sm font-semibold text-white">Gagal memuat data pengguna</p>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-white/40">
-                Terjadi kesalahan saat mengambil data dari server. Periksa koneksi atau coba lagi.
-              </p>
-              <button
-                onClick={() => fetchUsers(page)}
-                className="mt-5 rounded-2xl px-5 py-2.5 text-sm font-semibold transition"
-                style={{ background: 'rgba(6,182,212,0.12)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.25)' }}
-              >
-                Coba lagi
-              </button>
-            </div>
+            <AdminEmptyState
+              icon={<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>}
+              title="Gagal memuat data pengguna"
+              description="Terjadi kesalahan saat mengambil data. Periksa koneksi atau coba lagi."
+            />
           ) : filteredUsers.length === 0 ? (
             <AdminEmptyState
-              icon="👤"
+              icon={<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
               title={searchTerm ? `Tidak ada hasil untuk "${searchTerm}"` : 'Belum ada pengguna'}
-              description={searchTerm ? 'Hapus pencarian atau coba kata kunci lain.' : 'Data pengguna akan muncul setelah ada akun yang berhasil terdaftar.'}
+              description={searchTerm ? 'Hapus pencarian atau coba kata kunci lain.' : 'Data pengguna akan muncul setelah ada akun terdaftar.'}
             />
           ) : (
             <>
-              <div
-                className="hidden overflow-x-auto rounded-2xl md:block"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
-              >
-                <table className="w-full min-w-[1180px]">
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto" style={{ borderRadius: 12, border: '1px solid var(--line-2)', overflow: 'hidden' }}>
+                <table className="w-full min-w-[1180px]" style={{ borderCollapse: 'collapse' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                    <tr style={{ background: 'var(--paper-2)', borderBottom: '1px solid var(--line-2)' }}>
                       {['Email', 'Nama', 'Username', 'Role', 'Onboarding', 'Status', 'Bergabung', 'Aksi'].map(h => (
-                        <th key={h} className="px-5 py-4 text-left text-xs font-semibold uppercase"
-                          style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>{h}</th>
+                        <th key={h} style={{ padding: '10px 18px', textAlign: 'left', fontSize: 10.5, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink-4)', fontFamily: 'var(--f-mono)' }}>{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -250,133 +214,77 @@ export default function AdminUsers() {
                     {filteredUsers.map(user => {
                       const isSelf = user.user_id === currentUser?.user_id
                       return (
-                        <tr key={user.user_id}
-                          style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-                          className="transition hover:bg-white/[0.02]">
-                          <td className="px-5 py-4 text-sm" style={{ color: 'rgba(255,255,255,0.75)' }}>
-                            {user.email || <span style={{ color: 'rgba(255,255,255,0.25)' }}>—</span>}
+                        <tr key={user.user_id} style={{ borderBottom: '1px solid var(--line-2)' }} className="transition hover:bg-[var(--paper-2)]">
+                          <td style={{ padding: '12px 18px', fontSize: 13, color: 'var(--ink-3)' }}>
+                            {user.email || <span style={{ color: 'var(--ink-5)' }}>—</span>}
                           </td>
-                          <td className="px-5 py-4 text-sm text-white font-medium" style={{ opacity: user.is_active ? 1 : 0.65 }}>
-                            {user.full_name || <span className="text-white/25 font-normal">—</span>}
+                          <td style={{ padding: '12px 18px', fontSize: 13, fontWeight: 600, color: 'var(--ink)', opacity: user.is_active ? 1 : 0.55 }}>
+                            {user.full_name || <span style={{ fontWeight: 400, color: 'var(--ink-5)' }}>—</span>}
                           </td>
-                          <td className="px-5 py-4 text-sm" style={{ color: 'rgba(255,255,255,0.6)', opacity: user.is_active ? 1 : 0.65 }}>
+                          <td style={{ padding: '12px 18px', fontSize: 13, color: 'var(--ink-3)', fontFamily: 'var(--f-mono)', opacity: user.is_active ? 1 : 0.55 }}>
                             {user.username}
                           </td>
-                          <td className="px-5 py-4">
+                          <td style={{ padding: '12px 18px' }}>
                             {editingUserId === user.user_id ? (
                               <select
                                 value={editingRole}
                                 onChange={e => setEditingRole(e.target.value as 'user' | 'admin')}
-                                className="px-2 py-1 rounded-lg text-sm"
-                                style={{ background: '#111827', color: 'white', border: '1px solid rgba(255,255,255,0.2)' }}>
+                                className="sh-input"
+                                style={{ height: 34, fontSize: 13 }}>
                                 <option value="user">User</option>
                                 <option value="admin">Admin</option>
                               </select>
                             ) : (
-                              <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold"
-                                style={{
-                                  background: user.role === 'admin' ? 'rgba(167,139,250,0.15)' : 'rgba(56,189,248,0.12)',
-                                  color: user.role === 'admin' ? '#a78bfa' : '#38bdf8',
-                                }}>
+                              <Chip tone={user.role === 'admin' ? 'amber' : 'neutral'}>
                                 {user.role === 'admin' ? 'Admin' : 'User'}
-                              </span>
+                              </Chip>
                             )}
                           </td>
-                          <td className="px-5 py-4">
-                            <span className="inline-flex w-fit px-2.5 py-1 rounded-full text-[11px] font-semibold"
-                              style={{
-                                background: user.onboarding_done ? 'rgba(52,211,153,0.14)' : 'rgba(251,191,36,0.12)',
-                                color: user.onboarding_done ? '#6ee7b7' : '#fcd34d',
-                              }}>
+                          <td style={{ padding: '12px 18px' }}>
+                            <Chip tone={user.onboarding_done ? 'forest' : 'amber'}>
                               {user.onboarding_done ? 'Selesai' : 'Belum'}
-                            </span>
+                            </Chip>
                           </td>
-                          <td className="px-5 py-4">
-                            <div className="flex flex-col gap-1">
-                              <span className="inline-flex w-fit px-2.5 py-1 rounded-full text-[11px] font-semibold"
-                                style={{
-                                  background: user.is_active ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)',
-                                  color: user.is_active ? '#86efac' : '#fca5a5',
-                                }}>
-                                {user.is_active ? 'Aktif' : 'Nonaktif'}
-                              </span>
+                          <td style={{ padding: '12px 18px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              <Chip tone={user.is_active ? 'forest' : 'terra'}>{user.is_active ? 'Aktif' : 'Nonaktif'}</Chip>
                               {!user.is_active && user.deactivated_at && (
-                                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                                  Sejak {fmtDateTime(user.deactivated_at)}
-                                </span>
+                                <span style={{ fontSize: 11, color: 'var(--ink-5)' }}>Sejak {fmtDateTime(user.deactivated_at)}</span>
                               )}
                               {user.is_active && (
-                                <span className="inline-flex w-fit px-2.5 py-1 rounded-full text-[11px] font-semibold"
-                                  style={{
-                                    background: user.is_online ? 'rgba(132,204,22,0.14)' : 'rgba(148,163,184,0.12)',
-                                    color: user.is_online ? '#bef264' : '#cbd5e1',
-                                  }}>
-                                  {user.is_online ? 'Online' : 'Offline'}
-                                </span>
+                                <Chip tone={user.is_online ? 'forest' : 'neutral'}>{user.is_online ? 'Online' : 'Offline'}</Chip>
                               )}
                               {user.is_active && !user.is_online && (
-                                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                                  {user.last_seen_relative || 'belum pernah aktif'}
-                                </span>
-                              )}
-                              {user.is_active && user.is_online && user.last_seen_at && (
-                                <span className="text-[11px]" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                                  Terdeteksi {fmtDateTime(user.last_seen_at)}
-                                </span>
+                                <span style={{ fontSize: 11, color: 'var(--ink-5)' }}>{user.last_seen_relative || 'belum aktif'}</span>
                               )}
                             </div>
                           </td>
-                          <td className="px-5 py-4 text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                          <td style={{ padding: '12px 18px', fontSize: 12, color: 'var(--ink-4)', fontFamily: 'var(--f-mono)' }}>
                             {fmtDate(user.created_at)}
                           </td>
-                          <td className="px-5 py-4">
-                            <div className="flex gap-2 items-center">
+                          <td style={{ padding: '12px 18px' }}>
+                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                               {editingUserId === user.user_id ? (
                                 <>
-                                  <button onClick={() => handleRoleChange(user.user_id, editingRole)}
-                                    className="px-3 py-1 rounded-lg text-xs font-medium transition"
-                                    style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.25)' }}>
-                                    Simpan
-                                  </button>
-                                  <button onClick={() => setEditingUserId(null)}
-                                    className="px-3 py-1 rounded-lg text-xs font-medium transition"
-                                    style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                                    Batal
-                                  </button>
+                                  <button onClick={() => handleRoleChange(user.user_id, editingRole)} className="sh-btn sh-btn-primary sh-btn-sm" style={{ borderRadius: 8, height: 30 }}>Simpan</button>
+                                  <button onClick={() => setEditingUserId(null)} className="sh-btn sh-btn-ghost sh-btn-sm" style={{ borderRadius: 8, height: 30 }}>Batal</button>
                                 </>
                               ) : (
                                 <>
-                                  <button onClick={() => { setEditingUserId(user.user_id); setEditingRole(user.role) }}
-                                    className="px-3 py-1 rounded-lg text-xs font-medium transition"
-                                    style={{ background: 'rgba(56,189,248,0.1)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.2)' }}>
-                                    Edit Role
-                                  </button>
-                                  <button
-                                    onClick={() => setPasswordModal({ open: true, userId: user.user_id, username: user.username })}
-                                    className="px-3 py-1 rounded-lg text-xs font-medium transition"
-                                    style={{ background: 'rgba(250,204,21,0.1)', color: '#fbbf24', border: '1px solid rgba(250,204,21,0.2)' }}>
-                                    Change Password
-                                  </button>
+                                  <button onClick={() => { setEditingUserId(user.user_id); setEditingRole(user.role) }} className="sh-btn sh-btn-ghost sh-btn-sm" style={{ borderRadius: 8, height: 30 }}>Edit Role</button>
+                                  <button onClick={() => setPasswordModal({ open: true, userId: user.user_id, username: user.username })} className="sh-btn sh-btn-ghost sh-btn-sm" style={{ borderRadius: 8, height: 30, color: 'var(--amber-2)' }}>Password</button>
                                   <button
                                     onClick={() => handleToggleStatus(user)}
                                     disabled={isSelf && user.is_active}
-                                    className="px-3 py-1 rounded-lg text-xs font-medium transition"
-                                    style={{
-                                      background: user.is_active ? 'rgba(239,68,68,0.1)' : 'rgba(74,222,128,0.12)',
-                                      color: user.is_active ? '#f87171' : '#4ade80',
-                                      border: user.is_active ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(74,222,128,0.25)',
-                                      opacity: isSelf && user.is_active ? 0.45 : 1,
-                                      cursor: isSelf && user.is_active ? 'not-allowed' : 'pointer',
-                                    }}>
+                                    className="sh-btn sh-btn-ghost sh-btn-sm"
+                                    style={{ borderRadius: 8, height: 30, color: user.is_active ? 'var(--terracotta-2)' : 'var(--forest)', opacity: isSelf && user.is_active ? 0.4 : 1 }}>
                                     {user.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                                   </button>
                                 </>
                               )}
                             </div>
                             {isSelf && user.is_active && (
-                              <p className="text-[11px] mt-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
-                                Akun Anda sendiri tidak bisa dinonaktifkan.
-                              </p>
+                              <p style={{ fontSize: 11, marginTop: 6, color: 'var(--ink-5)' }}>Akun Anda sendiri.</p>
                             )}
                           </td>
                         </tr>
@@ -386,110 +294,56 @@ export default function AdminUsers() {
                 </table>
               </div>
 
+              {/* Mobile cards */}
               <div className="space-y-3 md:hidden">
                 {filteredUsers.map(user => {
                   const isSelf = user.user_id === currentUser?.user_id
                   return (
-                    <article
-                      key={user.user_id}
-                      className="rounded-[24px] p-4"
-                      style={{ background: 'rgba(255,255,255,0.035)', border: '1px solid rgba(255,255,255,0.07)' }}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-base font-semibold text-white truncate">{user.full_name || user.username}</p>
-                          <p className="text-xs text-white/40 truncate">{user.email || user.username}</p>
+                    <article key={user.user_id} className="sh-card" style={{ padding: 16, borderRadius: 14 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, marginBottom: 12 }}>
+                        <div style={{ minWidth: 0 }}>
+                          <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.full_name || user.username}</p>
+                          <p style={{ fontSize: 12, color: 'var(--ink-4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email || user.username}</p>
                         </div>
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold"
-                          style={{
-                            background: user.role === 'admin' ? 'rgba(167,139,250,0.15)' : 'rgba(56,189,248,0.12)',
-                            color: user.role === 'admin' ? '#a78bfa' : '#38bdf8',
-                          }}>
-                          {user.role === 'admin' ? 'Admin' : 'User'}
-                        </span>
+                        <Chip tone={user.role === 'admin' ? 'amber' : 'neutral'}>{user.role === 'admin' ? 'Admin' : 'User'}</Chip>
                       </div>
-                      <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                        <div className="rounded-2xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                          <p className="text-white/30">Status</p>
-                          <p className="mt-1 font-semibold" style={{ color: user.is_active ? '#86efac' : '#fca5a5' }}>
-                            {user.is_active ? 'Aktif' : 'Nonaktif'}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                          <p className="text-white/30">Presence</p>
-                          <p className="mt-1 font-semibold" style={{ color: user.is_online ? '#bef264' : '#cbd5e1' }}>
-                            {user.is_online ? 'Online' : (user.last_seen_relative || 'Offline')}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                          <p className="text-white/30">Bergabung</p>
-                          <p className="mt-1 font-semibold text-white">{fmtDate(user.created_at)}</p>
-                        </div>
-                        <div className="rounded-2xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                          <p className="text-white/30">Username</p>
-                          <p className="mt-1 font-semibold text-white truncate">{user.username}</p>
-                        </div>
-                        <div className="rounded-2xl px-3 py-2" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                          <p className="text-white/30">Onboarding app</p>
-                          <p className="mt-1 font-semibold" style={{ color: user.onboarding_done ? '#6ee7b7' : '#fcd34d' }}>
-                            {user.onboarding_done ? 'Selesai' : 'Belum'}
-                          </p>
-                        </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+                        {[
+                          { l: 'Status', v: <Chip tone={user.is_active ? 'forest' : 'terra'}>{user.is_active ? 'Aktif' : 'Nonaktif'}</Chip> },
+                          { l: 'Presence', v: <Chip tone={user.is_online ? 'forest' : 'neutral'}>{user.is_online ? 'Online' : (user.last_seen_relative || 'Offline')}</Chip> },
+                          { l: 'Bergabung', v: <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{fmtDate(user.created_at)}</span> },
+                          { l: 'Onboarding', v: <Chip tone={user.onboarding_done ? 'forest' : 'amber'}>{user.onboarding_done ? 'Selesai' : 'Belum'}</Chip> },
+                        ].map(item => (
+                          <div key={item.l} className="sh-card" style={{ padding: '8px 12px', borderRadius: 10 }}>
+                            <p style={{ fontSize: 11, color: 'var(--ink-4)', marginBottom: 4 }}>{item.l}</p>
+                            {item.v}
+                          </div>
+                        ))}
                       </div>
                       {editingUserId === user.user_id && (
-                        <select
-                          value={editingRole}
-                          onChange={e => setEditingRole(e.target.value as 'user' | 'admin')}
-                          className="mt-3 w-full rounded-xl px-3 py-2 text-sm"
-                          style={{ background: '#111827', color: 'white', border: '1px solid rgba(255,255,255,0.16)' }}
-                        >
+                        <select value={editingRole} onChange={e => setEditingRole(e.target.value as 'user' | 'admin')} className="sh-input" style={{ marginBottom: 10 }}>
                           <option value="user">User</option>
                           <option value="admin">Admin</option>
                         </select>
                       )}
-                      <div className="mt-3 grid grid-cols-2 gap-2">
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                         {editingUserId === user.user_id ? (
                           <>
-                            <button onClick={() => handleRoleChange(user.user_id, editingRole)}
-                              className="rounded-xl px-3 py-2 text-xs font-medium transition"
-                              style={{ background: 'rgba(74,222,128,0.12)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.25)' }}>
-                              Simpan
-                            </button>
-                            <button onClick={() => setEditingUserId(null)}
-                              className="rounded-xl px-3 py-2 text-xs font-medium transition"
-                              style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                              Batal
-                            </button>
+                            <button onClick={() => handleRoleChange(user.user_id, editingRole)} className="sh-btn sh-btn-primary sh-btn-sm" style={{ borderRadius: 10 }}>Simpan</button>
+                            <button onClick={() => setEditingUserId(null)} className="sh-btn sh-btn-ghost sh-btn-sm" style={{ borderRadius: 10 }}>Batal</button>
                           </>
                         ) : (
                           <>
-                            <button onClick={() => { setEditingUserId(user.user_id); setEditingRole(user.role) }}
-                              className="rounded-xl px-3 py-2 text-xs font-medium transition"
-                              style={{ background: 'rgba(56,189,248,0.1)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.2)' }}>
-                              Edit Role
-                            </button>
-                            <button
-                              onClick={() => setPasswordModal({ open: true, userId: user.user_id, username: user.username })}
-                              className="rounded-xl px-3 py-2 text-xs font-medium transition"
-                              style={{ background: 'rgba(250,204,21,0.1)', color: '#fbbf24', border: '1px solid rgba(250,204,21,0.2)' }}>
-                              Password
-                            </button>
-                            <button
-                              onClick={() => handleToggleStatus(user)}
-                              disabled={isSelf && user.is_active}
-                              className="rounded-xl px-3 py-2 text-xs font-medium transition disabled:opacity-40"
-                              style={{
-                                background: user.is_active ? 'rgba(239,68,68,0.1)' : 'rgba(74,222,128,0.12)',
-                                color: user.is_active ? '#f87171' : '#4ade80',
-                                border: user.is_active ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(74,222,128,0.25)',
-                              }}>
+                            <button onClick={() => { setEditingUserId(user.user_id); setEditingRole(user.role) }} className="sh-btn sh-btn-ghost sh-btn-sm" style={{ borderRadius: 10 }}>Edit Role</button>
+                            <button onClick={() => setPasswordModal({ open: true, userId: user.user_id, username: user.username })} className="sh-btn sh-btn-ghost sh-btn-sm" style={{ borderRadius: 10, color: 'var(--amber-2)' }}>Password</button>
+                            <button onClick={() => handleToggleStatus(user)} disabled={isSelf && user.is_active} className="sh-btn sh-btn-ghost sh-btn-sm" style={{ borderRadius: 10, color: user.is_active ? 'var(--terracotta-2)' : 'var(--forest)', gridColumn: '1 / -1' }}>
                               {user.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                             </button>
                           </>
                         )}
                       </div>
                       {isSelf && user.is_active && (
-                        <p className="mt-2 text-[11px] text-white/30">Akun Anda sendiri tidak bisa dinonaktifkan.</p>
+                        <p style={{ fontSize: 11, marginTop: 8, color: 'var(--ink-5)' }}>Akun Anda sendiri tidak bisa dinonaktifkan.</p>
                       )}
                     </article>
                   )
@@ -499,88 +353,38 @@ export default function AdminUsers() {
           )}
 
           {totalPages > 1 && !searchTerm && (
-            <AdminPagination
-              page={page}
-              totalPages={totalPages}
-              totalLabel={`Halaman ${page} dari ${totalPages} · ${total.toLocaleString('id-ID')} pengguna`}
-              onPrev={() => setPage(p => p - 1)}
-              onNext={() => setPage(p => p + 1)}
-            />
+            <AdminPagination page={page} totalPages={totalPages} totalLabel={`Halaman ${page} dari ${totalPages} · ${total.toLocaleString('id-ID')} pengguna`} onPrev={() => setPage(p => p - 1)} onNext={() => setPage(p => p + 1)} />
           )}
         </AdminPanel>
       </div>
 
-      {/* Password Change Modal */}
+      {/* Password modal */}
       {passwordModal?.open && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-[#1a1a2e] border border-white/10 rounded-2xl p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold mb-2 text-white">
-              Change Password
-            </h3>
-            <p className="text-sm text-white/50 mb-6">
-              User: <span className="text-white font-medium">{passwordModal.username}</span>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(26,31,26,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 16 }}>
+          <div className="sh-card" style={{ padding: 28, borderRadius: 20, width: '100%', maxWidth: 420 }}>
+            <h3 className="sh-h-4" style={{ marginBottom: 6 }}>Ubah Password</h3>
+            <p style={{ fontSize: 13, color: 'var(--ink-3)', marginBottom: 24 }}>
+              User: <strong style={{ color: 'var(--ink)' }}>{passwordModal.username}</strong>
             </p>
-
             <form onSubmit={handlePasswordChange}>
-              <div className="space-y-4">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div>
-                  <label className="block text-sm mb-2 text-white/70">New Password</label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-white/30 focus:outline-none focus:border-yellow-500/50 transition"
-                    value={passwordForm.newPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                    placeholder="Minimal 8 karakter"
-                    minLength={8}
-                    required
-                    autoFocus
-                  />
+                  <label className="sh-label" style={{ display: 'block', marginBottom: 6 }}>Password baru</label>
+                  <input type="password" className="sh-input" value={passwordForm.newPassword} onChange={e => setPasswordForm({ ...passwordForm, newPassword: e.target.value })} placeholder="Minimal 8 karakter" minLength={8} required autoFocus />
                 </div>
-
                 <div>
-                  <label className="block text-sm mb-2 text-white/70">Confirm Password</label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder-white/30 focus:outline-none focus:border-yellow-500/50 transition"
-                    value={passwordForm.confirmPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                    placeholder="Ulangi password"
-                    minLength={8}
-                    required
-                  />
+                  <label className="sh-label" style={{ display: 'block', marginBottom: 6 }}>Konfirmasi password</label>
+                  <input type="password" className="sh-input" value={passwordForm.confirmPassword} onChange={e => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })} placeholder="Ulangi password" minLength={8} required />
                 </div>
-
-                {passwordForm.newPassword && passwordForm.confirmPassword &&
-                  passwordForm.newPassword !== passwordForm.confirmPassword && (
-                    <p className="text-red-400 text-sm">Password tidak cocok</p>
-                  )}
-
-                {passwordForm.newPassword && passwordForm.newPassword.length < 8 && (
-                  <p className="text-yellow-400 text-sm">Password minimal 8 karakter</p>
+                {passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword && (
+                  <p style={{ fontSize: 12, color: 'var(--terracotta-2)' }}>Password tidak cocok</p>
                 )}
-
-                <div className="flex gap-3 mt-6 pt-4 border-t border-white/10">
-                  <button
-                    type="submit"
-                    disabled={
-                      passwordLoading ||
-                      passwordForm.newPassword !== passwordForm.confirmPassword ||
-                      passwordForm.newPassword.length < 8
-                    }
-                    className="flex-1 py-2.5 bg-yellow-500 hover:bg-yellow-400 rounded-lg font-bold text-black transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {passwordLoading ? 'Menyimpan...' : 'Update Password'}
+                <div style={{ display: 'flex', gap: 10, paddingTop: 8, borderTop: '1px solid var(--line-2)' }}>
+                  <button type="submit" disabled={passwordLoading || passwordForm.newPassword !== passwordForm.confirmPassword || passwordForm.newPassword.length < 8} className="sh-btn sh-btn-primary" style={{ flex: 1, borderRadius: 10 }}>
+                    {passwordLoading ? 'Menyimpan...' : 'Simpan Password'}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setPasswordModal(null)
-                      setPasswordForm({ newPassword: '', confirmPassword: '' })
-                    }}
-                    disabled={passwordLoading}
-                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 rounded-lg text-white transition disabled:opacity-50"
-                  >
-                    Cancel
+                  <button type="button" onClick={() => { setPasswordModal(null); setPasswordForm({ newPassword: '', confirmPassword: '' }) }} disabled={passwordLoading} className="sh-btn sh-btn-ghost" style={{ flex: 1, borderRadius: 10 }}>
+                    Batal
                   </button>
                 </div>
               </div>

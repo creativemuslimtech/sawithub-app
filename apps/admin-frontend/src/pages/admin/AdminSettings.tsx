@@ -26,31 +26,24 @@ function ColorField({
 }: { label: string; desc: string; value: string; onChange: (v: string) => void }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-white mb-0.5">{label}</label>
-      <p className="text-xs mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>{desc}</p>
-      <div className="flex gap-3 items-center">
+      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginBottom: 2 }}>{label}</label>
+      <p style={{ fontSize: 12, color: 'var(--ink-4)', marginBottom: 8 }}>{desc}</p>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <input
           type="color"
           value={value}
           onChange={e => onChange(e.target.value)}
-          className="w-12 h-10 rounded-lg cursor-pointer border-0"
-          style={{ background: 'transparent' }}
+          style={{ width: 40, height: 40, borderRadius: 10, cursor: 'pointer', border: '1px solid var(--line-2)', background: 'transparent', padding: 2 }}
         />
         <input
           type="text"
           value={value}
           onChange={e => onChange(e.target.value)}
-          className="flex-1 px-4 py-2.5 rounded-xl text-sm font-mono"
-          style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            color: 'white',
-            outline: 'none',
-          }}
+          className="sh-input flex-1"
+          style={{ fontFamily: 'var(--f-mono)', fontSize: 13 }}
           placeholder="#000000"
         />
-        <div className="w-10 h-10 rounded-xl border border-white/10 flex-shrink-0"
-          style={{ background: value }} />
+        <div style={{ width: 40, height: 40, borderRadius: 10, border: '1px solid var(--line-2)', flexShrink: 0, background: value }} />
       </div>
     </div>
   )
@@ -109,104 +102,103 @@ export default function AdminSettings() {
     <AdminLayout
       maxWidth="max-w-5xl"
       topbarRight={hasChanges ? (
-        <span className="text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }}>
+        <span className="text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(245,158,11,0.12)', color: 'var(--amber-2)', border: '1px solid rgba(245,158,11,0.2)' }}>
           Ada perubahan yang belum disimpan
         </span>
       ) : undefined}
     >
       <div className="space-y-6">
-            <AdminPageHero
-              eyebrow="Theme Studio"
-              title="Pengaturan tema admin yang konsisten dengan dashboard."
-              description="Atur warna utama, sekunder, dan latar tanpa kehilangan keterbacaan. Preview dibuat langsung berdampingan dengan form supaya dampak perubahan bisa dibaca sebelum disimpan."
-              accent={form.primary_color}
-            />
+        <AdminPageHero
+          eyebrow="Theme Studio"
+          title="Pengaturan tema admin yang konsisten dengan dashboard."
+          description="Atur warna utama, sekunder, dan latar tanpa kehilangan keterbacaan. Preview dibuat langsung berdampingan dengan form supaya dampak perubahan bisa dibaca sebelum disimpan."
+          accent={form.primary_color}
+        />
 
-            {loading ? (
-              <AdminSkeleton rows={4} height="h-24" />
-            ) : (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <AdminMetricCard label="Primary" value={form.primary_color} hint="aksi dan navigasi aktif" accent={form.primary_color} icon="●" />
-                  <AdminMetricCard label="Secondary" value={form.secondary_color} hint="badge dan status pendukung" accent={form.secondary_color} icon="●" />
-                  <AdminMetricCard label="Background" value={form.background_color} hint="warna dasar aplikasi" accent="#38bdf8" icon="▣" />
+        {loading ? (
+          <AdminSkeleton rows={4} height="h-24" />
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <AdminMetricCard label="Primary" value={form.primary_color} hint="aksi dan navigasi aktif" color="var(--forest)" />
+              <AdminMetricCard label="Secondary" value={form.secondary_color} hint="badge dan status pendukung" color="var(--forest-3)" />
+              <AdminMetricCard label="Background" value={form.background_color} hint="warna dasar aplikasi" color="var(--c-sky)" />
+            </div>
+
+            <AdminPanel
+              eyebrow="Preview"
+              title="Tema aktif"
+              description="Kartu ini memakai kombinasi warna yang sedang diedit."
+            >
+              <div style={{ borderRadius: 16, padding: 20, display: 'flex', alignItems: 'center', gap: 16, background: form.background_color, border: '1px solid var(--line-2)' }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: form.primary_color }} />
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: form.secondary_color }} />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: form.primary_color }}>SawitHub</p>
+                  <p style={{ fontSize: 12, color: form.secondary_color }}>Preview tema aktif</p>
                 </div>
+              </div>
+            </AdminPanel>
 
-                <AdminPanel
-                  eyebrow="Preview"
-                  title="Tema aktif"
-                  description="Kartu ini memakai kombinasi warna yang sedang diedit."
-                >
-                  <div className="rounded-[24px] p-5 flex items-center gap-4"
-                    style={{ background: form.background_color, border: '1px solid rgba(255,255,255,0.1)' }}>
-                    <div className="w-10 h-10 rounded-xl" style={{ background: form.primary_color }} />
-                    <div className="w-10 h-10 rounded-xl" style={{ background: form.secondary_color }} />
-                    <div>
-                      <p className="text-sm font-semibold" style={{ color: form.primary_color }}>SawitHub</p>
-                      <p className="text-xs" style={{ color: form.secondary_color }}>Preview tema aktif</p>
-                    </div>
-                  </div>
-                </AdminPanel>
+            {subscriptionEnforcement != null ? (
+              <AdminPanel
+                eyebrow="Backend user app"
+                title="Subscription enforcement"
+                description="Baca saja. Harus sama dengan env SUBSCRIPTION_ENFORCEMENT pada backend pengguna (SawitHub). Dipakai support untuk membedakan perilaku trial vs gate penuh antar environment (BE-01)."
+              >
+                <p style={{ fontSize: 13, fontFamily: 'var(--f-mono)', color: 'var(--ink)' }}>
+                  subscription_enforcement ={' '}
+                  <span style={{ color: subscriptionEnforcement ? 'var(--forest)' : 'var(--amber-2)', fontWeight: 600 }}>
+                    {subscriptionEnforcement ? 'true' : 'false'}
+                  </span>
+                </p>
+              </AdminPanel>
+            ) : null}
 
-                {subscriptionEnforcement != null ? (
-                  <AdminPanel
-                    eyebrow="Backend user app"
-                    title="Subscription enforcement"
-                    description="Baca saja. Harus sama dengan env SUBSCRIPTION_ENFORCEMENT pada backend pengguna (SawitHub). Dipakai support untuk membedakan perilaku trial vs gate penuh antar environment (BE-01)."
-                  >
-                    <p className="text-sm font-mono" style={{ color: 'rgba(255,255,255,0.85)' }}>
-                      subscription_enforcement ={' '}
-                      <span style={{ color: subscriptionEnforcement ? '#4ade80' : '#fbbf24' }}>
-                        {subscriptionEnforcement ? 'true' : 'false'}
-                      </span>
-                    </p>
-                  </AdminPanel>
-                ) : null}
+            <AdminPanel
+              eyebrow="Konfigurasi"
+              title="Warna tema"
+              description="Simpan perubahan setelah kombinasi warna terasa jelas di layar desktop dan mobile."
+              className="space-y-7"
+            >
+              <ColorField
+                label="Warna Utama"
+                desc="Digunakan untuk tombol, aksen, dan elemen interaktif utama"
+                value={form.primary_color}
+                onChange={set('primary_color')}
+              />
+              <ColorField
+                label="Warna Sekunder"
+                desc="Digunakan untuk highlight, badge status, dan elemen pendukung"
+                value={form.secondary_color}
+                onChange={set('secondary_color')}
+              />
+              <ColorField
+                label="Warna Latar"
+                desc="Warna background utama seluruh aplikasi"
+                value={form.background_color}
+                onChange={set('background_color')}
+              />
 
-                <AdminPanel
-                  eyebrow="Konfigurasi"
-                  title="Warna tema"
-                  description="Simpan perubahan setelah kombinasi warna terasa jelas di layar desktop dan mobile."
-                  className="space-y-7"
-                >
-                  <ColorField
-                    label="Warna Utama"
-                    desc="Digunakan untuk tombol, aksen, dan elemen interaktif utama"
-                    value={form.primary_color}
-                    onChange={set('primary_color')}
-                  />
-                  <ColorField
-                    label="Warna Sekunder"
-                    desc="Digunakan untuk highlight, badge status, dan elemen pendukung"
-                    value={form.secondary_color}
-                    onChange={set('secondary_color')}
-                  />
-                  <ColorField
-                    label="Warna Latar"
-                    desc="Warna background utama seluruh aplikasi"
-                    value={form.background_color}
-                    onChange={set('background_color')}
-                  />
-
-                  <div className="flex gap-3 pt-2">
-                    <button
-                      onClick={handleSave}
-                      disabled={saving || !hasChanges}
-                      className="flex-1 px-6 py-3 rounded-xl text-sm font-semibold transition disabled:opacity-40"
-                      style={{ background: 'rgba(74,222,128,0.15)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)' }}>
-                      {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
-                    </button>
-                    <button
-                      onClick={() => setForm(saved)}
-                      disabled={!hasChanges}
-                      className="px-6 py-3 rounded-xl text-sm font-medium transition disabled:opacity-40"
-                      style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      Reset
-                    </button>
-                  </div>
-                </AdminPanel>
-              </>
-            )}
+              <div style={{ display: 'flex', gap: 10, paddingTop: 8 }}>
+                <button
+                  onClick={handleSave}
+                  disabled={saving || !hasChanges}
+                  className="sh-btn sh-btn-primary flex-1"
+                  style={{ opacity: saving || !hasChanges ? 0.4 : 1 }}>
+                  {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
+                </button>
+                <button
+                  onClick={() => setForm(saved)}
+                  disabled={!hasChanges}
+                  className="sh-btn sh-btn-ghost"
+                  style={{ opacity: !hasChanges ? 0.4 : 1 }}>
+                  Reset
+                </button>
+              </div>
+            </AdminPanel>
+          </>
+        )}
       </div>
     </AdminLayout>
   )
