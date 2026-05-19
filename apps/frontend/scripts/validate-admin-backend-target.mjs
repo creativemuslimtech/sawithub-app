@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 const VERCEL_CONFIG_PATH = new URL('../vercel.json', import.meta.url)
 
 const ALLOWED_HOSTS = {
-  production: 'sawithub-backend-production-92d6.up.railway.app',
+  production: 'backend-production-e631.up.railway.app',
   staging: 'staging.backend.sawithub.com',
 }
 
