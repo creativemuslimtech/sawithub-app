@@ -306,7 +306,7 @@ export default function Landing() {
           <PalmFrond size={520} style={{ position: 'absolute', right: -60, top: -40, opacity: 0.08, color: 'var(--forest)' }} />
           <PalmLeaf size={280} style={{ position: 'absolute', left: -40, bottom: -40, opacity: 0.1, color: 'var(--forest)', transform: 'rotate(-15deg)' }} />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 56, alignItems: 'center', maxWidth: 1320 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 56, alignItems: 'center', maxWidth: 1320, margin: '0 auto' }}>
             <div>
               {/* Badge */}
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 12px 5px 6px', background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 999, marginBottom: 28 }}>
@@ -361,7 +361,7 @@ export default function Landing() {
 
         {/* ── Partners rail ── */}
         <section style={{ padding: '18px 56px', borderTop: '1px solid var(--line-2)', borderBottom: '1px solid var(--line-2)', background: 'var(--paper)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 48, justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <div style={{ maxWidth: 1320, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 48, justifyContent: 'space-between', flexWrap: 'wrap' }}>
             <div className="sh-eyebrow">Dipercaya oleh koperasi &amp; mitra agribisnis</div>
             <div style={{ display: 'flex', gap: 40, alignItems: 'center', flexWrap: 'wrap' }}>
               {partners.map(n => (
@@ -374,6 +374,7 @@ export default function Landing() {
         {/* ── Features grid ── */}
         <section id="fitur" style={{ padding: '100px 56px 60px', position: 'relative' }}>
           <SunRays size={140} style={{ position: 'absolute', right: 80, top: 60, opacity: 0.08, color: 'var(--amber-2)' }} />
+          <div style={{ maxWidth: 1320, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between', marginBottom: 56, flexWrap: 'wrap', gap: 16 }}>
             <div>
               <div className="sh-eyebrow" style={{ marginBottom: 14 }}>—— Apa yang bisa dikerjakan</div>
@@ -384,7 +385,7 @@ export default function Landing() {
             <a href="#" style={{ fontSize: 14, color: 'var(--forest)', fontWeight: 600 }}>Jelajahi semua fitur →</a>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 18 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18 }}>
             {features.map((f, i) => {
               const Icon = f.icon
               return (
@@ -400,10 +401,12 @@ export default function Landing() {
               )
             })}
           </div>
+          </div>
         </section>
 
         {/* ── Editorial dark block — Laporan ── */}
         <section style={{ padding: '60px 56px 80px' }}>
+          <div style={{ maxWidth: 1320, margin: '0 auto' }}>
           <div style={{ background: 'var(--forest)', color: 'var(--paper)', borderRadius: 32, padding: '64px 56px', position: 'relative', overflow: 'hidden' }}>
             <PalmFrond size={400} style={{ position: 'absolute', right: -80, top: -80, color: 'var(--paper)', opacity: 0.07 }} />
             <SoilWaves width={400} height={80} style={{ position: 'absolute', left: 0, bottom: 0, color: 'var(--amber)', opacity: 0.18 }} />
@@ -424,17 +427,19 @@ export default function Landing() {
               <LaporanPreview />
             </div>
           </div>
+          </div>
         </section>
 
         {/* ── Testimonials ── */}
         <section style={{ padding: '60px 56px 80px', background: 'var(--paper)' }}>
+          <div style={{ maxWidth: 1320, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <div className="sh-eyebrow" style={{ marginBottom: 14 }}>—— Cerita petani</div>
             <h2 className="sh-h-2" style={{ maxWidth: 720, margin: '0 auto' }}>
               Dipakai pagi-pagi sebelum panen, sore setelah pulang dari kebun.
             </h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 18 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: 18 }}>
             {testimonials.map((t, i) => (
               <div key={i} className="sh-card" style={{ padding: 32, minHeight: 280, background: t.featured ? 'var(--cream)' : 'var(--surface)' }}>
                 <div style={{ fontSize: 32, fontFamily: 'var(--f-display)', color: 'var(--amber-2)', lineHeight: 0.5, marginBottom: 12 }}>"</div>
@@ -453,6 +458,7 @@ export default function Landing() {
               </div>
             ))}
           </div>
+          </div>
         </section>
 
         {/* ── Pricing ── */}
@@ -461,7 +467,7 @@ export default function Landing() {
             <div className="sh-eyebrow" style={{ marginBottom: 14 }}>—— Harga</div>
             <h2 className="sh-h-1">Mulai gratis. Tambah saat siap.</h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 18, maxWidth: 1120, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18, maxWidth: 1120, margin: '0 auto' }}>
             {plans.map((p, i) => (
               <div key={i} style={{
                 background: p.featured ? 'var(--forest)' : 'var(--paper)',
@@ -503,6 +509,7 @@ export default function Landing() {
 
         {/* ── Bottom CTA ── */}
         <section style={{ padding: '20px 56px 80px' }}>
+          <div style={{ maxWidth: 1320, margin: '0 auto' }}>
           <div style={{ background: 'linear-gradient(120deg, var(--amber-soft), var(--cream))', border: '1px solid var(--line)', borderRadius: 32, padding: '64px 56px', position: 'relative', overflow: 'hidden' }}>
             <PalmFrond size={360} style={{ position: 'absolute', right: -40, top: -40, color: 'var(--forest)', opacity: 0.1 }} />
             <SunRays size={200} style={{ position: 'absolute', left: -40, bottom: -40, color: 'var(--amber-2)', opacity: 0.12 }} />
@@ -520,6 +527,7 @@ export default function Landing() {
                 <button className="sh-btn sh-btn-ghost sh-btn-lg" style={{ borderRadius: 999 }}>Hubungi via WhatsApp</button>
               </div>
             </div>
+          </div>
           </div>
         </section>
       </main>
