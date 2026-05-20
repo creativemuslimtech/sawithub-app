@@ -89,7 +89,6 @@ function HeroPreview() {
           <div style={{ marginTop: 12 }}><Sparkline data={[12, 18, 16, 22, 28, 24, 32, 38, 34, 42]} width={310} height={48} color="var(--forest)" /></div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          {[['Panen', '8,4 ton', 'var(--forest)'], ['Biaya rawat', 'Rp 12,0 jt', 'var(--amber-2)']] as const}
           {([['Panen', '8,4 ton', 'var(--forest)'], ['Biaya rawat', 'Rp 12,0 jt', 'var(--amber-2)']] as [string, string, string][]).map(([l, v, c]) => (
             <div key={l} style={{ padding: 12, background: 'var(--surface)', border: '1px solid var(--line-2)', borderRadius: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
