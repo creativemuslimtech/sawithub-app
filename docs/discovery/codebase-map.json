@@ -1,0 +1,1020 @@
+{
+  "generated_at": "2026-05-21",
+  "monorepo": {
+    "name": "sawithub-app",
+    "root": "/Users/naramahzar/Documents/repository/sawithub-app",
+    "go_workspace": {
+      "go_version": "1.25.0",
+      "members": ["apps/backend", "apps/admin-backend"]
+    },
+    "npm_workspaces": [
+      "apps/frontend",
+      "apps/admin-frontend",
+      "packages/shared"
+    ],
+    "ci_cd": {
+      "platform": "GitHub Actions",
+      "workflows": [
+        "backend.yml — Go lint (golangci-lint v1.64.8) + test + build",
+        "admin-backend.yml — Go lint + test + build",
+        "frontend.yml — Node build + test",
+        "admin-frontend.yml — Node build + test"
+      ]
+    },
+    "deployment": {
+      "frontend": "Vercel",
+      "admin_frontend": "Vercel + Capacitor (Android)",
+      "backends": "Railway (staging + production)"
+    },
+    "makefile_targets": [
+      "dev-backend", "dev-admin-backend",
+      "build-backend", "build-admin-backend",
+      "vet-go", "tidy-go", "test-go",
+      "dev-frontend", "dev-admin-frontend",
+      "build-all", "install"
+    ]
+  },
+
+  "services": {
+    "backend": {
+      "name": "SawitHub Backend (User-Facing)",
+      "path": "apps/backend",
+      "language": "Go 1.25.0",
+      "module": "sawithub/backend",
+      "entry_point": "cmd/main.go",
+      "default_port": 8000,
+      "tech_stack": {
+        "http_framework": "github.com/go-chi/chi/v5 v5.2.5",
+        "cors": "github.com/go-chi/cors v1.2.2",
+        "database_driver": "github.com/go-sql-driver/mysql v1.9.3",
+        "migrations": "github.com/golang-migrate/migrate/v4 v4.19.1",
+        "jwt": "github.com/golang-jwt/jwt/v5 v5.3.1",
+        "uuid": "github.com/google/uuid v1.6.0",
+        "task_queue": "github.com/hibiken/asynq v0.26.0",
+        "redis": "github.com/redis/go-redis/v9 v9.14.1",
+        "env_loader": "github.com/joho/godotenv v1.5.1",
+        "otel_http": "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.68.0",
+        "otel_core": "go.opentelemetry.io/otel v1.43.0",
+        "otel_exporter_grpc": "go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.43.0",
+        "otel_exporter_stdout": "go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.43.0",
+        "otel_sdk": "go.opentelemetry.io/otel/sdk v1.43.0",
+        "crypto": "golang.org/x/crypto v0.50.0"
+      },
+      "internal_packages": [
+        "billing — Billing domain services",
+        "billingdomain — Billing domain abstractions",
+        "config — Configuration & env var loading",
+        "crypto — AES encryption utilities",
+        "db — Database connection & migrations",
+        "farmcore — Core farm operations (plots, harvests, maintenance, schedules)",
+        "farmfinance — Financial tracking (income, commodity prices)",
+        "handler — HTTP request handlers (61 handler functions)",
+        "identity — User authentication & profiles",
+        "jobs — Background job workers",
+        "logger — Logging infrastructure",
+        "mailer — Email service (Resend API integration)",
+        "middleware — HTTP middleware (auth, rate limit, cache, security)",
+        "notification — Notification delivery",
+        "notificationapp — Notification app layer",
+        "observability — API metrics tracking",
+        "platform — Platform services (theme, traffic tracking)",
+        "queue — Job queue abstractions",
+        "redis — Redis client wrapper",
+        "reporting — Financial report generation & export",
+        "subscription — Subscription & payment handling",
+        "taskqueue — Async task queue (Asynq)",
+        "telemetry — OpenTelemetry setup",
+        "validator — Input validation"
+      ],
+      "middleware": [
+        { "name": "OtelHTTP", "source": "go.opentelemetry.io/contrib", "purpose": "Distributed tracing per request" },
+        { "name": "Logger", "source": "chi/v5/middleware", "purpose": "HTTP request logging" },
+        { "name": "Recoverer", "source": "chi/v5/middleware", "purpose": "Panic recovery" },
+        { "name": "Timeout", "source": "chi/v5/middleware", "value": "30s", "purpose": "Request timeout" },
+        { "name": "SecurityHeaders", "source": "internal/middleware/security.go", "headers": ["X-Content-Type-Options: nosniff", "X-Frame-Options: DENY", "Referrer-Policy: strict-origin-when-cross-origin", "Permissions-Policy: camera=(), microphone=(), geolocation=()"] },
+        { "name": "CORS", "source": "go-chi/cors", "allowed_origins": ["FRONTEND_URL", "capacitor://localhost"], "max_age": "300s" },
+        { "name": "APIObservability", "source": "internal/platform/observability.go", "purpose": "API performance metrics" },
+        { "name": "APIGate", "source": "internal/middleware/api_control.go", "purpose": "Emergency Redis-based API kill-switch" },
+        { "name": "AuthMiddleware", "source": "internal/middleware/auth.go", "purpose": "JWT validation (Bearer or cookie), presence tracking every 1min" },
+        { "name": "SubscriptionContext", "source": "internal/middleware/subscription.go", "purpose": "Loads subscription status into request context" },
+        { "name": "RateLimit", "source": "internal/middleware/ratelimit.go", "config": "100 req/min per user, Redis-backed" },
+        { "name": "CacheInvalidation", "source": "internal/middleware/cache_invalidate.go", "purpose": "Clears user cache on POST/PUT/DELETE mutations" },
+        { "name": "SubscriptionGuards", "source": "internal/middleware/subscription.go", "guards": ["RequireFullAccess()", "RequireFeature(feature)"] }
+      ],
+      "api_routes": {
+        "health": [
+          { "method": "GET", "path": "/health", "auth": false },
+          { "method": "GET", "path": "/api/health", "auth": false, "note": "Detailed with DB/Redis stats" }
+        ],
+        "public": [
+          { "method": "GET",  "path": "/api/PlatformThemeService",               "handler": "GetThemeConfig" },
+          { "method": "POST", "path": "/api/PlatformTrafficService",              "handler": "RecordVisit" },
+          { "method": "POST", "path": "/api/Contact",                             "handler": "Contact" },
+          { "method": "POST", "path": "/api/BillingPaymentService/callback",      "handler": "PaymentCallback" },
+          { "method": "POST", "path": "/api/BillingPaymentService/mock/callback", "handler": "MockPaymentCallback" },
+          { "method": "POST", "path": "/api/IdentityAuthService/register",        "handler": "Register" },
+          { "method": "POST", "path": "/api/IdentityAuthService/login",           "handler": "Login" },
+          { "method": "POST", "path": "/api/IdentityAuthService/forgot-password", "handler": "ForgotPassword" },
+          { "method": "POST", "path": "/api/IdentityAuthService/verify-reset",    "handler": "VerifyReset" },
+          { "method": "POST", "path": "/api/IdentityAuthService/reset-password",  "handler": "ResetPassword" }
+        ],
+        "protected": [
+          { "method": "GET",   "path": "/api/IdentityAuthService/me",                         "handler": "Me" },
+          { "method": "GET",   "path": "/api/IdentityAuthService/ping",                       "handler": "Ping", "note": "Presence heartbeat" },
+          { "method": "POST",  "path": "/api/IdentitySessionService/logout",                  "handler": "Logout" },
+          { "method": "POST",  "path": "/api/IdentitySessionService/logout-all",              "handler": "LogoutAll" },
+          { "method": "PUT",   "path": "/api/IdentityProfileService/update-full-name",        "handler": "UpdateFullName" },
+          { "method": "PUT",   "path": "/api/IdentityProfileService/update-email",            "handler": "UpdateEmail" },
+          { "method": "PUT",   "path": "/api/IdentityProfileService/update-phone",            "handler": "UpdatePhone" },
+          { "method": "PUT",   "path": "/api/IdentityProfileService/update-username",         "handler": "UpdateUsername" },
+          { "method": "PUT",   "path": "/api/IdentityAuthService/update-password",            "handler": "UpdatePassword" },
+          { "method": "PUT",   "path": "/api/IdentityProfileService/preferences",             "handler": "UpdatePreferences", "note": "onboarding_done flag" },
+          { "method": "GET",   "path": "/api/ReportingDashboardService",                      "handler": "Dashboard", "query_params": ["period", "lahan_id", "year", "month", "week"] },
+          { "method": "GET",   "path": "/api/BillingSubscriptionService/status",              "handler": "GetSubscriptionStatus" },
+          { "method": "POST",  "path": "/api/BillingSubscriptionService/checkout",            "handler": "CheckoutSubscription" },
+          { "method": "PUT",   "path": "/api/BillingSubscriptionService/active-farm",         "handler": "SetActiveFarm" },
+          { "method": "GET",   "path": "/api/BillingPaymentService/transactions",             "handler": "GetPaymentHistory" },
+          { "method": "GET",   "path": "/api/NotificationCenterService",                      "handler": "ListNotifications" },
+          { "method": "PATCH", "path": "/api/NotificationCenterService/read-all",             "handler": "ReadAllNotifications" },
+          { "method": "DELETE","path": "/api/NotificationCenterService/read",                 "handler": "DeleteReadNotifications" },
+          { "method": "PATCH", "path": "/api/NotificationCenterService/{id}/read",            "handler": "ReadNotification" },
+          { "method": "GET",   "path": "/api/CoreChecklistService",                           "handler": "ListFieldChecklistRuns" },
+          { "method": "POST",  "path": "/api/CoreChecklistService",                           "handler": "CreateFieldChecklistRun" },
+          { "method": "PATCH", "path": "/api/CoreChecklistService/{id}/status",               "handler": "UpdateFieldChecklistRunStatus" },
+          { "method": "GET",   "path": "/api/CorePlotService",                                "handler": "ListLahan" },
+          { "method": "POST",  "path": "/api/CorePlotService",                                "handler": "CreateLahan",    "subscription_guard": "RequireFullAccess" },
+          { "method": "PUT",   "path": "/api/CorePlotService/{id}",                           "handler": "UpdateLahan",    "subscription_guard": "RequireFullAccess" },
+          { "method": "DELETE","path": "/api/CorePlotService/{id}",                           "handler": "DeleteLahan",    "subscription_guard": "RequireFullAccess" },
+          { "method": "GET",   "path": "/api/CoreHarvestService",                             "handler": "ListPanen" },
+          { "method": "POST",  "path": "/api/CoreHarvestService",                             "handler": "CreatePanen",    "subscription_guard": "RequireFeature(FeatureCreateHarvest)" },
+          { "method": "GET",   "path": "/api/CoreHarvestService/{id}",                        "handler": "GetPanen" },
+          { "method": "PUT",   "path": "/api/CoreHarvestService/{id}",                        "handler": "UpdatePanen",    "subscription_guard": "RequireFullAccess" },
+          { "method": "DELETE","path": "/api/CoreHarvestService/{id}",                        "handler": "DeletePanen",    "subscription_guard": "RequireFullAccess" },
+          { "method": "GET",   "path": "/api/CoreMaintenanceService",                         "handler": "ListPerawatan" },
+          { "method": "POST",  "path": "/api/CoreMaintenanceService",                         "handler": "CreatePerawatan","subscription_guard": "RequireFullAccess" },
+          { "method": "PUT",   "path": "/api/CoreMaintenanceService/{id}",                    "handler": "UpdatePerawatan","subscription_guard": "RequireFullAccess" },
+          { "method": "DELETE","path": "/api/CoreMaintenanceService/{id}",                    "handler": "DeletePerawatan","subscription_guard": "RequireFullAccess" },
+          { "method": "GET",   "path": "/api/CoreMaintenanceScheduleService",                 "handler": "ListJadwalPerawatan" },
+          { "method": "GET",   "path": "/api/CoreMaintenanceScheduleService/upcoming",        "handler": "GetUpcomingJadwal" },
+          { "method": "POST",  "path": "/api/CoreMaintenanceScheduleService",                 "handler": "CreateJadwalPerawatan","subscription_guard": "RequireFullAccess" },
+          { "method": "PUT",   "path": "/api/CoreMaintenanceScheduleService/{id}",            "handler": "UpdateJadwalPerawatan","subscription_guard": "RequireFullAccess" },
+          { "method": "DELETE","path": "/api/CoreMaintenanceScheduleService/{id}",            "handler": "DeleteJadwalPerawatan","subscription_guard": "RequireFullAccess" },
+          { "method": "GET",   "path": "/api/FinanceIncomeService",                           "handler": "ListPendapatan" },
+          { "method": "POST",  "path": "/api/FinanceIncomeService",                           "handler": "CreatePendapatan","subscription_guard": "RequireFullAccess" },
+          { "method": "PUT",   "path": "/api/FinanceIncomeService/{id}",                      "handler": "UpdatePendapatan","subscription_guard": "RequireFullAccess" },
+          { "method": "DELETE","path": "/api/FinanceIncomeService/{id}",                      "handler": "DeletePendapatan","subscription_guard": "RequireFullAccess" },
+          { "method": "GET",   "path": "/api/FinanceCommodityPriceService",                   "handler": "ListHarga" },
+          { "method": "GET",   "path": "/api/ReportingFarmFinanceService",                    "handler": "GetLaporanKeuangan" },
+          { "method": "POST",  "path": "/api/ReportingExportService/email-export",            "handler": "EmailLaporanKeuanganExport","subscription_guard": "RequireFullAccess" }
+        ]
+      },
+      "background_jobs": {
+        "queue_system": "Asynq (github.com/hibiken/asynq v0.26.0)",
+        "concurrency": 5,
+        "queues": {
+          "email": "priority 10 (highest)",
+          "critical": "priority 6",
+          "default": "priority 3 (lowest)"
+        },
+        "task_types": [
+          { "type": "email:welcome",    "trigger": "User registration" },
+          { "type": "email:reset_code", "trigger": "Forgot password request" },
+          { "type": "email:report",     "trigger": "Financial report export" }
+        ],
+        "workers": [
+          {
+            "name": "BillingReminderWorker",
+            "file": "internal/jobs/billing_reminder_worker.go",
+            "trigger": "Ticker-based (REMINDER_JOB_INTERVAL, default 6h)",
+            "purpose": "Sends subscription renewal & trial expiry reminder emails",
+            "enabled_by": "REMINDER_JOB_ENABLED=true"
+          }
+        ]
+      },
+      "external_integrations": {
+        "email": {
+          "provider": "Resend",
+          "endpoint": "https://api.resend.com/emails",
+          "auth": "Bearer RESEND_API_KEY",
+          "use_cases": ["Welcome email", "Password reset code", "Financial report attachment", "Contact form relay"]
+        },
+        "payments": {
+          "provider": "Midtrans",
+          "endpoints": {
+            "sandbox_checkout": "https://app.sandbox.midtrans.com/snap/v1/transactions",
+            "production_checkout": "https://app.midtrans.com/snap/v1/transactions",
+            "sandbox_status": "https://api.sandbox.midtrans.com/v2/{orderID}/status",
+            "production_status": "https://api.midtrans.com/v2/{orderID}/status"
+          },
+          "auth": "Basic auth (MIDTRANS_SERVER_KEY:)",
+          "use_cases": ["Create checkout token", "Query transaction status", "Handle payment callback"]
+        }
+      },
+      "environment_variables": {
+        "required": [
+          "DATABASE_URL",
+          "JWT_SECRET",
+          "ENCRYPTION_KEY"
+        ],
+        "database": [
+          "DATABASE_URL_READ",
+          "DB_MAX_OPEN_CONNS (default: 25)",
+          "DB_MAX_IDLE_CONNS (default: 10)",
+          "DB_CONN_MAX_LIFETIME (default: 10m)",
+          "DB_CONN_MAX_IDLE_TIME (default: 2m)"
+        ],
+        "server": [
+          "PORT (default: 8000)",
+          "ENVIRONMENT",
+          "FRONTEND_URL (default: http://localhost:5173)",
+          "BASE_URL (default: http://localhost:8000)"
+        ],
+        "email": [
+          "RESEND_API_KEY",
+          "EMAIL_FROM",
+          "SUPPORT_EMAIL",
+          "SMTP_HOST",
+          "SMTP_PORT (default: 587)",
+          "SMTP_USER",
+          "SMTP_PASSWORD",
+          "SMTP_FROM_NAME (default: SawitHub)",
+          "SMTP_FROM_EMAIL",
+          "MAIL_PROVIDER"
+        ],
+        "redis": [
+          "REDIS_ADDR",
+          "REDIS_PASSWORD",
+          "REDIS_DB (default: 0)",
+          "REDIS_POOL_SIZE (default: 20)",
+          "REDIS_PREFIX (default: sawithub:prod)",
+          "REDIS_TLS (default: true)",
+          "REDIS_FEATURE_RATE_LIMIT (default: true)",
+          "REDIS_FEATURE_CACHE (default: true)",
+          "REDIS_FEATURE_SESSIONS (default: true)",
+          "REDIS_FEATURE_QUEUE (default: true)",
+          "REDIS_FEATURE_PRESENCE (default: true)"
+        ],
+        "subscription": [
+          "SUBSCRIPTION_TRIAL_DAYS (default: 14)",
+          "SUBSCRIPTION_PLAN_NAME (default: Pro Monthly)",
+          "SUBSCRIPTION_PLAN_PRICE (default: 30000)",
+          "SUBSCRIPTION_CURRENCY (default: IDR)",
+          "SUBSCRIPTION_PROVIDER (default: mock; values: mock, midtrans)",
+          "SUBSCRIPTION_ENFORCEMENT (default: true)",
+          "MIDTRANS_SERVER_KEY",
+          "MIDTRANS_CLIENT_KEY",
+          "MIDTRANS_IS_PRODUCTION (default: false)"
+        ],
+        "features": [
+          "ENABLE_RUNTIME_SCHEMA_SYNC (default: false)",
+          "REMINDER_JOB_ENABLED (default: true)",
+          "REMINDER_JOB_INTERVAL (default: 6h)",
+          "NOTIFICATION_RETENTION_DAYS (default: 90)"
+        ],
+        "observability": [
+          "OTEL_SERVICE_NAME (default: sawithub-backend)",
+          "OTEL_EXPORTER_OTLP_ENDPOINT"
+        ]
+      }
+    },
+
+    "admin_backend": {
+      "name": "SawitHub Admin Backend",
+      "path": "apps/admin-backend",
+      "language": "Go 1.25.0",
+      "module": "sawithub/admin-backend",
+      "entry_point": "cmd/main.go",
+      "default_port": 8000,
+      "tech_stack": {
+        "http_framework": "github.com/go-chi/chi/v5 v5.2.5",
+        "cors": "github.com/go-chi/cors v1.2.2",
+        "database_driver": "github.com/go-sql-driver/mysql v1.9.3",
+        "openapi": "github.com/getkin/kin-openapi v0.132.0",
+        "jwt": "github.com/golang-jwt/jwt/v5 v5.3.1",
+        "uuid": "github.com/google/uuid v1.6.0",
+        "redis": "github.com/redis/go-redis/v9 v9.14.1",
+        "env_loader": "github.com/joho/godotenv v1.5.1",
+        "otel_http": "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.68.0",
+        "otel_core": "go.opentelemetry.io/otel v1.43.0",
+        "otel_exporter_grpc": "go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.43.0",
+        "otel_exporter_stdout": "go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.43.0",
+        "otel_sdk": "go.opentelemetry.io/otel/sdk v1.43.0",
+        "crypto": "golang.org/x/crypto v0.50.0"
+      },
+      "internal_packages": [
+        "config — Configuration & env var loading",
+        "crypto — AES encryption utilities",
+        "db — Multi-database connection (main + admin)",
+        "handler — HTTP request handlers + api_monitor.go",
+        "logger — Logging infrastructure",
+        "middleware — HTTP middleware (AdminAuth, RateLimit, CORS, etc.)",
+        "observability — API metrics",
+        "redis — Redis client wrapper",
+        "telemetry — OpenTelemetry setup",
+        "validator — Input validation"
+      ],
+      "extra_docs": [
+        "docs/openapi.yaml — OpenAPI spec (used by admin-frontend gen:types script)",
+        "openapi/ — OpenAPI specifications"
+      ],
+      "middleware": [
+        { "name": "OtelHTTP",         "purpose": "Distributed tracing" },
+        { "name": "SafeRequestLogger","source": "internal/middleware", "purpose": "Request logging (redacts sensitive fields)" },
+        { "name": "Recoverer",        "purpose": "Panic recovery" },
+        { "name": "Timeout",          "value": "30s" },
+        { "name": "SecurityHeaders",  "headers": ["X-Content-Type-Options: nosniff", "X-Frame-Options: DENY", "Referrer-Policy: strict-origin-when-cross-origin", "Permissions-Policy: camera=(), microphone=(), geolocation=()"] },
+        { "name": "CORS",             "allowed_origins": "ParseFrontendOrigins(FRONTEND_URL) + capacitor://localhost", "allowed_methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"] },
+        { "name": "APIMonitor",       "source": "internal/handler/api_monitor.go", "purpose": "Health/performance monitoring" },
+        { "name": "APIGate",          "purpose": "Redis-based API kill-switch" },
+        { "name": "AdminAuth",        "source": "internal/middleware", "purpose": "JWT validation — admin users only" },
+        { "name": "RateLimit",        "config": "100 req/min per user, Redis-backed" },
+        { "name": "CacheInvalidation","purpose": "Cache eviction on mutations" }
+      ],
+      "api_routes": {
+        "public": [
+          { "method": "GET",  "path": "/health",             "handler": "BasicHealthCheck" },
+          { "method": "GET",  "path": "/api/health",         "handler": "DetailedHealthCheck" },
+          { "method": "POST", "path": "/api/admin/auth/login","handler": "AdminLogin" }
+        ],
+        "protected": [
+          { "method": "GET",  "path": "/api/admin/auth/me",                        "handler": "AdminMe" },
+          { "method": "POST", "path": "/api/admin/auth/logout",                    "handler": "AdminLogout" },
+          { "method": "POST", "path": "/api/admin/auth/logout-all",                "handler": "AdminLogoutAll" },
+          { "method": "GET",  "path": "/api/admin/overview",                       "handler": "AdminOverview" },
+          { "method": "GET",  "path": "/api/admin/users",                          "handler": "AdminUsers", "query_params": ["page", "search", "role", "status"] },
+          { "method": "PUT",  "path": "/api/admin/users/{id}/role",                "handler": "AdminChangeRole" },
+          { "method": "PUT",  "path": "/api/admin/users/{id}/status",              "handler": "AdminToggleUserStatus" },
+          { "method": "PUT",  "path": "/api/admin/users/{id}/deactivate",          "handler": "AdminDeactivateUser" },
+          { "method": "PUT",  "path": "/api/admin/users/{id}/password",            "handler": "AdminChangeUserPassword" },
+          { "method": "GET",  "path": "/api/admin/data",                           "handler": "AdminData", "query_params": ["type"] },
+          { "method": "GET",  "path": "/api/admin/analytics",                      "handler": "AdminAnalytics" },
+          { "method": "GET",  "path": "/api/admin/system",                         "handler": "AdminSystem" },
+          { "method": "PUT",  "path": "/api/admin/system/api-state",               "handler": "AdminSetAPIState", "note": "Global API kill-switch via Redis" },
+          { "method": "PUT",  "path": "/api/admin/system/api-endpoint-state",      "handler": "AdminSetEndpointAPIState", "note": "Per-endpoint control (deprecated)" },
+          { "method": "GET",  "path": "/api/admin/settings",                       "handler": "AdminSettings" },
+          { "method": "PUT",  "path": "/api/admin/settings",                       "handler": "AdminUpdateSettings" },
+          { "method": "GET",  "path": "/api/admin/audit",                          "handler": "AdminAudit" }
+        ]
+      },
+      "database_config": {
+        "multi_db": true,
+        "databases": [
+          { "name": "main_db",  "env": "DATABASE_URL",       "read_replica_env": "DATABASE_URL_READ",       "note": "Shared with user backend" },
+          { "name": "admin_db", "env": "ADMIN_DATABASE_URL", "read_replica_env": "ADMIN_DATABASE_URL_READ", "note": "Admin-only data; falls back to main DB if not set" }
+        ]
+      },
+      "environment_variables": {
+        "required": [
+          "DATABASE_URL",
+          "ADMIN_JWT_SECRET"
+        ],
+        "database": [
+          "DATABASE_URL_READ",
+          "ADMIN_DATABASE_URL",
+          "ADMIN_DATABASE_URL_READ"
+        ],
+        "server": [
+          "PORT (default: 8000)",
+          "ENVIRONMENT",
+          "FRONTEND_URL",
+          "BASE_URL"
+        ],
+        "redis": [
+          "REDIS_ADDR",
+          "REDIS_PASSWORD",
+          "REDIS_DB (default: 0)",
+          "REDIS_POOL_SIZE (default: 20)",
+          "REDIS_PREFIX (default: sawithub:prod)",
+          "REDIS_TLS (default: true)",
+          "REDIS_FEATURE_RATE_LIMIT (default: true)",
+          "REDIS_FEATURE_CACHE (default: true)",
+          "REDIS_FEATURE_SESSIONS (default: true)",
+          "REDIS_FEATURE_QUEUE (default: true)",
+          "REDIS_FEATURE_PRESENCE (default: true)"
+        ],
+        "misc": [
+          "SUBSCRIPTION_ENFORCEMENT (must match backend setting)",
+          "RESEND_API_KEY"
+        ],
+        "observability": [
+          "OTEL_SERVICE_NAME (default: sawithub-admin-backend)",
+          "OTEL_EXPORTER_OTLP_ENDPOINT"
+        ]
+      }
+    },
+
+    "frontend": {
+      "name": "@sawithub/frontend",
+      "path": "apps/frontend",
+      "language": "TypeScript",
+      "purpose": "User-facing SaaS application for palm oil plantation management",
+      "tech_stack": {
+        "framework": "React 19.2.4",
+        "build_tool": "Vite 8.0.10",
+        "router": "React Router DOM 7.14.2",
+        "css": "Tailwind CSS 4.2.4",
+        "state": "Zustand 5.0.13",
+        "server_state": "@tanstack/react-query 5.100.10",
+        "forms": "React Hook Form 7.75.0 + @hookform/resolvers 5.2.2",
+        "validation": "Zod 4.4.3",
+        "http_client": "Axios 1.16.0",
+        "charts": "Recharts 3.8.1",
+        "icons": "Lucide React 1.14.0",
+        "toasts": "React Hot Toast 2.6.0",
+        "exports": "jsPDF 4.2.1 + jspdf-autotable 5.0.7 + xlsx 0.18.5 + file-saver 2.0.5",
+        "testing_unit": "Vitest 4.1.6 + @testing-library/react 16.3.2",
+        "testing_e2e": "@playwright/test 1.59.1",
+        "testing_a11y": "@axe-core/playwright 4.11.3",
+        "typescript": "6.0.3"
+      },
+      "vite_config": {
+        "target": "es2020",
+        "chunk_size_warning_limit": "2000KB",
+        "manual_chunks": {
+          "vendor-router": "react-router",
+          "vendor-react": "react + scheduler",
+          "vendor-axios": "axios"
+        },
+        "dev_proxy": "http://localhost:8000"
+      },
+      "tailwind_theme": {
+        "colors": {
+          "forest": "#1A3D2B",
+          "amber": "#D4A827",
+          "terracotta": "#B8542B",
+          "cream": "#F5F0E8",
+          "paper": "#FBF8F1",
+          "ink": "#1A1F1A"
+        },
+        "fonts": {
+          "display": "Fraunces (serif)",
+          "sans": "DM Sans / Inter",
+          "mono": "JetBrains Mono / IBM Plex Mono"
+        }
+      },
+      "state_management": {
+        "zustand_stores": [
+          {
+            "name": "authStore",
+            "file": "src/stores/authStore.ts",
+            "state": ["user: User | null", "token: string | null"],
+            "persistence": "localStorage key: sawit_auth"
+          },
+          {
+            "name": "farmStore",
+            "file": "src/stores/farmStore.ts",
+            "state": ["subscription: SubscriptionView | null", "lahans: Lahan[]", "loading: boolean"],
+            "persistence": "none (in-memory)"
+          }
+        ],
+        "context_providers": [
+          "AuthContext — user auth state, login/logout/refreshUser",
+          "FarmContext — farms (lahans), subscription status, active farm management",
+          "ThemeContext — light/dark mode"
+        ],
+        "query_client": {
+          "stale_time": "30s",
+          "gc_time": "5min",
+          "retry": 1,
+          "refetch_on_window_focus": false
+        }
+      },
+      "routes": {
+        "public": [
+          "/", "/login", "/signup", "/forgot-password", "/reset-password", "/verify-otp",
+          "/privacy", "/terms", "/privasi", "/syarat",
+          "/help", "/bantuan", "/about", "/tentang-kami", "/tentang",
+          "/pengaturan-cookie"
+        ],
+        "protected": [
+          "/dashboard", "/profile",
+          "/lahan", "/lahan/add",
+          "/panen", "/panen/add",
+          "/perawatan", "/perawatan/add",
+          "/jadwal-perawatan", "/jadwal-perawatan/add",
+          "/pendapatan", "/pendapatan/add",
+          "/harga-tbs",
+          "/keuangan",
+          "/kalkulator-pupuk",
+          "/laporan-keuangan",
+          "/subscription", "/subscription/payments", "/subscription/riwayat",
+          "/subscription/PaymentFinish", "/subscription/PaymentUnFinish", "/subscription/PaymentError",
+          "/bantuan/akses",
+          "/notifikasi"
+        ]
+      },
+      "pwa": {
+        "type": "manifest only (no service worker)",
+        "manifest": {
+          "name": "SawitHub - Platform Manajemen Pertanian Digital",
+          "short_name": "SawitHub",
+          "display": "standalone",
+          "theme_color": "#1A3D2B",
+          "background_color": "#F5F0E8",
+          "orientation": "portrait-primary",
+          "shortcuts": ["/dashboard", "/lahan"]
+        }
+      },
+      "environment_variables": [
+        "VITE_API_BASE_URL — Backend API base URL (defaults to /api)",
+        "VITE_ADMIN_APP_URL — Admin panel URL",
+        "VITE_APP_URL — Canonical app URL (production: https://www.sawithub.com)",
+        "VITE_PUBLIC_ASSET_BASE_URL — S3 bucket URL (ap-southeast-1)",
+        "VITE_ENVIRONMENT — production | staging | development",
+        "VITE_SUBSCRIPTION_TRIAL_DAYS (default: 14)",
+        "VITE_SUBSCRIPTION_PLAN_PRICE_IDR (default: 30000)",
+        "VITE_ALLOW_MOCK_BILLING — staging/test flag for mock payments"
+      ],
+      "scripts": {
+        "dev": "vite",
+        "build": "check:backend-target && validate:analytics-events && typecheck && vite build",
+        "test": "vitest",
+        "test:coverage": "vitest run --coverage",
+        "test:visual": "playwright test tests/visual-smoke.spec.ts",
+        "test:a11y": "playwright test tests/accessibility.spec.ts",
+        "test:e2e": "playwright test (subscription-mock-flow, export-xlsx-headers, logout-clears-session)",
+        "ci": "lint && check:icons && check:public-pages && build"
+      }
+    },
+
+    "admin_frontend": {
+      "name": "@sawithub/admin-frontend",
+      "path": "apps/admin-frontend",
+      "language": "TypeScript",
+      "purpose": "Admin control panel — user management, analytics, system monitoring, revenue",
+      "tech_stack": {
+        "framework": "React 19.2.4",
+        "build_tool": "Vite 8.0.4",
+        "router": "React Router DOM 6.30.3",
+        "css": "Tailwind CSS 3.4.19",
+        "state": "Zustand 5.0.13",
+        "server_state": "@tanstack/react-query 5.100.10",
+        "forms": "React Hook Form 7.75.0 + @hookform/resolvers 5.2.2",
+        "validation": "Zod 4.4.3",
+        "http_client": "Axios 1.15.0",
+        "charts": "Recharts 3.8.1",
+        "toasts": "React Hot Toast 2.6.0",
+        "security": "react-google-recaptcha-v3 1.11.0",
+        "native_app": "@capacitor/core 8.3.0 + @capacitor/android 8.3.0",
+        "database_client": "@supabase/supabase-js 2.103.3",
+        "image_optimization": "sharp 0.34.5",
+        "pwa_plugin": "vite-plugin-pwa 1.2.0",
+        "exports": "jsPDF 4.2.1 + jspdf-autotable 5.0.7 + xlsx 0.18.5 + file-saver 2.0.5",
+        "testing_unit": "Vitest 4.1.6 + @testing-library/react 16.3.2",
+        "testing_e2e": "@playwright/test 1.59.1",
+        "typescript": "~6.0.2",
+        "type_generation": "openapi-typescript (from apps/admin-backend/docs/openapi.yaml)"
+      },
+      "state_management": {
+        "zustand_stores": [
+          {
+            "name": "authStore",
+            "file": "src/stores/authStore.ts",
+            "state": ["user: AdminUser | null", "token: string | null"],
+            "persistence": "localStorage key: sawit_admin_auth"
+          }
+        ],
+        "context_providers": [
+          "AuthContext — admin user auth, login/logout/refreshUser",
+          "ThemeContext — light/dark mode"
+        ]
+      },
+      "routes": {
+        "public": ["/login"],
+        "protected": [
+          "/admin", "/admin/users", "/admin/data", "/admin/analytics",
+          "/admin/monitoring", "/admin/settings", "/admin/audit", "/admin/revenue",
+          "/admin/apps", "/admin/apps/pwa", "/admin/apps/pwa/vitals",
+          "/admin/apps/android", "/admin/apps/android/anr"
+        ],
+        "legacy_redirects": [
+          "/dashboard → /admin",
+          "/users → /admin/users",
+          "/data → /admin/data",
+          "/analytics → /admin/analytics",
+          "/monitoring → /admin/monitoring",
+          "/settings → /admin/settings",
+          "/audit → /admin/audit"
+        ]
+      },
+      "pwa": {
+        "type": "full PWA (vite-plugin-pwa, autoUpdate)",
+        "manifest": {
+          "name": "SawitHub - Manajemen Kebun Sawit",
+          "short_name": "SawitHub",
+          "display": "standalone",
+          "theme_color": "#1e0050",
+          "background_color": "#111827"
+        },
+        "workbox": {
+          "navigate_fallback": "/index.html",
+          "navigate_fallback_denylist": ["/api/.*"],
+          "runtime_caching": [
+            { "url_pattern": "/api/.*", "strategy": "NetworkFirst", "cache_name": "api-cache", "max_entries": 50, "max_age_seconds": 300 }
+          ]
+        }
+      },
+      "environment_variables": [
+        "VITE_API_BASE_URL — Admin backend API URL (production: https://admin-backend-sawithub-production.up.railway.app/api)",
+        "VITE_APP_URL — Admin app URL",
+        "VITE_ENVIRONMENT — production | staging | development",
+        "VITE_DEV_API_PROXY_TARGET — Local dev proxy (default: http://localhost:8000)"
+      ],
+      "scripts": {
+        "dev": "vite",
+        "build": "check:backend-target && validate:analytics-events && tsc -b && vite build",
+        "gen:types": "openapi-typescript ../../apps/admin-backend/docs/openapi.yaml -o src/api/types.generated.ts",
+        "test": "vitest",
+        "test:e2e": "playwright test tests/admin-login-smoke.spec.ts"
+      }
+    }
+  },
+
+  "packages": {
+    "database": {
+      "path": "packages/database",
+      "tool": "Custom SQL execution (lexical order: DDL then DML files)",
+      "databases": {
+        "sawit_hub_db": {
+          "charset": "utf8mb4",
+          "collation": "utf8mb4_0900_ai_ci",
+          "migration_folder": "packages/database/sawit_hub_db/",
+          "ddl_count": 18,
+          "dml_seed_count": 2,
+          "seed_files": [
+            "001_seed_theme_default.sql — Default theme: green #16a34a, emerald #059669, orange #f97316",
+            "002_seed_admin_dummy_2019_2026.sql — Admin user seed data"
+          ]
+        },
+        "sawit_hub_admin_db": {
+          "charset": "utf8mb4",
+          "collation": "utf8mb4_0900_ai_ci",
+          "migration_folder": "packages/database/sawit_hub_admin_db/",
+          "ddl_count": 3,
+          "dml_seed_count": 0
+        }
+      }
+    },
+
+    "redis_config": {
+      "path": "packages/redis-config",
+      "purpose": "Single source of truth for Redis configuration and key conventions",
+      "deployment": "Railway Managed Redis",
+      "config": {
+        "bind": "0.0.0.0:6379",
+        "persistence": "RDB snapshots + AOF",
+        "eviction_policy": "allkeys-lru",
+        "max_clients": 10000
+      },
+      "keyspace": {
+        "prefix": "sawithub:prod",
+        "domains": {
+          "auth":      { "pattern": "sawithub:prod:auth:*",      "owner": "backend-auth",        "ttl_required": true },
+          "ratelimit": { "pattern": "sawithub:prod:ratelimit:*", "owner": "backend-middleware",  "ttl_required": true },
+          "cache":     { "pattern": "sawithub:prod:cache:*",     "owner": "backend-readmodels",  "ttl_required": true },
+          "queue":     { "pattern": "sawithub:prod:queue:*",     "owner": "backend-worker",      "ttl_required": true },
+          "presence":  { "pattern": "sawithub:prod:presence:*",  "owner": "backend-presence",    "ttl_required": true }
+        },
+        "forbidden_patterns": ["*email*", "*phone*", "*password*"]
+      },
+      "ttl_matrix": {
+        "auth.token_revocation":    "2592000s (30 days)",
+        "auth.session_version":     "2592000s (30 days)",
+        "auth.login_attempt_window":"900s (15 min)",
+        "ratelimit.user_route":     "60s",
+        "ratelimit.ip_route":       "60s",
+        "cache.dashboard":          "30s",
+        "cache.laporan_keuangan":   "60s",
+        "cache.admin_aggregate":    "120s",
+        "queue.pending_job":        "3600s (1h)",
+        "queue.retry_job":          "86400s (1 day)",
+        "queue.dead_letter":        "604800s (7 days)",
+        "presence.online_heartbeat":"90s",
+        "presence.last_seen_shadow":"300s"
+      },
+      "cache_invalidation_triggers": [
+        "lahan mutation (create/update/delete)",
+        "panen mutation",
+        "perawatan mutation",
+        "jadwal mutation"
+      ]
+    },
+
+    "shared": {
+      "path": "packages/shared",
+      "language": "TypeScript (ESM)",
+      "dependencies": { "zod": "4.4.3" },
+      "exports": {
+        "types": [
+          "User — user_id, public_id, email, username, full_name, phone, role, timestamps, preferences",
+          "Lahan — id_lahan, nama_kebun, jenis_bibit, lokasi, luas_ha, jumlah_pohon, tahun_tanam",
+          "PanenRow — harvest entry with all calculated fields",
+          "PerawatanRow — maintenance entry with material and labor costs",
+          "LahanInfo — alias for Lahan",
+          "PendapatanRow — income entry with gross/net fields",
+          "ChartPoint — dashboard chart data point",
+          "BiayaItem — cost breakdown item",
+          "UpcomingItem — upcoming maintenance item",
+          "DashboardData — full dashboard state aggregate",
+          "AdminUser — admin user entity",
+          "SubscriptionView — subscription status snapshot"
+        ],
+        "zod_schemas": [
+          "loginSchema / LoginInput — identifier + password",
+          "signupSchema / SignupInput — full_name, email, username (3+ alphanumeric+underscore), password (8+ chars)",
+          "lahanSchema / LahanInput — farm registration with luas_ha > 0, tahun_tanam 1900-current",
+          "panenSchema / PanenInput — harvest entry with lahan reference"
+        ]
+      }
+    },
+
+    "tools": {
+      "path": "tools",
+      "infisical_sync": {
+        "purpose": "Sync Railway JSON env vars to Infisical secrets manager",
+        "file": "tools/migrate.py",
+        "excludes": ["RAILWAY_* prefix", "PORT key"],
+        "requires": ["INFISICAL_TOKEN", "workspace_id", "environment", "vars_json"]
+      }
+    }
+  },
+
+  "databases": {
+    "sawit_hub_db": {
+      "used_by": ["apps/backend"],
+      "tables": {
+        "t_sawit_hub_users": {
+          "purpose": "User accounts with encryption",
+          "primary_key": "user_id (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": [
+            "public_id (UUID, UNIQUE)",
+            "email_hash (UNIQUE) — deterministic hash for lookup",
+            "email_enc — AES encrypted value",
+            "phone_hash (indexed), phone_enc",
+            "password_hash",
+            "full_name_enc",
+            "role (ENUM)",
+            "username (UNIQUE)",
+            "subscription_status (VARCHAR 32, default: trialing)",
+            "trial_starts_at, trial_ends_at",
+            "subscription_starts_at, subscription_ends_at",
+            "plan_name, plan_price",
+            "billing_exempt (TINYINT default 0)",
+            "active_farm_limit (INT default 1)",
+            "current_active_farm_id",
+            "trial_farm_create_used, trial_panen_used, trial_perawatan_used, trial_jadwal_used, trial_harvest_used, trial_report_export_used",
+            "last_seen_at",
+            "deleted_at (soft delete)"
+          ],
+          "indexes": ["public_id (UNIQUE)", "email_hash (UNIQUE)", "username (UNIQUE)", "phone_hash", "role", "subscription_status", "midtrans_order_id", "deleted_at_last_seen_at"]
+        },
+        "t_sawit_hub_lahan": {
+          "purpose": "Farm / plantation records",
+          "primary_key": "id_lahan (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id (FK)", "nama_kebun", "jenis_bibit", "lokasi", "luas_ha (DECIMAL)", "jumlah_pohon (INT)", "tahun_tanam (YEAR)", "deleted_at"],
+          "indexes": ["user_id", "user_id+deleted_at", "deleted_at"]
+        },
+        "t_sawit_hub_panen": {
+          "purpose": "Harvest records",
+          "primary_key": "id_panen (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id", "id_lahan (FK)", "tanggal_panen (DATE)", "luas_panen_ha", "jumlah_janjang", "berat_kg", "berat_ton (GENERATED)", "berat_rata_janjang (GENERATED)", "harga_per_kg", "total_pendapatan (GENERATED)", "biaya_panen", "hasil_bersih (GENERATED)", "catatan", "deleted_at"],
+          "indexes": ["UNIQUE(user_id,id_lahan,tanggal_panen)", "user_id", "id_lahan", "tanggal_panen", "user_id+tanggal_panen"]
+        },
+        "t_sawit_hub_perawatan": {
+          "purpose": "Maintenance / care records",
+          "primary_key": "id_perawatan (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id", "id_lahan (FK)", "tanggal_perawatan (DATE)", "jenis_perawatan", "bahan", "jumlah (DECIMAL)", "satuan (ENUM: kg,liter,gram,unit,zak,botol)", "harga_satuan", "total_harga_material", "biaya_pekerja", "total_biaya_perawatan", "keterangan", "deleted_at"],
+          "indexes": ["UNIQUE(user_id,id_lahan,tanggal_perawatan,jenis_perawatan,bahan)", "user_id", "id_lahan", "tanggal_perawatan", "user_id+tanggal_perawatan DESC"]
+        },
+        "t_sawit_hub_pendapatan": {
+          "purpose": "Income aggregation",
+          "primary_key": "id_pendapatan (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id", "id_lahan (FK)", "tanggal_panen (DATE)", "total_janjang", "total_berat_kg", "pendapatan_kotor", "biaya_total", "pendapatan_bersih (GENERATED)", "catatan", "deleted_at"],
+          "indexes": ["UNIQUE(user_id,id_lahan,tanggal_panen,deleted_at)", "user_id", "id_lahan", "tanggal_panen", "user_id+tanggal_panen DESC"]
+        },
+        "t_sawit_hub_subscriptions": {
+          "purpose": "Payment subscription records",
+          "primary_key": "id (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id", "provider (default: midtrans)", "order_id (UNIQUE)", "status (ENUM)", "plan_name", "plan_price (DECIMAL)", "currency (default: IDR)", "starts_at", "ends_at", "deleted_at"],
+          "indexes": ["order_id (UNIQUE)", "user_id+status", "deleted_at"]
+        },
+        "t_sawit_hub_payments": {
+          "purpose": "Payment transactions",
+          "primary_key": "id (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id", "provider (default: midtrans)", "order_id (UNIQUE)", "transaction_id", "payment_status (ENUM: pending,settlement,expire,cancel,deny,failure)", "gross_amount", "currency (default: IDR)", "payment_type", "paid_at", "deleted_at"],
+          "indexes": ["order_id (UNIQUE)", "user_id+payment_status", "payment_status+gross_amount", "deleted_at"]
+        },
+        "t_sawit_hub_payment_events": {
+          "purpose": "Idempotent payment provider webhook events",
+          "primary_key": "id (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["provider", "event_key (UNIQUE with provider)", "order_id", "status", "payload (JSON)", "created_at"],
+          "indexes": ["UNIQUE(provider,event_key)", "order_id"]
+        },
+        "t_sawit_hub_jadwal_perawatan": {
+          "purpose": "Maintenance schedules",
+          "primary_key": "id_jadwal_perawatan (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id", "id_lahan", "jenis_perawatan", "deskripsi", "frequensi_tipe (ENUM: mingguan,dua_mingguan,bulanan,custom)", "frequensi_custom_hari", "tanggal_mulai", "tanggal_akhir", "estimasi_biaya", "is_active (TINYINT default 1)", "catatan", "deleted_at"],
+          "indexes": ["user_id", "id_lahan", "user_id+is_active", "user_id+id_lahan+is_active", "tanggal_mulai", "deleted_at"]
+        },
+        "t_sawit_hub_field_checklist_runs": {
+          "purpose": "Field inspection checklist task runs",
+          "primary_key": "id_run (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id", "id_lahan", "title", "status (default: pending)", "task_date (DATE)", "completed_at", "deleted_at"],
+          "indexes": ["user_id+task_date", "status", "deleted_at"]
+        },
+        "t_sawit_hub_field_checklist_run_items": {
+          "purpose": "Individual items within a checklist run",
+          "primary_key": "id_item (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["id_run (FK)", "item_label", "item_order (INT default 0)", "is_required (TINYINT default 1)", "status (default: pending)", "note (TEXT)"],
+          "indexes": ["id_run (FK)"]
+        },
+        "t_sawit_hub_harga_tbs": {
+          "purpose": "Fresh Fruit Bunch (TBS) commodity price tracking",
+          "primary_key": "id_harga (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id", "tanggal (DATE)", "harga_per_kg (DECIMAL)", "sumber", "catatan", "created_at"],
+          "indexes": ["user_id", "tanggal"]
+        },
+        "t_sawit_hub_notifications": {
+          "purpose": "In-app user notifications",
+          "primary_key": "id (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id", "type", "title", "message (TEXT)", "action_url", "is_read (TINYINT default 0)", "read_at", "deleted_at"],
+          "indexes": ["user_id+created_at", "user_id+is_read", "deleted_at", "user_id+deleted_at+created_at"]
+        },
+        "t_sawit_hub_email_logs": {
+          "purpose": "Email delivery audit log",
+          "primary_key": "id (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id", "event_key (UNIQUE)", "email", "type", "subject", "status (default: pending)", "provider", "error_message", "sent_at"],
+          "indexes": ["event_key (UNIQUE)", "user_id+created_at"]
+        },
+        "t_sawit_hub_password_resets": {
+          "purpose": "Password reset OTP tokens",
+          "primary_key": "id (UUID)",
+          "notable_columns": ["email_hash", "code (6-digit VARCHAR)", "expires_at", "used_at"],
+          "indexes": ["email_hash", "COMPOSITE(email_hash,code,used_at,created_at)"]
+        },
+        "t_sawit_hub_visits": {
+          "purpose": "Anonymous page visit analytics",
+          "primary_key": "id (UUID)",
+          "notable_columns": ["session_id", "visitor_id", "ip_address", "device_type", "country", "city", "page", "created_at (TIMESTAMP)"],
+          "indexes": ["created_at", "device_type", "session_id"]
+        },
+        "t_sawit_hub_subscription_reminders": {
+          "purpose": "Subscription renewal reminder scheduling",
+          "primary_key": "id (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["user_id", "subscription_id", "reminder_type", "scheduled_for", "sent_at", "status (default: pending)"],
+          "indexes": ["UNIQUE(user_id,reminder_type,scheduled_for)", "status+scheduled_for"]
+        },
+        "t_sawit_hub_theme_configs": {
+          "purpose": "UI theme configuration (admin-configurable)",
+          "primary_key": "id (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["primary_color", "secondary_color", "accent_color", "background_color", "text_color", "border_color", "dark_mode (TINYINT)", "theme_mode"],
+          "indexes": []
+        }
+      }
+    },
+
+    "sawit_hub_admin_db": {
+      "used_by": ["apps/admin-backend"],
+      "tables": {
+        "t_sawit_admin_users": {
+          "purpose": "Admin user accounts",
+          "primary_key": "admin_user_id (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["legacy_user_id (nullable)", "public_id (UUID, UNIQUE)", "username (UNIQUE)", "email_hash (UNIQUE)", "email_enc", "phone_hash (UNIQUE)", "phone_enc", "password_hash", "role (ENUM: admin,super_admin)", "is_active (TINYINT)", "last_login_at", "migrated_at", "deleted_at"],
+          "indexes": ["public_id (UNIQUE)", "email_hash (UNIQUE)", "username (UNIQUE)", "phone_hash (UNIQUE)", "role", "is_active", "deleted_at", "legacy_user_id"]
+        },
+        "t_sawit_admin_sessions": {
+          "purpose": "Admin JWT session tracking",
+          "primary_key": "session_id (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["admin_user_id (FK)", "jti (JWT ID, UNIQUE)", "token_issued_at", "token_expires_at", "revoked_at", "revoke_reason"],
+          "indexes": ["jti (UNIQUE)", "admin_user_id", "revoked_at", "token_expires_at"]
+        },
+        "t_sawit_admin_audit_logs": {
+          "purpose": "Admin action audit trail",
+          "primary_key": "audit_id (BIGINT UNSIGNED AUTO_INCREMENT)",
+          "notable_columns": ["admin_user_id", "action", "target_type", "target_id", "ip_address", "user_agent", "metadata_json (JSON)"],
+          "indexes": ["admin_user_id", "action", "created_at"]
+        }
+      }
+    }
+  },
+
+  "inter_service_dependencies": {
+    "api_consumers": {
+      "frontend → backend": {
+        "base_url_env": "VITE_API_BASE_URL",
+        "auth": "JWT Bearer token (stored in localStorage via Zustand)",
+        "services_called": [
+          "IdentityAuthService", "IdentityProfileService", "IdentitySessionService",
+          "CorePlotService", "CoreHarvestService", "CoreMaintenanceService",
+          "CoreMaintenanceScheduleService", "CoreChecklistService",
+          "FinanceIncomeService", "FinanceCommodityPriceService",
+          "ReportingDashboardService", "ReportingFarmFinanceService", "ReportingExportService",
+          "BillingSubscriptionService", "BillingPaymentService",
+          "NotificationCenterService",
+          "PlatformThemeService", "PlatformTrafficService",
+          "Contact"
+        ]
+      },
+      "admin_frontend → admin_backend": {
+        "base_url_env": "VITE_API_BASE_URL",
+        "auth": "JWT Bearer token (stored in localStorage via Zustand, key: sawit_admin_auth)",
+        "services_called": [
+          "/api/admin/auth/*",
+          "/api/admin/overview",
+          "/api/admin/users",
+          "/api/admin/data",
+          "/api/admin/analytics",
+          "/api/admin/system",
+          "/api/admin/settings",
+          "/api/admin/audit"
+        ]
+      },
+      "admin_frontend → admin_backend (type generation)": {
+        "note": "apps/admin-frontend/scripts/gen:types uses apps/admin-backend/docs/openapi.yaml to generate src/api/types.generated.ts"
+      }
+    },
+    "shared_infrastructure": {
+      "mysql": {
+        "shared_by": ["apps/backend (sawit_hub_db)", "apps/admin-backend (sawit_hub_db + sawit_hub_admin_db)"],
+        "note": "Admin backend reads from the same main DB as user backend for user management"
+      },
+      "redis": {
+        "shared_by": ["apps/backend", "apps/admin-backend"],
+        "key_namespace": "sawithub:prod",
+        "shared_features": ["rate limiting", "API kill-switch", "session management", "cache"],
+        "config_source": "packages/redis-config"
+      },
+      "shared_npm_package": {
+        "package": "@sawithub/shared (packages/shared)",
+        "consumers": ["apps/frontend", "apps/admin-frontend"],
+        "exports": ["TypeScript types", "Zod schemas"]
+      }
+    },
+    "external_services": {
+      "resend": {
+        "used_by": ["apps/backend"],
+        "purpose": "Transactional email (welcome, reset, reports)"
+      },
+      "midtrans": {
+        "used_by": ["apps/backend"],
+        "purpose": "Payment processing (IDR subscriptions)"
+      },
+      "railway": {
+        "used_by": ["apps/backend", "apps/admin-backend"],
+        "purpose": "Cloud hosting + managed Redis + managed MySQL"
+      },
+      "vercel": {
+        "used_by": ["apps/frontend", "apps/admin-frontend"],
+        "purpose": "Frontend hosting + CDN + API rewrites"
+      },
+      "capacitor": {
+        "used_by": ["apps/admin-frontend"],
+        "purpose": "Android native app build"
+      },
+      "supabase": {
+        "used_by": ["apps/admin-frontend"],
+        "purpose": "Optional secondary backend (integration ready, not primary)"
+      },
+      "infisical": {
+        "used_by": ["tools/migrate.py"],
+        "purpose": "Secrets management sync from Railway env vars"
+      },
+      "opentelemetry_collector": {
+        "used_by": ["apps/backend", "apps/admin-backend"],
+        "env": "OTEL_EXPORTER_OTLP_ENDPOINT",
+        "purpose": "Distributed tracing export (OTLP/gRPC)"
+      }
+    }
+  },
+
+  "summary": {
+    "total_services": 4,
+    "total_packages": 3,
+    "total_db_tables": 22,
+    "total_api_routes": {
+      "backend": { "public": 10, "protected": 44, "health": 2 },
+      "admin_backend": { "public": 3, "protected": 17 }
+    },
+    "total_frontend_routes": {
+      "frontend": { "public": 16, "protected": 25 },
+      "admin_frontend": { "public": 1, "protected": 14 }
+    },
+    "total_env_vars": {
+      "backend": 46,
+      "admin_backend": 22,
+      "frontend": 8,
+      "admin_frontend": 4
+    },
+    "languages": ["Go 1.25.0", "TypeScript 6.0.x", "Python (tools)"],
+    "primary_databases": ["MySQL (sawit_hub_db)", "MySQL (sawit_hub_admin_db)"],
+    "cache_layer": "Redis (Railway Managed, allkeys-lru)",
+    "task_queue": "Asynq (backed by Redis)",
+    "auth_mechanism": "JWT HMAC-SHA256 (separate secrets per service: JWT_SECRET, ADMIN_JWT_SECRET)",
+    "encryption": "AES-256 (ENCRYPTION_KEY, 32 bytes)",
+    "payment_provider": "Midtrans (IDR, Indonesia)",
+    "email_provider": "Resend",
+    "observability": "OpenTelemetry (OTLP/gRPC + stdout)",
+    "ci_cd": "GitHub Actions → Railway (backends) + Vercel (frontends)",
+    "domain": "sawithub.com (palm oil plantation management SaaS, Indonesian market)"
+  }
+}

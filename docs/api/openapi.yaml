@@ -1,0 +1,3854 @@
+openapi: 3.0.3
+info:
+  title: SawitHub API
+  description: |
+    Complete API specification for SawitHub — palm oil farm management SaaS platform.
+
+    ## Services
+    - **Backend** (`:8000`) — User-facing API. All farmer operations.
+    - **Admin Backend** (`:8001`) — Internal operations/admin panel.
+
+    ## Authentication
+    Both services use **JWT Bearer tokens** issued at login. Pass the token in every
+    protected request:
+    ```
+    Authorization: Bearer <token>
+    ```
+    Tokens are HMAC-SHA256 signed. User tokens and admin tokens use **separate secrets**
+    and are not interchangeable.
+
+    ## Subscription Guards
+    Some user endpoints enforce an active subscription. When a guard fails, the
+    server returns **402 Payment Required** with `{"error": "..."}`. Trial users
+    are further limited:
+    - Max **2 farm plots** created
+    - Max **2 harvest records** created
+    - Financial report returns first **2 detail records** only
+
+    ## Rate Limiting
+    Protected user endpoints are limited to **100 requests/minute per user**.
+    Exceeding the limit returns **429 Too Many Requests**.
+
+    ## Error Format
+    All errors return:
+    ```json
+    { "error": "human-readable message" }
+    ```
+  version: 1.0.0
+  contact:
+    email: bantuan@sawithub.app
+
+servers:
+  - url: http://localhost:8000
+    description: Local — User Backend
+  - url: http://localhost:8001
+    description: Local — Admin Backend
+  - url: https://backend-sawithub-production.up.railway.app
+    description: Production — User Backend
+  - url: https://admin-backend-sawithub-production.up.railway.app
+    description: Production — Admin Backend
+
+tags:
+  - name: Auth
+    description: Registration, login, password reset
+  - name: Session
+    description: Logout, presence heartbeat
+  - name: Profile
+    description: User profile management
+  - name: Plots
+    description: Farm plot (lahan) management
+  - name: Harvest
+    description: Harvest records (panen)
+  - name: Maintenance
+    description: Maintenance records (perawatan)
+  - name: Schedule
+    description: Recurring maintenance schedules (jadwal perawatan)
+  - name: Checklist
+    description: Field inspection checklists
+  - name: Income
+    description: Income aggregation (pendapatan)
+  - name: CommodityPrices
+    description: TBS (Fresh Fruit Bunch) commodity price tracking
+  - name: Dashboard
+    description: Farm dashboard and analytics
+  - name: Reporting
+    description: Financial reports and exports
+  - name: Billing
+    description: Subscription and payment management
+  - name: Notifications
+    description: In-app notification center
+  - name: Platform
+    description: Public platform endpoints (theme, traffic, contact)
+  - name: Health
+    description: Health check endpoints
+  - name: AdminAuth
+    description: Admin authentication
+  - name: AdminUsers
+    description: Admin user management
+  - name: AdminOverview
+    description: Admin dashboard and overview
+  - name: AdminAnalytics
+    description: Admin analytics and trends
+  - name: AdminSystem
+    description: System monitoring and API kill-switch
+  - name: AdminSettings
+    description: Platform settings
+  - name: AdminAudit
+    description: Admin audit logs
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Security Schemes
+# ─────────────────────────────────────────────────────────────────────────────
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: User JWT token obtained from POST /api/IdentityAuthService/login
+    adminBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Admin JWT token obtained from POST /api/admin/auth/login
+
+  schemas:
+    # ── Shared ────────────────────────────────────────────────────────────────
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "invalid request"
+      required: [error]
+
+    MessageOk:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "ok"
+      required: [message]
+
+    # ── Identity ──────────────────────────────────────────────────────────────
+    UserPublic:
+      type: object
+      description: User object returned in auth responses
+      properties:
+        user_id:
+          type: string
+          example: "abc123"
+        public_id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          example: "petani@example.com"
+        username:
+          type: string
+          example: "pak_suparman"
+        full_name:
+          type: string
+          example: "Suparman"
+        phone:
+          type: string
+          example: "+628123456789"
+        role:
+          type: string
+          enum: [user, admin]
+          example: "user"
+      required: [user_id, public_id, email, username, role]
+
+    UserDetail:
+      allOf:
+        - $ref: '#/components/schemas/UserPublic'
+        - type: object
+          properties:
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT Bearer token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        user:
+          $ref: '#/components/schemas/UserPublic'
+      required: [token, user]
+
+    # ── Farm Plots (Lahan) ────────────────────────────────────────────────────
+    Lahan:
+      type: object
+      properties:
+        id_lahan:
+          type: string
+          example: "1"
+        nama_kebun:
+          type: string
+          example: "Kebun Suka Maju"
+        jenis_bibit:
+          type: string
+          example: "Tenera"
+        lokasi:
+          type: string
+          example: "Riau"
+        luas_ha:
+          type: number
+          format: double
+          example: 3.5
+        jumlah_pohon:
+          type: integer
+          example: 420
+        tahun_tanam:
+          type: integer
+          example: 2012
+      required: [id_lahan, nama_kebun, luas_ha, jumlah_pohon, tahun_tanam]
+
+    LahanInput:
+      type: object
+      properties:
+        nama_kebun:
+          type: string
+          minLength: 1
+          example: "Kebun Suka Maju"
+        jenis_bibit:
+          type: string
+          example: "Tenera"
+        lokasi:
+          type: string
+          example: "Riau"
+        luas_ha:
+          type: number
+          format: double
+          exclusiveMinimum: true
+          minimum: 0
+          example: 3.5
+        jumlah_pohon:
+          type: integer
+          minimum: 1
+          example: 420
+        tahun_tanam:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+          example: 2012
+      required: [nama_kebun, luas_ha, jumlah_pohon, tahun_tanam]
+
+    # ── Harvest (Panen) ───────────────────────────────────────────────────────
+    PanenRow:
+      type: object
+      properties:
+        id_panen:
+          type: string
+          example: "42"
+        id_lahan:
+          type: string
+          example: "1"
+        tanggal_panen:
+          type: string
+          format: date
+          example: "2026-05-15"
+        luas_panen_ha:
+          type: number
+          format: double
+          example: 2.0
+        jumlah_janjang:
+          type: integer
+          example: 280
+        berat_kg:
+          type: number
+          format: double
+          example: 4200.0
+        berat_ton:
+          type: number
+          format: double
+          description: Generated — berat_kg / 1000
+          example: 4.2
+        berat_rata_janjang:
+          type: number
+          format: double
+          description: Generated — berat_kg / jumlah_janjang
+          example: 15.0
+        harga_per_kg:
+          type: number
+          format: double
+          example: 2450.0
+        total_pendapatan:
+          type: number
+          format: double
+          description: Generated — berat_kg * harga_per_kg
+          example: 10290000.0
+        biaya_panen:
+          type: number
+          format: double
+          example: 1500000.0
+        hasil_bersih:
+          type: number
+          format: double
+          description: Generated — total_pendapatan - biaya_panen
+          example: 8790000.0
+        catatan:
+          type: string
+          example: "Panen normal"
+      required: [id_panen, id_lahan, tanggal_panen, luas_panen_ha, jumlah_janjang, berat_kg, harga_per_kg, biaya_panen]
+
+    PanenInput:
+      type: object
+      properties:
+        id_lahan:
+          type: string
+          example: "1"
+        tanggal_panen:
+          type: string
+          format: date
+          description: ISO 8601 date, must not be in the future
+          example: "2026-05-15"
+        luas_panen_ha:
+          type: number
+          format: double
+          exclusiveMinimum: true
+          minimum: 0
+          example: 2.0
+        jumlah_janjang:
+          type: integer
+          minimum: 1
+          example: 280
+        berat_kg:
+          type: number
+          format: double
+          exclusiveMinimum: true
+          minimum: 0
+          example: 4200.0
+        harga_per_kg:
+          type: number
+          format: double
+          exclusiveMinimum: true
+          minimum: 0
+          example: 2450.0
+        biaya_panen:
+          type: number
+          format: double
+          minimum: 0
+          example: 1500000.0
+        catatan:
+          type: string
+          example: "Panen normal"
+      required: [id_lahan, tanggal_panen, luas_panen_ha, jumlah_janjang, berat_kg, harga_per_kg, biaya_panen]
+
+    # ── Maintenance (Perawatan) ───────────────────────────────────────────────
+    PerawatanRow:
+      type: object
+      properties:
+        id_perawatan:
+          type: string
+          example: "17"
+        id_lahan:
+          type: string
+          example: "1"
+        tanggal_perawatan:
+          type: string
+          format: date
+          example: "2026-05-10"
+        jenis_perawatan:
+          type: string
+          example: "Pemupukan"
+        bahan:
+          type: string
+          example: "NPK Mutiara"
+        jumlah:
+          type: number
+          format: double
+          example: 50.0
+        satuan:
+          type: string
+          enum: [kg, liter, gram, unit, zak, botol]
+          example: "kg"
+        harga_satuan:
+          type: number
+          format: double
+          example: 15000.0
+        total_harga_material:
+          type: number
+          format: double
+          description: Generated — jumlah * harga_satuan
+          example: 750000.0
+        biaya_pekerja:
+          type: number
+          format: double
+          example: 200000.0
+        biaya:
+          type: number
+          format: double
+          description: total_harga_material + biaya_pekerja
+          example: 950000.0
+        keterangan:
+          type: string
+          example: "Pemupukan rutin Q2"
+      required: [id_perawatan, id_lahan, tanggal_perawatan, jenis_perawatan, jumlah, harga_satuan, biaya_pekerja]
+
+    PerawatanInput:
+      type: object
+      properties:
+        id_lahan:
+          type: string
+          example: "1"
+        tanggal_perawatan:
+          type: string
+          format: date
+          description: ISO 8601 date, must not be in the future
+          example: "2026-05-10"
+        jenis_perawatan:
+          type: string
+          example: "Pemupukan"
+        bahan:
+          type: string
+          example: "NPK Mutiara"
+        jumlah:
+          type: number
+          format: double
+          exclusiveMinimum: true
+          minimum: 0
+          example: 50.0
+        satuan:
+          type: string
+          enum: [kg, liter, gram, unit, zak, botol]
+          example: "kg"
+        harga_satuan:
+          type: number
+          format: double
+          minimum: 0
+          example: 15000.0
+        biaya_pekerja:
+          type: number
+          format: double
+          minimum: 0
+          example: 200000.0
+        keterangan:
+          type: string
+          example: "Pemupukan rutin Q2"
+      required: [id_lahan, tanggal_perawatan, jenis_perawatan, jumlah, harga_satuan, biaya_pekerja]
+
+    # ── Schedule (Jadwal Perawatan) ───────────────────────────────────────────
+    JadwalPerawatan:
+      type: object
+      properties:
+        id_jadwal_perawatan:
+          type: string
+          example: "5"
+        id_lahan:
+          type: string
+          example: "1"
+        jenis_perawatan:
+          type: string
+          example: "Pemupukan"
+        deskripsi:
+          type: string
+          example: "Pupuk NPK 3 bulanan"
+        frequensi_tipe:
+          type: string
+          enum: [mingguan, dua_mingguan, bulanan, custom]
+          example: "bulanan"
+        frequensi_custom_hari:
+          type: integer
+          description: Only relevant when frequensi_tipe is custom
+          example: 0
+        tanggal_mulai:
+          type: string
+          format: date
+          example: "2026-01-01"
+        tanggal_akhir:
+          type: string
+          format: date
+          nullable: true
+          example: "2026-12-31"
+        estimasi_biaya:
+          type: number
+          format: double
+          example: 950000.0
+        is_active:
+          type: boolean
+          example: true
+        catatan:
+          type: string
+          example: ""
+      required: [id_jadwal_perawatan, id_lahan, jenis_perawatan, tanggal_mulai]
+
+    JadwalInput:
+      type: object
+      properties:
+        id_lahan:
+          type: string
+          example: "1"
+        jenis_perawatan:
+          type: string
+          example: "Pemupukan"
+        deskripsi:
+          type: string
+          example: "Pupuk NPK 3 bulanan"
+        frequensi_tipe:
+          type: string
+          enum: [mingguan, dua_mingguan, bulanan, custom]
+          example: "bulanan"
+        frequensi_custom_hari:
+          type: integer
+          minimum: 1
+          description: Required when frequensi_tipe is custom
+          example: 90
+        tanggal_mulai:
+          type: string
+          format: date
+          example: "2026-01-01"
+        tanggal_akhir:
+          type: string
+          format: date
+          nullable: true
+          example: "2026-12-31"
+        estimasi_biaya:
+          type: number
+          format: double
+          minimum: 0
+          example: 950000.0
+        catatan:
+          type: string
+          example: ""
+      required: [id_lahan, jenis_perawatan, tanggal_mulai, estimasi_biaya]
+
+    # ── Checklist ─────────────────────────────────────────────────────────────
+    ChecklistRun:
+      type: object
+      properties:
+        id_run:
+          type: string
+          example: "3"
+        id_lahan:
+          type: string
+          example: "1"
+        title:
+          type: string
+          example: "Inspeksi Mingguan Blok A"
+        status:
+          type: string
+          example: "pending"
+        task_date:
+          type: string
+          format: date
+          example: "2026-05-20"
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+      required: [id_run, id_lahan, title, status, task_date]
+
+    # ── Income (Pendapatan) ───────────────────────────────────────────────────
+    PendapatanRow:
+      type: object
+      properties:
+        id_pendapatan:
+          type: string
+          example: "9"
+        id_lahan:
+          type: string
+          example: "1"
+        tanggal_panen:
+          type: string
+          format: date
+          example: "2026-05-15"
+        total_janjang:
+          type: integer
+          example: 280
+        total_berat_kg:
+          type: number
+          format: double
+          example: 4200.0
+        pendapatan_kotor:
+          type: number
+          format: double
+          example: 10290000.0
+        biaya_total:
+          type: number
+          format: double
+          example: 2450000.0
+        pendapatan_bersih:
+          type: number
+          format: double
+          description: Generated — pendapatan_kotor - biaya_total
+          example: 7840000.0
+        catatan:
+          type: string
+          example: ""
+      required: [id_pendapatan, id_lahan, tanggal_panen, total_janjang, total_berat_kg, pendapatan_kotor, biaya_total]
+
+    PendapatanInput:
+      type: object
+      properties:
+        id_lahan:
+          type: string
+          example: "1"
+        tanggal_panen:
+          type: string
+          format: date
+          description: ISO 8601 date, must not be in the future
+          example: "2026-05-15"
+        total_janjang:
+          type: integer
+          minimum: 1
+          example: 280
+        total_berat_kg:
+          type: number
+          format: double
+          exclusiveMinimum: true
+          minimum: 0
+          example: 4200.0
+        pendapatan_kotor:
+          type: number
+          format: double
+          minimum: 0
+          example: 10290000.0
+        biaya_total:
+          type: number
+          format: double
+          minimum: 0
+          example: 2450000.0
+        catatan:
+          type: string
+          example: ""
+      required: [id_lahan, tanggal_panen, total_janjang, total_berat_kg, pendapatan_kotor, biaya_total]
+
+    # ── Commodity Prices (Harga TBS) ──────────────────────────────────────────
+    HargaItem:
+      type: object
+      properties:
+        id_harga:
+          type: string
+          example: "21"
+        tanggal:
+          type: string
+          format: date
+          example: "2026-05-15"
+        harga_per_kg:
+          type: number
+          format: double
+          example: 2450.0
+        sumber:
+          type: string
+          example: "PKS Mitra Riau"
+        catatan:
+          type: string
+          example: ""
+        created_at:
+          type: string
+          format: date-time
+      required: [id_harga, tanggal, harga_per_kg]
+
+    # ── Dashboard ─────────────────────────────────────────────────────────────
+    ChartPoint:
+      type: object
+      properties:
+        label:
+          type: string
+          example: "Mei 2026"
+        total:
+          type: number
+          format: double
+        pendapatan:
+          type: number
+          format: double
+        net_income:
+          type: number
+          format: double
+        janjang:
+          type: number
+          format: double
+        harga_avg:
+          type: number
+          format: double
+        per_lahan:
+          type: object
+          additionalProperties:
+            type: number
+
+    BiayaItem:
+      type: object
+      properties:
+        jenis:
+          type: string
+          example: "Pemupukan"
+        total:
+          type: number
+          format: double
+          example: 950000.0
+
+    UpcomingItem:
+      type: object
+      properties:
+        tanggal:
+          type: string
+          format: date
+          example: "2026-05-25"
+        jenis_perawatan:
+          type: string
+          example: "Pemupukan"
+        nama_blok:
+          type: string
+          example: "Kebun Suka Maju"
+        keterangan:
+          type: string
+          example: ""
+
+    LahanInfo:
+      type: object
+      properties:
+        id_lahan:
+          type: string
+        nama_kebun:
+          type: string
+        jenis_bibit:
+          type: string
+        lokasi:
+          type: string
+        luas_ha:
+          type: number
+        jumlah_pohon:
+          type: integer
+        tahun_tanam:
+          type: integer
+
+    DashboardResponse:
+      type: object
+      properties:
+        period:
+          type: string
+          example: "month"
+        selected_lahan:
+          type: string
+          example: ""
+        lahan_list:
+          type: array
+          items:
+            $ref: '#/components/schemas/LahanInfo'
+        total_berat_ton:
+          type: number
+          format: double
+        total_pendapatan:
+          type: number
+          format: double
+        total_biaya:
+          type: number
+          format: double
+        net_income:
+          type: number
+          format: double
+        chart_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChartPoint'
+        biaya_breakdown:
+          type: array
+          items:
+            $ref: '#/components/schemas/BiayaItem'
+        upcoming_perawatan:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpcomingItem'
+        last_harga_per_kg:
+          type: number
+          format: double
+        avg_ton_per_period:
+          type: number
+          format: double
+        recent_panen:
+          type: array
+          items:
+            $ref: '#/components/schemas/PanenRow'
+        recent_perawatan:
+          type: array
+          items:
+            $ref: '#/components/schemas/PerawatanRow'
+        recent_pendapatan:
+          type: array
+          items:
+            $ref: '#/components/schemas/PendapatanRow'
+
+    # ── Financial Report ──────────────────────────────────────────────────────
+    LaporanKeuanganSummary:
+      type: object
+      properties:
+        total_berat_ton:
+          type: number
+          format: double
+        total_pendapatan:
+          type: number
+          format: double
+        total_biaya:
+          type: number
+          format: double
+        net_income:
+          type: number
+          format: double
+        period:
+          type: string
+
+    LaporanKeuanganDetail:
+      type: object
+      properties:
+        label:
+          type: string
+          example: "Mei 2026"
+        berat_ton:
+          type: number
+          format: double
+        pendapatan:
+          type: number
+          format: double
+        biaya:
+          type: number
+          format: double
+        net_income:
+          type: number
+          format: double
+
+    LaporanKeuanganResponse:
+      type: object
+      properties:
+        summary:
+          $ref: '#/components/schemas/LaporanKeuanganSummary'
+        detail:
+          type: array
+          description: Trial users receive at most 2 items
+          items:
+            $ref: '#/components/schemas/LaporanKeuanganDetail'
+
+    # ── Billing / Subscription ────────────────────────────────────────────────
+    SubscriptionStatus:
+      type: object
+      properties:
+        subscription_status:
+          type: string
+          enum: [trialing, active, expired, inactive]
+          example: "trialing"
+        active_farm_limit:
+          type: integer
+          example: 1
+        current_active_farm_id:
+          type: string
+          example: ""
+        access_mode:
+          type: string
+          example: "trial"
+        can_checkout:
+          type: boolean
+          example: true
+        can_write:
+          type: boolean
+          example: true
+        days_remaining:
+          type: integer
+          example: 10
+        trial_remaining:
+          type: integer
+          example: 10
+        plan_name:
+          type: string
+          example: "Petani Pro"
+        plan_price:
+          type: number
+          format: double
+          example: 30000.0
+        payment_provider:
+          type: string
+          example: "midtrans"
+        last_payment_status:
+          type: string
+          example: ""
+        midtrans_order_id:
+          type: string
+          example: ""
+
+    CheckoutResponse:
+      type: object
+      properties:
+        checkout:
+          type: object
+          properties:
+            payment_url:
+              type: string
+              example: "https://app.sandbox.midtrans.com/snap/v3/redirection/..."
+            order_id:
+              type: string
+              example: "sawit-sub-abc123-1716268800"
+            status:
+              type: string
+              example: "pending"
+        subscription:
+          type: object
+          additionalProperties: true
+
+    PaymentTransaction:
+      type: object
+      properties:
+        order_id:
+          type: string
+          example: "sawit-sub-abc123-1716268800"
+        gross_amount:
+          type: number
+          format: double
+          example: 30000.0
+        currency:
+          type: string
+          example: "IDR"
+        payment_status:
+          type: string
+          enum: [pending, settlement, expire, cancel, deny, failure]
+          example: "settlement"
+        payment_type:
+          type: string
+          example: "bank_transfer"
+        transaction_time:
+          type: string
+          format: date-time
+
+    # ── Notifications ─────────────────────────────────────────────────────────
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "88"
+        type:
+          type: string
+          example: "subscription_reminder"
+        title:
+          type: string
+          example: "Langganan hampir habis"
+        message:
+          type: string
+          example: "Langganan Anda berakhir dalam 3 hari."
+        action_url:
+          type: string
+          example: "/subscription"
+        is_read:
+          type: boolean
+          example: false
+        read_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, type, title, message, is_read]
+
+    # ── Platform ──────────────────────────────────────────────────────────────
+    ThemeConfig:
+      type: object
+      properties:
+        primary_color:
+          type: string
+          example: "#16a34a"
+        secondary_color:
+          type: string
+          example: "#059669"
+        accent_color:
+          type: string
+          example: "#f97316"
+        background_color:
+          type: string
+          example: "#ffffff"
+        text_color:
+          type: string
+          example: "#1a1a1a"
+        border_color:
+          type: string
+          example: "#e5e7eb"
+        dark_mode:
+          type: boolean
+          example: false
+        theme_mode:
+          type: string
+          example: "light"
+
+    # ── Admin: User ───────────────────────────────────────────────────────────
+    AdminUserRow:
+      type: object
+      properties:
+        user_id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        full_name:
+          type: string
+        role:
+          type: string
+          enum: [user, admin]
+        created_at:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+        is_online:
+          type: boolean
+        last_seen_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_seen_relative:
+          type: string
+          example: "5 menit lalu"
+        deactivated_at:
+          type: string
+          format: date-time
+          nullable: true
+        onboarding_done:
+          type: boolean
+
+    AdminUsersResponse:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminUserRow'
+        total:
+          type: integer
+          format: int64
+        active_total:
+          type: integer
+          format: int64
+        inactive_total:
+          type: integer
+          format: int64
+        online_total:
+          type: integer
+          format: int64
+        page:
+          type: integer
+        per_page:
+          type: integer
+          example: 20
+        total_pages:
+          type: integer
+          format: int64
+
+    # ── Admin: Overview ───────────────────────────────────────────────────────
+    VisitTrend:
+      type: object
+      properties:
+        day:
+          type: string
+          example: "2026-05-21"
+        total:
+          type: integer
+          format: int64
+        web:
+          type: integer
+          format: int64
+        mobile:
+          type: integer
+          format: int64
+
+    AdminOverviewResponse:
+      type: object
+      properties:
+        total_users:
+          type: integer
+          format: int64
+        online_users_now:
+          type: integer
+          format: int64
+        active_users_30d:
+          type: integer
+          format: int64
+        new_users_7d:
+          type: integer
+          format: int64
+        total_revenue:
+          type: number
+          format: double
+        total_panen:
+          type: integer
+          format: int64
+        total_berat_ton:
+          type: number
+          format: double
+        total_lahan:
+          type: integer
+          format: int64
+        total_perawatan:
+          type: integer
+          format: int64
+        system_uptime:
+          type: string
+        visit_total:
+          type: integer
+          format: int64
+        visit_today:
+          type: integer
+          format: int64
+        visit_web:
+          type: integer
+          format: int64
+        visit_mobile:
+          type: integer
+          format: int64
+        visit_trend:
+          type: array
+          items:
+            $ref: '#/components/schemas/VisitTrend'
+        top_countries:
+          type: array
+          items:
+            type: object
+            properties:
+              country:
+                type: string
+              count:
+                type: integer
+                format: int64
+        online_users_list:
+          type: array
+          items:
+            type: object
+            properties:
+              user_id:
+                type: string
+              username:
+                type: string
+              email:
+                type: string
+              full_name:
+                type: string
+              role:
+                type: string
+              last_seen_at:
+                type: string
+                format: date-time
+              last_seen_relative:
+                type: string
+        new_users_list:
+          type: array
+          items:
+            type: object
+            properties:
+              user_id:
+                type: string
+              username:
+                type: string
+              email:
+                type: string
+              full_name:
+                type: string
+              role:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+        recent_activities:
+          type: array
+          items:
+            type: object
+            properties:
+              user:
+                type: string
+              email:
+                type: string
+              action:
+                type: string
+              berat_kg:
+                type: number
+                format: double
+              total_pendapatan:
+                type: number
+                format: double
+              timestamp:
+                type: string
+        top_users:
+          type: array
+          items:
+            type: object
+            properties:
+              username:
+                type: string
+              email:
+                type: string
+              jumlah_panen:
+                type: integer
+                format: int64
+              total_berat_ton:
+                type: number
+                format: double
+              total_pendapatan:
+                type: number
+                format: double
+
+    # ── Admin: Analytics ──────────────────────────────────────────────────────
+    PanenTrendItem:
+      type: object
+      properties:
+        month:
+          type: string
+          example: "2026-05"
+        jumlah_panen:
+          type: integer
+          format: int64
+        berat_ton:
+          type: number
+          format: double
+        total_pendapatan:
+          type: number
+          format: double
+        avg_pendapatan:
+          type: number
+          format: double
+        avg_berat_ton:
+          type: number
+          format: double
+        avg_harga_per_kg:
+          type: number
+          format: double
+        revenue_per_ton:
+          type: number
+          format: double
+        registrasi_pengguna:
+          type: integer
+          format: int64
+        kontribusi_revenue_pct:
+          type: number
+          format: double
+
+    AdminAnalyticsResponse:
+      type: object
+      properties:
+        generated_at:
+          type: string
+          format: date-time
+        period_label:
+          type: string
+        users_trend:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              count:
+                type: integer
+                format: int64
+        panen_trend:
+          type: array
+          items:
+            $ref: '#/components/schemas/PanenTrendItem'
+        new_users_month:
+          type: integer
+          format: int64
+        panen_month:
+          type: integer
+          format: int64
+        revenue_month:
+          type: number
+          format: double
+        weight_month:
+          type: number
+          format: double
+        new_users_growth_pct:
+          type: number
+          format: double
+        panen_growth_pct:
+          type: number
+          format: double
+        revenue_growth_pct:
+          type: number
+          format: double
+        weight_growth_pct:
+          type: number
+          format: double
+        active_users_30d:
+          type: integer
+          format: int64
+        active_lahan_90d:
+          type: integer
+          format: int64
+        avg_revenue_per_harvest_month:
+          type: number
+          format: double
+        avg_weight_ton_per_harvest_month:
+          type: number
+          format: double
+        avg_price_per_kg_month:
+          type: number
+          format: double
+        total_users_6m:
+          type: integer
+          format: int64
+        total_panen_6m:
+          type: integer
+          format: int64
+        total_revenue_6m:
+          type: number
+          format: double
+        total_weight_6m:
+          type: number
+          format: double
+        avg_revenue_per_harvest_6m:
+          type: number
+          format: double
+        avg_weight_ton_per_harvest_6m:
+          type: number
+          format: double
+        avg_price_per_kg_6m:
+          type: number
+          format: double
+        best_month:
+          type: object
+          properties:
+            month:
+              type: string
+            jumlah_panen:
+              type: integer
+              format: int64
+            berat_ton:
+              type: number
+              format: double
+            total_pendapatan:
+              type: number
+              format: double
+        top_producers:
+          type: array
+          items:
+            type: object
+            properties:
+              username:
+                type: string
+              panen_count:
+                type: integer
+                format: int64
+              total_berat_ton:
+                type: number
+                format: double
+              total_pendapatan:
+                type: number
+                format: double
+              avg_harga_per_kg:
+                type: number
+                format: double
+              avg_revenue_panen:
+                type: number
+                format: double
+        saas_gross_revenue_6m:
+          type: number
+          format: double
+        saas_gross_revenue_month:
+          type: number
+          format: double
+
+    # ── Admin: System ─────────────────────────────────────────────────────────
+    ApiEndpointStatus:
+      type: object
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        method:
+          type: string
+          enum: [GET, POST, PUT, DELETE, PATCH]
+        path:
+          type: string
+        group:
+          type: string
+        access:
+          type: string
+          enum: [public, protected, admin]
+        description:
+          type: string
+        status:
+          type: string
+          enum: [healthy, degraded, critical, idle]
+        enabled:
+          type: boolean
+        total_requests:
+          type: integer
+          format: int64
+        client_error_requests:
+          type: integer
+          format: int64
+        server_error_requests:
+          type: integer
+          format: int64
+        avg_latency_ms:
+          type: integer
+          format: int64
+        last_latency_ms:
+          type: integer
+          format: int64
+        max_latency_ms:
+          type: integer
+          format: int64
+        last_status_code:
+          type: integer
+        last_seen_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_seen_relative:
+          type: string
+        observed:
+          type: boolean
+
+    AdminSystemResponse:
+      type: object
+      properties:
+        db_status:
+          type: string
+          enum: [healthy, critical]
+        total_users:
+          type: integer
+          format: int64
+        new_users_today:
+          type: integer
+          format: int64
+        panen_today:
+          type: integer
+          format: int64
+        revenue_today:
+          type: number
+          format: double
+        total_lahan:
+          type: integer
+          format: int64
+        total_perawatan:
+          type: integer
+          format: int64
+        api_enabled:
+          type: boolean
+        api_summary:
+          type: object
+          properties:
+            total:
+              type: integer
+            observed:
+              type: integer
+            healthy:
+              type: integer
+            degraded:
+              type: integer
+            critical:
+              type: integer
+            idle:
+              type: integer
+            total_requests:
+              type: integer
+              format: int64
+            client_error_requests:
+              type: integer
+              format: int64
+            server_error_requests:
+              type: integer
+              format: int64
+        api_status:
+          type: array
+          items:
+            type: object
+            properties:
+              key:
+                type: string
+              name:
+                type: string
+              endpoint:
+                type: string
+              status:
+                type: string
+              message:
+                type: string
+              latency_ms:
+                type: integer
+                format: int64
+              checked_at:
+                type: string
+                format: date-time
+        internal_api_status:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiEndpointStatus'
+
+    AdminAuditLog:
+      type: object
+      properties:
+        username:
+          type: string
+        user_email:
+          type: string
+        action_type:
+          type: string
+          enum: [tambah_panen, tambah_lahan, tambah_perawatan, daftar]
+        entity_type:
+          type: string
+          enum: [panen, lahan, perawatan, user]
+        detail:
+          type: string
+        activity_time:
+          type: string
+          format: date-time
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Health
+# ─────────────────────────────────────────────────────────────────────────────
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Simple health check
+      description: Returns 200 OK if the database is reachable. No auth required.
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "ok"
+        '503':
+          description: Database unreachable
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "unhealthy: database unreachable"
+
+  /api/health:
+    get:
+      tags: [Health]
+      summary: Detailed health check
+      description: Returns database pool stats, Redis health, and queue depths.
+      responses:
+        '200':
+          description: Detailed health payload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+                  database:
+                    type: object
+                    properties:
+                      write:
+                        type: string
+                        example: "connected"
+                      read:
+                        type: string
+                        example: "connected"
+                  redis:
+                    type: object
+                    additionalProperties: true
+                  redis_metrics:
+                    type: object
+                    additionalProperties: true
+                  redis_queue:
+                    type: object
+                    properties:
+                      email_depth:
+                        type: integer
+                        format: int64
+                      email_dlq:
+                        type: integer
+                        format: int64
+                  db_stats:
+                    type: object
+                    properties:
+                      write:
+                        type: object
+                        properties:
+                          open_connections:
+                            type: integer
+                          in_use:
+                            type: integer
+                          idle:
+                            type: integer
+                          max_open:
+                            type: integer
+                      read:
+                        type: object
+                        additionalProperties: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Platform (Public)
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/PlatformThemeService:
+    get:
+      tags: [Platform]
+      summary: Get platform theme configuration
+      description: Returns the current UI theme colours. Cached for 5 minutes (public Cache-Control header).
+      responses:
+        '200':
+          description: Theme config
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThemeConfig'
+
+  /api/PlatformTrafficService:
+    post:
+      tags: [Platform]
+      summary: Record anonymous page visit
+      description: Fires and forgets — always returns 204. Used for internal analytics only.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                session_id:
+                  type: string
+                  example: "sess-abc123"
+                visitor_id:
+                  type: string
+                  example: "vis-xyz789"
+                device_type:
+                  type: string
+                  enum: [web, mobile]
+                  default: web
+                page:
+                  type: string
+                  example: "/"
+      responses:
+        '204':
+          description: Accepted (async, no body)
+
+  /api/Contact:
+    post:
+      tags: [Platform]
+      summary: Submit contact form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 120
+                  example: "Budi Santoso"
+                email:
+                  type: string
+                  format: email
+                  maxLength: 120
+                  example: "budi@example.com"
+                subject:
+                  type: string
+                  maxLength: 180
+                  example: "Pertanyaan tentang koperasi"
+                message:
+                  type: string
+                  maxLength: 5000
+                  example: "Apakah ada paket koperasi?"
+              required: [name, email, message]
+      responses:
+        '200':
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "Pesan berhasil dikirim"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Auth (Public)
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/IdentityAuthService/register:
+    post:
+      tags: [Auth]
+      summary: Register new user account
+      description: |
+        Creates a new farmer account. Sends a welcome email asynchronously via Asynq.
+        Returns 409 if email or username is already taken.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  minLength: 3
+                  description: Lowercase alphanumeric, stored lowercase
+                  example: "pak_suparman"
+                email:
+                  type: string
+                  format: email
+                  description: Stored as AES-256 encrypted; looked up via SHA-256 hash
+                  example: "petani@example.com"
+                password:
+                  type: string
+                  minLength: 8
+                  format: password
+                  example: "rahasialagi8"
+                full_name:
+                  type: string
+                  example: "Suparman"
+                phone:
+                  type: string
+                  example: "+628123456789"
+              required: [username, email, password]
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Email or username already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                emailTaken:
+                  value:
+                    error: "email sudah terdaftar"
+                usernameTaken:
+                  value:
+                    error: "username sudah digunakan"
+
+  /api/IdentityAuthService/login:
+    post:
+      tags: [Auth]
+      summary: Login with email, username, or phone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identifier:
+                  type: string
+                  description: Email address, username, or phone number
+                  example: "pak_suparman"
+                password:
+                  type: string
+                  format: password
+                  example: "rahasialagi8"
+              required: [identifier, password]
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                notFound:
+                  value:
+                    error: "akun tidak ditemukan"
+                wrongPassword:
+                  value:
+                    error: "password salah"
+
+  /api/IdentityAuthService/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Request password reset OTP
+      description: |
+        Sends a 6-digit OTP to the email address. Always returns 200 to prevent
+        email enumeration — even for unknown addresses.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "petani@example.com"
+              required: [email]
+      responses:
+        '200':
+          description: OTP sent (or silently ignored for unknown emails)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "ok"
+
+  /api/IdentityAuthService/verify-reset:
+    post:
+      tags: [Auth]
+      summary: Verify password reset OTP
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "petani@example.com"
+                code:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+                  example: "483920"
+              required: [email, code]
+      responses:
+        '200':
+          description: OTP verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+        '400':
+          description: Invalid or expired OTP
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/IdentityAuthService/reset-password:
+    post:
+      tags: [Auth]
+      summary: Set new password after OTP verification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "petani@example.com"
+                code:
+                  type: string
+                  example: "483920"
+                password:
+                  type: string
+                  minLength: 8
+                  format: password
+                  example: "passwordbaru123"
+              required: [email, code, password]
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "password berhasil diubah"
+        '400':
+          description: Validation error or invalid code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Auth (Protected)
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/IdentityAuthService/me:
+    get:
+      tags: [Profile]
+      summary: Get current authenticated user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/UserDetail'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/IdentityAuthService/ping:
+    get:
+      tags: [Session]
+      summary: Presence heartbeat
+      description: |
+        Updates `last_seen_at` on the user record. The frontend calls this
+        every 60 seconds. Returns 204 with no body.
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Acknowledged
+
+  /api/IdentityAuthService/update-password:
+    put:
+      tags: [Profile]
+      summary: Change own password
+      description: Bumps the session version in Redis, invalidating all other active sessions.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                current_password:
+                  type: string
+                  format: password
+                  example: "rahasialagi8"
+                new_password:
+                  type: string
+                  minLength: 8
+                  format: password
+                  example: "passwordbaru123"
+              required: [current_password, new_password]
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "password berhasil diubah"
+        '401':
+          description: Current password incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/IdentitySessionService/logout:
+    post:
+      tags: [Session]
+      summary: Logout current session
+      description: Revokes the current JWT by JTI in Redis.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "logout berhasil"
+                  user_id:
+                    type: string
+
+  /api/IdentitySessionService/logout-all:
+    post:
+      tags: [Session]
+      summary: Logout all sessions
+      description: Bumps session_version in Redis — all existing tokens are immediately invalid.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All sessions terminated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "logout semua device berhasil"
+
+  /api/IdentityProfileService/update-full-name:
+    put:
+      tags: [Profile]
+      summary: Update full name
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_full_name:
+                  type: string
+                  minLength: 3
+                  example: "Suparman Wijaya"
+      responses:
+        '200':
+          description: Name updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "nama lengkap berhasil diubah"
+        '400':
+          description: Name too short
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/IdentityProfileService/update-email:
+    put:
+      tags: [Profile]
+      summary: Update email address
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_email:
+                  type: string
+                  format: email
+                  example: "baru@example.com"
+              required: [new_email]
+      responses:
+        '200':
+          description: Email updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "email berhasil diubah"
+        '409':
+          description: Email already in use
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/IdentityProfileService/update-phone:
+    put:
+      tags: [Profile]
+      summary: Update phone number
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_phone:
+                  type: string
+                  pattern: '^[0-9+\-\s]{8,15}$'
+                  example: "+628987654321"
+      responses:
+        '200':
+          description: Phone updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "nomor telepon berhasil diubah"
+        '400':
+          description: Invalid phone format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/IdentityProfileService/update-username:
+    put:
+      tags: [Profile]
+      summary: Update username
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_username:
+                  type: string
+                  minLength: 3
+                  description: Stored lowercase
+                  example: "suparman_baru"
+              required: [new_username]
+      responses:
+        '200':
+          description: Username updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "username berhasil diubah"
+        '409':
+          description: Username taken
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/IdentityProfileService/preferences:
+    put:
+      tags: [Profile]
+      summary: Update user preferences
+      description: Used to persist onboarding completion and other UI preferences.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                onboarding_done:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: Preferences saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Farm Plots (Lahan)
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/CorePlotService:
+    get:
+      tags: [Plots]
+      summary: List all farm plots
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Array of plots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lahan'
+
+    post:
+      tags: [Plots]
+      summary: Create farm plot
+      description: |
+        **Subscription guard:** `RequireFullAccess`. Trial users are limited to 2 plots.
+        Returns 402 when the limit is reached or subscription has expired.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LahanInput'
+      responses:
+        '201':
+          description: Plot created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "lahan created"
+                  id_lahan:
+                    type: string
+                    example: "3"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '402':
+          description: Subscription required or trial limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/CorePlotService/{id}:
+    put:
+      tags: [Plots]
+      summary: Update farm plot
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "1"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LahanInput'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "updated"
+        '404':
+          description: Not found or not owned by user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags: [Plots]
+      summary: Delete farm plot (soft delete)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "1"
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "deleted"
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Harvest (Panen)
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/CoreHarvestService:
+    get:
+      tags: [Harvest]
+      summary: List all harvest records
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Array of harvest records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PanenRow'
+
+    post:
+      tags: [Harvest]
+      summary: Create harvest record
+      description: |
+        **Subscription guard:** `RequireFeature(FeatureCreateHarvest)`.
+        Trial users are limited to 2 total harvest records.
+        Returns 402 when the limit is reached.
+
+        The database auto-computes `berat_ton`, `berat_rata_janjang`,
+        `total_pendapatan`, and `hasil_bersih` as generated columns.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PanenInput'
+      responses:
+        '201':
+          description: Harvest created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "panen created"
+                  id_panen:
+                    type: string
+                    example: "42"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '402':
+          description: Trial limit reached or subscription expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/CoreHarvestService/{id}:
+    get:
+      tags: [Harvest]
+      summary: Get single harvest record
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Harvest record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PanenRow'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags: [Harvest]
+      summary: Update harvest record
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PanenInput'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags: [Harvest]
+      summary: Delete harvest record (soft delete)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Maintenance (Perawatan)
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/CoreMaintenanceService:
+    get:
+      tags: [Maintenance]
+      summary: List maintenance records
+      description: '**Subscription guard:** `RequireFullAccess`'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Array of maintenance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PerawatanRow'
+
+    post:
+      tags: [Maintenance]
+      summary: Create maintenance record
+      description: '**Subscription guard:** `RequireFullAccess`'
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PerawatanInput'
+      responses:
+        '201':
+          description: Maintenance record created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "perawatan created"
+                  id_perawatan:
+                    type: string
+                    example: "17"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '402':
+          description: Subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/CoreMaintenanceService/{id}:
+    put:
+      tags: [Maintenance]
+      summary: Update maintenance record
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PerawatanInput'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags: [Maintenance]
+      summary: Delete maintenance record (soft delete)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Maintenance Schedule (Jadwal Perawatan)
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/CoreMaintenanceScheduleService:
+    get:
+      tags: [Schedule]
+      summary: List maintenance schedules
+      description: '**Subscription guard:** `RequireFullAccess`'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Array of schedules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JadwalPerawatan'
+
+    post:
+      tags: [Schedule]
+      summary: Create maintenance schedule
+      description: '**Subscription guard:** `RequireFullAccess`'
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JadwalInput'
+      responses:
+        '201':
+          description: Schedule created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "jadwal perawatan created"
+                  id:
+                    type: string
+                    example: "5"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '402':
+          description: Subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/CoreMaintenanceScheduleService/upcoming:
+    get:
+      tags: [Schedule]
+      summary: Get upcoming scheduled maintenance
+      description: '**Subscription guard:** `RequireFullAccess`'
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: lahan_id
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by farm plot ID
+        - name: days
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 7
+          description: Number of days to look ahead (default 7)
+      responses:
+        '200':
+          description: Upcoming maintenance items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UpcomingItem'
+
+  /api/CoreMaintenanceScheduleService/{id}:
+    put:
+      tags: [Schedule]
+      summary: Update maintenance schedule
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/JadwalInput'
+                - type: object
+                  properties:
+                    is_active:
+                      type: boolean
+                      example: true
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "jadwal perawatan updated"
+
+    delete:
+      tags: [Schedule]
+      summary: Delete maintenance schedule (soft delete)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "jadwal perawatan deleted"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Field Checklist
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/CoreChecklistService:
+    get:
+      tags: [Checklist]
+      summary: List field checklist runs
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Array of checklist runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChecklistRun'
+
+    post:
+      tags: [Checklist]
+      summary: Create checklist run
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id_lahan:
+                  type: string
+                  example: "1"
+                title:
+                  type: string
+                  example: "Inspeksi Mingguan Blok A"
+                task_date:
+                  type: string
+                  format: date
+                  example: "2026-05-20"
+              required: [id_lahan, title, task_date]
+      responses:
+        '200':
+          description: Checklist run created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "ok"
+                  id_run:
+                    type: string
+                    example: "3"
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/CoreChecklistService/{id}/status:
+    patch:
+      tags: [Checklist]
+      summary: Update checklist run status
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: "completed"
+              required: [status]
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Income (Pendapatan)
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/FinanceIncomeService:
+    get:
+      tags: [Income]
+      summary: List income records
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Array of income records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PendapatanRow'
+
+    post:
+      tags: [Income]
+      summary: Create income record
+      description: '**Subscription guard:** `RequireFullAccess`'
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PendapatanInput'
+      responses:
+        '201':
+          description: Income record created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "pendapatan created"
+                  id_pendapatan:
+                    type: string
+                    example: "9"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '402':
+          description: Subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/FinanceIncomeService/{id}:
+    put:
+      tags: [Income]
+      summary: Update income record
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PendapatanInput'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags: [Income]
+      summary: Delete income record (soft delete)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Commodity Prices
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/FinanceCommodityPriceService:
+    get:
+      tags: [CommodityPrices]
+      summary: List TBS commodity price history
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Array of price records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HargaItem'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Dashboard
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/ReportingDashboardService:
+    get:
+      tags: [Dashboard]
+      summary: Farm dashboard aggregation
+      description: |
+        Returns the full dashboard payload for the authenticated farmer.
+        Results are cached in Redis for **90 seconds** per user per query string.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [month, week, year]
+            default: month
+        - name: lahan_id
+          in: query
+          schema:
+            type: string
+          description: Filter to a specific plot; empty = all plots
+        - name: year
+          in: query
+          schema:
+            type: integer
+            example: 2026
+        - name: month
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+            example: 5
+        - name: week
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 4
+            example: 0
+      responses:
+        '200':
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Reporting
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/ReportingFarmFinanceService:
+    get:
+      tags: [Reporting]
+      summary: Financial report (Laporan Keuangan)
+      description: |
+        Returns a structured profit-and-loss report. Cached in Redis for **2 minutes**.
+        **Trial limitation:** `detail` array is capped at 2 items for trial users.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [month, quarter, year]
+        - name: lahan_id
+          in: query
+          schema:
+            type: string
+          description: Filter to a specific plot
+        - name: year
+          in: query
+          schema:
+            type: integer
+        - name: month
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Financial report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LaporanKeuanganResponse'
+
+  /api/ReportingExportService/email-export:
+    post:
+      tags: [Reporting]
+      summary: Export financial report to email
+      description: |
+        Queues a PDF/Excel report for email delivery via Asynq.
+        **Subscription guard:** `RequireFullAccess` — trial users cannot export.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                period:
+                  type: string
+                  enum: [month, quarter, year]
+                lahan_id:
+                  type: string
+                year:
+                  type: integer
+                month:
+                  type: integer
+      responses:
+        '200':
+          description: Export queued
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+        '402':
+          description: Subscription required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Billing
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/BillingSubscriptionService/status:
+    get:
+      tags: [Billing]
+      summary: Get subscription status
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Subscription status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionStatus'
+
+  /api/BillingSubscriptionService/checkout:
+    post:
+      tags: [Billing]
+      summary: Initiate subscription checkout via Midtrans
+      description: Creates a Midtrans Snap transaction and returns the payment URL.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                return_url:
+                  type: string
+                  format: uri
+                  example: "https://sawithub.app/subscription?return=1"
+      responses:
+        '200':
+          description: Checkout payload with payment URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutResponse'
+        '502':
+          description: Midtrans payment gateway error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/BillingSubscriptionService/active-farm:
+    put:
+      tags: [Billing]
+      summary: Set active farm for subscription context
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                farm_id:
+                  type: string
+                  example: "2"
+              required: [farm_id]
+      responses:
+        '200':
+          description: Active farm updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+
+  /api/BillingPaymentService/transactions:
+    get:
+      tags: [Billing]
+      summary: Get payment transaction history
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Pagination cursor (from previous response's next_cursor)
+      responses:
+        '200':
+          description: Paginated transaction list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentTransaction'
+                  next_cursor:
+                    type: string
+                    nullable: true
+
+  /api/BillingPaymentService/callback:
+    post:
+      tags: [Billing]
+      summary: Midtrans payment webhook callback
+      description: |
+        Receives payment status notifications from Midtrans. This endpoint is
+        **not authenticated** — Midtrans calls it directly.
+
+        **Idempotency:** Uses `t_sawit_hub_payment_events` with a `UNIQUE(provider, event_key)`
+        constraint to prevent double-processing of duplicate webhooks.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Midtrans notification payload
+              properties:
+                order_id:
+                  type: string
+                transaction_status:
+                  type: string
+                payment_type:
+                  type: string
+                transaction_id:
+                  type: string
+                gross_amount:
+                  type: string
+                fraud_status:
+                  type: string
+              additionalProperties: true
+      responses:
+        '200':
+          description: Callback processed
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '400':
+          description: Invalid callback payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/BillingPaymentService/mock/callback:
+    post:
+      tags: [Billing]
+      summary: Mock payment callback (non-production only)
+      description: Only available when `SUBSCRIPTION_PROVIDER=mock`. Returns 404 in production.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        '200':
+          description: Callback processed
+        '404':
+          description: Not available in this environment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Notifications
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/NotificationCenterService:
+    get:
+      tags: [Notifications]
+      summary: List notifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Notification list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+        '503':
+          description: Notification service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/NotificationCenterService/read-all:
+    patch:
+      tags: [Notifications]
+      summary: Mark all notifications as read
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: All marked read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "semua notifikasi dibaca"
+
+  /api/NotificationCenterService/read:
+    delete:
+      tags: [Notifications]
+      summary: Delete all read notifications
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Read notifications deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "notifikasi yang sudah dibaca dihapus"
+
+  /api/NotificationCenterService/{id}/read:
+    patch:
+      tags: [Notifications]
+      summary: Mark single notification as read
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification marked read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "notifikasi dibaca"
+        '400':
+          description: Missing notification ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Admin Auth
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/admin/auth/login:
+    post:
+      tags: [AdminAuth]
+      summary: Admin login
+      description: Authenticates against `sawit_hub_admin_db`. Token validity is 30 days.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identifier:
+                  type: string
+                  description: Admin email, username, or phone
+                  example: "admin"
+                password:
+                  type: string
+                  format: password
+                  example: "adminpassword"
+              required: [identifier, password]
+      responses:
+        '200':
+          description: Admin login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/admin/auth/me:
+    get:
+      tags: [AdminAuth]
+      summary: Get current admin user
+      security:
+        - adminBearerAuth: []
+      responses:
+        '200':
+          description: Admin profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/UserDetail'
+
+  /api/admin/auth/logout:
+    post:
+      tags: [AdminAuth]
+      summary: Admin logout (current session)
+      security:
+        - adminBearerAuth: []
+      responses:
+        '200':
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "logout admin berhasil"
+                  user_id:
+                    type: string
+
+  /api/admin/auth/logout-all:
+    post:
+      tags: [AdminAuth]
+      summary: Admin logout all sessions
+      security:
+        - adminBearerAuth: []
+      responses:
+        '200':
+          description: All admin sessions terminated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "logout semua device admin berhasil"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Admin Overview
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/admin/overview:
+    get:
+      tags: [AdminOverview]
+      summary: Admin dashboard overview
+      description: Returns platform-wide stats. Cached in Redis for **3 minutes**.
+      security:
+        - adminBearerAuth: []
+      responses:
+        '200':
+          description: Platform overview
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminOverviewResponse'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Admin Users
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/admin/users:
+    get:
+      tags: [AdminUsers]
+      summary: List all users (paginated)
+      security:
+        - adminBearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Page number (20 users per page)
+      responses:
+        '200':
+          description: Paginated user list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminUsersResponse'
+
+  /api/admin/users/{id}/role:
+    put:
+      tags: [AdminUsers]
+      summary: Change user role
+      description: Cannot remove the last active admin account.
+      security:
+        - adminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: User's public_id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                  enum: [user, admin]
+                  example: "admin"
+              required: [role]
+      responses:
+        '200':
+          description: Role updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+        '400':
+          description: Cannot remove last admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/admin/users/{id}/status:
+    put:
+      tags: [AdminUsers]
+      summary: Toggle user active/inactive status
+      description: Cannot deactivate self or the last active admin.
+      security:
+        - adminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Status toggled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  is_active:
+                    type: boolean
+
+  /api/admin/users/{id}/deactivate:
+    put:
+      tags: [AdminUsers]
+      summary: Deactivate user account
+      security:
+        - adminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account deactivated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+
+  /api/admin/users/{id}/password:
+    put:
+      tags: [AdminUsers]
+      summary: Admin-force change user password
+      security:
+        - adminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_password:
+                  type: string
+                  minLength: 8
+                  format: password
+                  example: "newpassword123"
+                confirm_password:
+                  type: string
+                  format: password
+                  example: "newpassword123"
+              required: [new_password, confirm_password]
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+              example:
+                message: "Password berhasil diubah"
+        '400':
+          description: Passwords do not match or too short
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Admin Data
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/admin/data:
+    get:
+      tags: [AdminOverview]
+      summary: Browse raw platform data by entity type
+      security:
+        - adminBearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [panen, lahan, perawatan, pendapatan, kunjungan]
+            default: panen
+      responses:
+        '200':
+          description: Data rows for the selected type
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Admin Analytics
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/admin/analytics:
+    get:
+      tags: [AdminAnalytics]
+      summary: Platform analytics (6-month lookback)
+      description: |
+        Includes user growth, harvest trends, SaaS revenue, and top producers.
+        SaaS revenue excludes mock/test transactions.
+      security:
+        - adminBearerAuth: []
+      responses:
+        '200':
+          description: Analytics payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAnalyticsResponse'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Admin System
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/admin/system:
+    get:
+      tags: [AdminSystem]
+      summary: System health and API monitoring
+      description: Returns DB status, today's metrics, and per-endpoint API observability data.
+      security:
+        - adminBearerAuth: []
+      responses:
+        '200':
+          description: System status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminSystemResponse'
+
+  /api/admin/system/api-state:
+    put:
+      tags: [AdminSystem]
+      summary: Toggle global API kill-switch
+      description: |
+        Sets or clears the Redis `api:gate` key. When disabled, all user API
+        requests return **503 Service Unavailable** immediately.
+        **Requires Redis to be available.**
+      security:
+        - adminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                api_enabled:
+                  type: boolean
+                  example: false
+              required: [api_enabled]
+      responses:
+        '200':
+          description: API state updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "ok"
+                  api_enabled:
+                    type: boolean
+        '503':
+          description: Redis unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/admin/system/api-endpoint-state:
+    put:
+      tags: [AdminSystem]
+      summary: Toggle individual endpoint state
+      description: |
+        Enables or disables a specific route by method + path. The path must
+        start with `/api/`. Requires Redis.
+      security:
+        - adminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                method:
+                  type: string
+                  enum: [GET, POST, PUT, DELETE, PATCH]
+                  example: "POST"
+                path:
+                  type: string
+                  example: "/api/CoreHarvestService"
+                enabled:
+                  type: boolean
+                  example: false
+              required: [method, path, enabled]
+      responses:
+        '200':
+          description: Endpoint state updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  method:
+                    type: string
+                  path:
+                    type: string
+                  enabled:
+                    type: boolean
+        '400':
+          description: Invalid method or path
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Redis unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Admin Settings
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/admin/settings:
+    get:
+      tags: [AdminSettings]
+      summary: Get platform settings (theme colours)
+      security:
+        - adminBearerAuth: []
+      responses:
+        '200':
+          description: Current settings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  primary_color:
+                    type: string
+                    example: "#16a34a"
+                  secondary_color:
+                    type: string
+                    example: "#059669"
+                  background_color:
+                    type: string
+                    example: "#ffffff"
+
+    put:
+      tags: [AdminSettings]
+      summary: Update platform settings
+      security:
+        - adminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                primary_color:
+                  type: string
+                  example: "#16a34a"
+                secondary_color:
+                  type: string
+                  example: "#059669"
+                background_color:
+                  type: string
+                  example: "#ffffff"
+      responses:
+        '200':
+          description: Settings updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageOk'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paths — Admin Audit
+# ─────────────────────────────────────────────────────────────────────────────
+  /api/admin/audit:
+    get:
+      tags: [AdminAudit]
+      summary: Farmer activity audit log
+      description: |
+        Returns a unified activity log from panen, lahan, perawatan, and user
+        registration tables via a UNION query. Soft-deleted records are excluded.
+      security:
+        - adminBearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Page number (20 per page)
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [tambah_panen, tambah_lahan, tambah_perawatan, daftar, all]
+            default: all
+      responses:
+        '200':
+          description: Audit log entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AdminAuditLog'
+                  page:
+                    type: integer
