@@ -42,7 +42,7 @@ export default function AdminLayout({ children, topbarRight, maxWidth = 'max-w-[
 
         {/* Top Bar */}
         <header
-          className="sticky top-0 z-20 border-b"
+          className="sticky top-[env(safe-area-inset-top,0px)] z-20 border-b"
           style={{
             background: 'rgba(245, 240, 232, 0.7)',
             borderColor: 'var(--line-2)',

@@ -240,7 +240,7 @@ export default function Landing() {
 
       {/* ── Header ── */}
       <header style={{
-        position: 'sticky', top: 0, zIndex: 30,
+        position: 'sticky', top: 'env(safe-area-inset-top, 0px)', zIndex: 30,
         padding: '18px 56px',
         background: 'rgba(245,240,232,0.78)',
         backdropFilter: 'blur(12px)',
@@ -532,7 +532,7 @@ export default function Landing() {
       </main>
 
       {/* Mobile sticky CTA */}
-      <div className="fixed inset-x-3 bottom-3 z-40 rounded-2xl md:hidden" style={{ background: 'rgba(26,61,43,0.95)', border: '1px solid rgba(255,255,255,0.1)', padding: 8, backdropFilter: 'blur(8px)' }}>
+      <div className="fixed inset-x-3 z-40 rounded-2xl md:hidden" style={{ bottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))', background: 'rgba(26,61,43,0.95)', border: '1px solid rgba(255,255,255,0.1)', padding: 8, backdropFilter: 'blur(8px)' }}>
         <button
           onClick={() => handleSignupClick('sticky_mobile_cta')}
           className="w-full sh-btn sh-btn-amber sh-btn-lg"

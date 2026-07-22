@@ -99,6 +99,12 @@
   --shell-topbar-height: 64px;
   --shell-content-max:   1480px;
   --shell-gutter:        1rem;
+
+  /* Height of AdminRoleRouteBanner when shown, kept in sync by that
+     component via ResizeObserver. Fixed-position shell elements (which
+     don't participate in normal document flow, unlike the banner) read
+     this to avoid rendering underneath it. */
+  --admin-banner-height: 0px;
 }
 
 /* ── Global base ───────────────────────────────────────────────── */
@@ -300,6 +306,12 @@
   }
 }
 
+.app-topbar-sticky {
+  /* AdminRoleRouteBanner (sticky, higher z-index) also sticks at the top
+     when shown — without this offset, AppTopbar sticks underneath it. */
+  top: var(--admin-banner-height, 0px);
+}
+
 /* Mobile: bottom nav padding + old topnav compat */
 @media (max-width: 767px) {
   .app-content {
@@ -310,6 +322,15 @@
   .app-shell-gutter {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+
+  /* AppTopbar is sticky top:0 by default, but AppTopNav is a fixed header
+     covering that same region on mobile — without this offset, AppTopbar's
+     content slides underneath AppTopNav once scrolled. AppTopNav itself is
+     offset by --admin-banner-height (see AppTopNav.tsx), so it's added
+     here too to stay below AppTopNav's new bottom edge. */
+  .app-topbar-sticky {
+    top: calc(var(--shell-topnav-height) + env(safe-area-inset-top, 0px) + var(--admin-banner-height, 0px));
   }
 }
 

@@ -12,14 +12,14 @@ type AppTopbarProps = {
 
 export default function AppTopbar({ title, subtitle, contextHint, headerActions, actions }: AppTopbarProps) {
   return (
-    <div style={{
+    <div className="app-topbar-sticky" style={{
       display: 'flex', alignItems: 'center', gap: 16,
       padding: '0 36px',
       height: 'var(--shell-topbar-height, 64px)',
       borderBottom: '1px solid var(--line-2)',
       background: 'rgba(245, 240, 232, 0.65)',
       backdropFilter: 'blur(10px)',
-      position: 'sticky', top: 0, zIndex: 5,
+      position: 'sticky', zIndex: 5,
     }}>
       {/* Page title (mobile / optional) */}
       {title && (

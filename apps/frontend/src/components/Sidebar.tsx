@@ -42,8 +42,9 @@ export default function Sidebar() {
 
   return (
     <aside
-      className="app-sidebar hidden md:flex fixed inset-y-0 left-0 z-30 flex-col overflow-hidden"
+      className="app-sidebar hidden md:flex fixed bottom-0 left-0 z-30 flex-col overflow-hidden"
       style={{
+        top: 'var(--admin-banner-height, 0px)',
         width: 'var(--shell-sidebar-width)',
         background: 'var(--paper)',
         borderRight: '1px solid var(--line-2)',

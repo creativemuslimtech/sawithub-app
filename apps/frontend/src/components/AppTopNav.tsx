@@ -283,12 +283,14 @@ export default function AppTopNav() {
 
   return (
     <header
-      className="md:hidden fixed inset-x-0 top-0 z-40"
+      className="md:hidden fixed inset-x-0 z-40"
       style={{
+        top: 'var(--admin-banner-height, 0px)',
         background: 'rgba(245,240,232,0.92)',
         backdropFilter: 'blur(10px)',
         borderBottom: '1px solid var(--line-2)',
-        height: 'var(--shell-topnav-height)',
+        height: 'calc(var(--shell-topnav-height) + env(safe-area-inset-top, 0px))',
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}
     >
       <div className="app-shell-gutter h-full">
