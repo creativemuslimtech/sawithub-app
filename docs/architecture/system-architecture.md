@@ -367,9 +367,9 @@ sawithub:prod:
 │   ├── user:{user_id}:{route}        TTL 60s   — 100 req/min per user per route
 │   └── ip:{ip}:{route}               TTL 60s   — IP-level rate limit
 ├── cache:
-│   ├── dashboard:{user_id}:{params}  TTL 30s   — dashboard aggregate
-│   ├── laporan:{user_id}:{params}    TTL 60s   — financial report
-│   └── admin_aggregate:{key}         TTL 120s  — admin overview stats
+│   ├── dashboard:{user_id}:{params}  TTL 90s   — dashboard aggregate
+│   ├── laporan:{user_id}:{params}    TTL 2m    — financial report
+│   └── admin_aggregate:{key}         TTL 3m    — admin overview stats
 ├── queue:                                       — Asynq managed keys
 │   ├── pending:{task_type}           TTL 1h
 │   ├── retry:{task_type}             TTL 1d

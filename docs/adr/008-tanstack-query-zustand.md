@@ -45,7 +45,7 @@ Options considered:
 **Benefits:**
 - Clear ownership: TanStack Query owns all data that comes from the server; Zustand owns UI state that exists independent of server round-trips
 - Mutations automatically invalidate relevant queries — dashboard refreshes after a new harvest is recorded without manual state updates
-- TanStack Query's `staleTime` configuration aligns with backend cache TTLs (e.g., dashboard data stale after 30s matches the Redis cache TTL)
+- TanStack Query uses a global default `staleTime` of 30s (`queryClient.ts`), shorter than the backend's per-endpoint Redis cache TTLs (e.g. dashboard 90s, laporan 2min) — this is a conservative default, not a tuned match: the frontend simply refetches more eagerly than the backend cache would technically require, so it never serves data staler than the backend's own TTL
 - Zustand's minimal API means no action creators, reducers, or sagas — simple direct state updates
 
 **Trade-offs:**

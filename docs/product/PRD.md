@@ -571,7 +571,7 @@ SawitHub can own this gap with a focused, affordable, mobile-first product.
 | AC-01 | `GET /api/PlatformThemeService` is a public (unauthenticated) endpoint that returns the current theme configuration. |
 | AC-02 | The frontend reads the theme on app startup and applies the color values to the UI. |
 | AC-03 | Admin can update primary, secondary, accent, background, text, and border colors via the admin settings panel. |
-| AC-04 | Theme changes take effect for new page loads immediately after the admin saves them. Existing sessions see the update within the cache TTL (120 seconds for admin aggregate cache). |
+| AC-04 | Theme changes take effect for new page loads immediately after the admin saves them. The user-facing theme endpoint (`GetThemeConfig`) is not cached, so this is effectively instant — not gated by a TTL. |
 
 ---
 
@@ -581,8 +581,8 @@ SawitHub can own this gap with a focused, affordable, mobile-first product.
 
 | Requirement | Target | Source |
 |-------------|--------|--------|
-| Dashboard API response time | p95 < 500ms | Redis cache (30s TTL) for dashboard data |
-| Financial report API response time | p95 < 1s | Redis cache (60s TTL) for report data |
+| Dashboard API response time | p95 < 500ms | Redis cache (90s TTL) for dashboard data |
+| Financial report API response time | p95 < 1s | Redis cache (2min TTL) for report data |
 | Static asset delivery | < 1s first load (CDN) | Vercel CDN deployment |
 | Vite build target | ES2020 (Android WebView 8+ compat) | `vite.config.ts` `target: 'es2020'` |
 | Chunk size warning threshold | 2,000 KB | Manual chunking: vendor-router, vendor-react, vendor-axios |
