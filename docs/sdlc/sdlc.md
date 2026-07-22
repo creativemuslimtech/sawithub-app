@@ -220,7 +220,7 @@ Railway watches the connected GitHub repository. On merge to the target branch:
 4. Rolling deploy (new container starts, health check passes, old container drained)
 5. Startup sequence runs migrations automatically (`db.RunMigrations` on boot)
 
-**No manual migration step is required** — migrations are idempotent and run on every startup via `golang-migrate`.
+**No manual migration step is required** — `apps/backend/migrations/` files are idempotent and run on every startup via `golang-migrate`. (The shared `packages/database/` schema is separate — see 5.3 below.)
 
 #### Frontend (Vercel)
 
@@ -387,11 +387,15 @@ Add `vitest` as a dev dependency in `packages/shared` and run via workspace test
 
 ### 5.3 Database Migration Releases
 
-Migrations run automatically on backend startup via `golang-migrate`. This means:
+Two separate systems, don't conflate them:
+
+**`apps/backend/migrations/`** — runs automatically on backend startup via `golang-migrate` (`db.RunMigrations` on boot). This means:
 
 - **Deploy order matters:** Deploy the backend binary first; wait for health check before routing traffic. The migration runs before the server accepts requests.
 - **Backward-compatible migrations only:** Any migration that runs on a new deployment must be safe to run while the old binary is still draining (rolling deploy window). Avoid `DROP COLUMN` or rename in the same migration as the code change that uses the new schema.
-- **Migration naming:** `packages/database/sawit_hub_db/NNNN_description.up.sql` / `.down.sql` — lexical order determines execution sequence.
+- **Migration naming:** `apps/backend/migrations/{sequential_number}_{description}.up.sql` / `.down.sql` — lexical order determines execution sequence.
+
+**`packages/database/`** (shared `sawit_hub_db`/`sawit_hub_admin_db` schema) — plain `.sql` files, no golang-migrate and no up/down pairing. Applied by the `sql-apply.yml` GitHub Actions workflow on merge to `main`, not by the backend binary at boot. Files in `ddl/` then `dml/` run in lexical filename order (e.g. `t_sawit_hub_users.sql`) — there is no down/rollback file, so a schema change here is forward-only.
 
 ### 5.4 Environment Promotion Checklist
 

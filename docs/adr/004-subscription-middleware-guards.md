@@ -5,7 +5,7 @@
 ## Context
 
 SawitHub has three access tiers:
-- **Trial**: 14 days, capped at 2 farms and 2 harvests
+- **Trial**: 14 days, capped at 1 farm and 2 harvests
 - **Pro**: Rp 30,000/month, unlimited access
 - **Expired**: trial ended, no active subscription — read-only or blocked
 
@@ -31,7 +31,7 @@ Two reusable middleware functions in `internal/middleware/`:
 
 **`RequireFeature(feature string)`** — blocks specific feature access. Returns HTTP 402. Used for features that are gated separately from the base subscription (e.g., cooperative features, advanced analytics).
 
-**Trial usage counters** — for the trial caps (2 farms, 2 harvests), handler-level checks use `EnsureTrialUsageAllowed(ctx, userID, "trial_farm_used" | "trial_harvest_used", limit, ...)`. These are Redis counters incremented on each create. When the counter hits the cap, the handler returns 402 before any DB write.
+**Trial usage counters** — for per-action trial caps (harvests, report exports), handler-level checks use `EnsureTrialUsageAllowed(ctx, userID, "trial_harvest_used" | "trial_report_export_used", limit, ...)`. These are Redis counters incremented on each create; when the counter hits the cap, the handler returns 402 before any DB write. The farm cap is enforced differently — `active_farm_limit` (default `1`) is a column on `t_sawit_hub_users`, not a Redis counter, so raising it per-account (e.g. for a paid plan) is a DB update rather than a config change.
 
 **Why HTTP 402 (Payment Required)?** This is the semantically correct status code for subscription enforcement. Frontend code checks for 402 specifically to trigger the upgrade modal.
 

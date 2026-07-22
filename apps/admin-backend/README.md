@@ -85,7 +85,7 @@ Redis feature flags:
 | Variable | Controls |
 |---|---|
 | `REDIS_FEATURE_RATE_LIMIT` | Admin API rate limiting |
-| `REDIS_FEATURE_CACHE` | Analytics overview (3min) + trends (5min) cache |
+| `REDIS_FEATURE_CACHE` | Analytics overview (3min) cache; trends is uncached |
 | `REDIS_FEATURE_SESSIONS` | Admin JWT session management |
 | `REDIS_FEATURE_PRESENCE` | Presence data for user monitoring |
 
@@ -118,10 +118,15 @@ All endpoints require `Authorization: Bearer <adminToken>` except `/api/admin/au
 
 | Group | Endpoints |
 |---|---|
-| Auth | `POST /api/admin/auth/login`, `GET /api/admin/auth/me` |
-| Users | `GET /api/admin/users`, `GET /api/admin/users/{id}`, `PUT /api/admin/users/{id}/status`, `DELETE /api/admin/users/{id}` |
-| Analytics | `GET /api/admin/analytics/overview`, `GET /api/admin/analytics/panen-trends` |
-| System | `GET /api/admin/system/api-endpoint-state`, `PUT /api/admin/system/api-endpoint-state`, `GET /api/admin/system/audit-logs` |
+| Auth | `POST /api/admin/auth/login`, `GET /api/admin/auth/me`, `POST /api/admin/auth/logout`, `POST /api/admin/auth/logout-all` |
+| Overview | `GET /api/admin/overview` |
+| Users | `GET /api/admin/users`, `PUT /api/admin/users/{id}/role`, `PUT /api/admin/users/{id}/status`, `PUT /api/admin/users/{id}/deactivate`, `PUT /api/admin/users/{id}/password` |
+| Data / Analytics | `GET /api/admin/data`, `GET /api/admin/analytics` |
+| System | `GET /api/admin/system`, `PUT /api/admin/system/api-state`, `PUT /api/admin/system/api-endpoint-state` |
+| Settings | `GET /api/admin/settings`, `PUT /api/admin/settings` |
+| Audit | `GET /api/admin/audit` |
+
+There is no single-user `GET`/`DELETE` route (only the `PUT .../{id}/*` sub-resource updates above), and no `/api/admin/system/audit-logs` path (the real audit route is `GET /api/admin/audit`).
 
 Full spec: `docs/api/openapi.yaml` (adminBearerAuth security scheme).
 

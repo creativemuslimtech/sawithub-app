@@ -2,14 +2,30 @@
   "info": {
     "_postman_id": "sawithub-api-collection-v1",
     "name": "SawitHub API",
-    "description": "Complete API collection for SawitHub — Palm Oil Farm Management SaaS.\n\n## Setup\n\nSet the following collection variables before use:\n\n| Variable | Default | Description |\n|---|---|---|\n| `baseUrl` | `http://localhost:8000` | User backend base URL |\n| `adminBaseUrl` | `http://localhost:8001` | Admin backend base URL |\n| `token` | *(empty)* | User JWT — set automatically by Login |\n| `adminToken` | *(empty)* | Admin JWT — set automatically by Admin Login |\n\n## Auth Flow\n\n1. Call **POST /api/auth/register** or **POST /api/auth/login**\n2. Copy the `token` field from the response into the `token` collection variable\n3. All protected endpoints automatically attach `Authorization: Bearer {{token}}`\n\nFor admin endpoints, call **POST /api/admin/auth/login** and set `{{adminToken}}`.",
+    "description": "Complete API collection for SawitHub — Palm Oil Farm Management SaaS.\n\nRoutes use the backend's real RPC-style naming (e.g. `/api/CorePlotService`, `/api/IdentityAuthService/login`) — see `docs/api/openapi.yaml` and `apps/backend/docs/api-routes.md` for the authoritative route list.\n\n## Setup\n\nSet the following collection variables before use:\n\n| Variable | Default | Description |\n|---|---|---|\n| `baseUrl` | `http://localhost:8000` | User backend base URL |\n| `adminBaseUrl` | `http://localhost:8001` | Admin backend base URL |\n| `token` | *(empty)* | User JWT — set automatically by Login |\n| `adminToken` | *(empty)* | Admin JWT — set automatically by Admin Login |\n\n## Auth Flow\n\n1. Call **POST /api/IdentityAuthService/register** or **POST /api/IdentityAuthService/login**\n2. Copy the `token` field from the response into the `token` collection variable\n3. All protected endpoints automatically attach `Authorization: Bearer {{token}}`\n\nFor admin endpoints, call **POST /api/admin/auth/login** and set `{{adminToken}}`.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8000", "type": "string" },
-    { "key": "adminBaseUrl", "value": "http://localhost:8001", "type": "string" },
-    { "key": "token", "value": "", "type": "string" },
-    { "key": "adminToken", "value": "", "type": "string" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "adminBaseUrl",
+      "value": "http://localhost:8001",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    }
   ],
   "item": [
     {
@@ -20,16 +36,31 @@
           "name": "Register",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"petani@example.com\",\n  \"password\": \"password123\",\n  \"username\": \"petani_riau\",\n  \"full_name\": \"Budi Santoso\",\n  \"phone\": \"+6281234567890\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "raw": "{{baseUrl}}/api/IdentityAuthService/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityAuthService",
+                "register"
+              ]
             },
             "description": "Register a new user account. Returns JWT token and user object. Trial period (14 days) starts immediately."
           }
@@ -50,16 +81,31 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"petani@example.com\",\n  \"password\": \"password123\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "raw": "{{baseUrl}}/api/IdentityAuthService/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityAuthService",
+                "login"
+              ]
             },
             "description": "Login with email and password. The test script automatically saves the returned token to `{{token}}`."
           }
@@ -68,11 +114,22 @@
           "name": "Logout",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "logout"]
+              "raw": "{{baseUrl}}/api/IdentitySessionService/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentitySessionService",
+                "logout"
+              ]
             },
             "description": "Revoke the current JWT by its JTI. Returns 204 No Content."
           }
@@ -81,11 +138,22 @@
           "name": "Logout All Devices",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/auth/logout-all",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "logout-all"]
+              "raw": "{{baseUrl}}/api/IdentitySessionService/logout-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentitySessionService",
+                "logout-all"
+              ]
             },
             "description": "Invalidate all sessions by bumping the session_version in Redis. All existing JWTs for this user become invalid."
           }
@@ -94,11 +162,22 @@
           "name": "Ping (Session Check)",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/auth/ping",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "ping"]
+              "raw": "{{baseUrl}}/api/IdentityAuthService/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityAuthService",
+                "ping"
+              ]
             },
             "description": "Check if the current token is still valid. Returns 204 on success, 401 if expired or revoked."
           }
@@ -107,34 +186,97 @@
           "name": "Request Password Reset",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"petani@example.com\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/request-password-reset",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "request-password-reset"]
+              "raw": "{{baseUrl}}/api/IdentityAuthService/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityAuthService",
+                "forgot-password"
+              ]
             },
             "description": "Send a 6-digit reset code to the user's email via Resend (Asynq queue: email:reset_code). Always returns 200 to prevent email enumeration."
+          }
+        },
+        {
+          "name": "Verify Password Reset Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"petani@example.com\",\n  \"code\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/IdentityAuthService/verify-reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityAuthService",
+                "verify-reset"
+              ]
+            },
+            "description": "Verify the 6-digit reset code sent by email before allowing a new password to be set."
           }
         },
         {
           "name": "Confirm Password Reset",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"petani@example.com\",\n  \"code\": \"123456\",\n  \"new_password\": \"newpassword456\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/confirm-password-reset",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "confirm-password-reset"]
+              "raw": "{{baseUrl}}/api/IdentityAuthService/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityAuthService",
+                "reset-password"
+              ]
             },
             "description": "Submit the 6-digit code to set a new password. Invalidates all existing sessions on success."
           }
@@ -149,11 +291,22 @@
           "name": "Get Profile",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/profile",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "profile"]
+              "raw": "{{baseUrl}}/api/IdentityAuthService/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityAuthService",
+                "me"
+              ]
             },
             "description": "Returns full user profile including decrypted email, phone, and full_name (PII fields stored AES-256 encrypted)."
           }
@@ -163,18 +316,34 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"full_name\": \"Budi Santoso Baru\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/profile/full-name",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "profile", "full-name"]
+              "raw": "{{baseUrl}}/api/IdentityProfileService/update-full-name",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityProfileService",
+                "update-full-name"
+              ]
             },
             "description": "Update full name. Minimum 3 characters if non-empty. PII encrypted at rest."
           }
@@ -184,18 +353,34 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"newemail@example.com\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/profile/email",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "profile", "email"]
+              "raw": "{{baseUrl}}/api/IdentityProfileService/update-email",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityProfileService",
+                "update-email"
+              ]
             },
             "description": "Update email address (stored lowercase). Must be a valid unique email. Updates email_enc and email_hash columns."
           }
@@ -205,18 +390,34 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"phone\": \"+6281234567890\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/profile/phone",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "profile", "phone"]
+              "raw": "{{baseUrl}}/api/IdentityProfileService/update-phone",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityProfileService",
+                "update-phone"
+              ]
             },
             "description": "Update phone number. Pattern: ^[0-9+\\-\\s]{8,15}$. Stored encrypted."
           }
@@ -226,18 +427,34 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"username\": \"petani_riau_baru\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/profile/username",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "profile", "username"]
+              "raw": "{{baseUrl}}/api/IdentityProfileService/update-username",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityProfileService",
+                "update-username"
+              ]
             },
             "description": "Update username. Minimum 3 characters. Must be unique."
           }
@@ -247,18 +464,34 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"current_password\": \"password123\",\n  \"new_password\": \"newpassword456\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/profile/password",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "profile", "password"]
+              "raw": "{{baseUrl}}/api/IdentityAuthService/update-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityAuthService",
+                "update-password"
+              ]
             },
             "description": "Change password. Requires current password for verification. Invalidates all sessions on success."
           }
@@ -273,11 +506,21 @@
           "name": "List Lahan",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/lahan",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "lahan"]
+              "raw": "{{baseUrl}}/api/CorePlotService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CorePlotService"
+              ]
             },
             "description": "Returns array of all farms belonging to the authenticated user."
           }
@@ -287,33 +530,35 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nama_kebun\": \"Kebun Sawit Blok A\",\n  \"jenis_bibit\": \"Tenera\",\n  \"lokasi\": \"Pekanbaru, Riau\",\n  \"luas_ha\": 2.5,\n  \"jumlah_pohon\": 150,\n  \"tahun_tanam\": 2018\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/lahan",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "lahan"]
+              "raw": "{{baseUrl}}/api/CorePlotService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CorePlotService"
+              ]
             },
             "description": "Create a new farm. `nama_kebun` is required. `luas_ha` must be > 0. `tahun_tanam` must be between 1900 and 2100. Requires RequireFullAccess (Pro or active trial) — returns 402 if exceeded."
-          }
-        },
-        {
-          "name": "Get Lahan by ID",
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/lahan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "lahan", "1"]
-            },
-            "description": "Get a single farm by its integer ID."
           }
         },
         {
@@ -321,18 +566,34 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nama_kebun\": \"Kebun Sawit Blok A (Updated)\",\n  \"jenis_bibit\": \"Tenera\",\n  \"lokasi\": \"Pekanbaru, Riau\",\n  \"luas_ha\": 3.0,\n  \"jumlah_pohon\": 180,\n  \"tahun_tanam\": 2018\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/lahan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "lahan", "1"]
+              "raw": "{{baseUrl}}/api/CorePlotService/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CorePlotService",
+                "1"
+              ]
             }
           }
         },
@@ -340,26 +601,24 @@
           "name": "Delete Lahan",
           "request": {
             "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/lahan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "lahan", "1"]
+              "raw": "{{baseUrl}}/api/CorePlotService/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CorePlotService",
+                "1"
+              ]
             },
             "description": "Soft or hard delete a farm. Returns 404 if not found or not owned by user."
-          }
-        },
-        {
-          "name": "Set Active Farm",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/lahan/1/set-active",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "lahan", "1", "set-active"]
-            },
-            "description": "Set a farm as the currently active farm context for dashboard and reports."
           }
         }
       ]
@@ -372,11 +631,21 @@
           "name": "List Panen",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/panen",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "panen"]
+              "raw": "{{baseUrl}}/api/CoreHarvestService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreHarvestService"
+              ]
             },
             "description": "Returns array of all harvest records for the authenticated user."
           }
@@ -386,18 +655,33 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id_lahan\": 1,\n  \"tanggal_panen\": \"2026-05-15\",\n  \"luas_panen_ha\": 2.5,\n  \"jumlah_janjang\": 120,\n  \"berat_kg\": 2400,\n  \"harga_per_kg\": 2200,\n  \"biaya_panen\": 500000\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/panen",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "panen"]
+              "raw": "{{baseUrl}}/api/CoreHarvestService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreHarvestService"
+              ]
             },
             "description": "Record a new harvest. `tanggal_panen` must not be in the future. Computed columns `berat_ton`, `total_pendapatan`, and `hasil_bersih` are generated by the DB. Trial accounts limited to 2 harvests — returns 402 when exceeded."
           }
@@ -406,11 +690,22 @@
           "name": "Get Panen by ID",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/panen/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "panen", "1"]
+              "raw": "{{baseUrl}}/api/CoreHarvestService/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreHarvestService",
+                "1"
+              ]
             }
           }
         },
@@ -419,18 +714,34 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id_lahan\": 1,\n  \"tanggal_panen\": \"2026-05-15\",\n  \"luas_panen_ha\": 2.5,\n  \"jumlah_janjang\": 125,\n  \"berat_kg\": 2500,\n  \"harga_per_kg\": 2200,\n  \"biaya_panen\": 500000\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/panen/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "panen", "1"]
+              "raw": "{{baseUrl}}/api/CoreHarvestService/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreHarvestService",
+                "1"
+              ]
             }
           }
         },
@@ -438,11 +749,22 @@
           "name": "Delete Panen",
           "request": {
             "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/panen/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "panen", "1"]
+              "raw": "{{baseUrl}}/api/CoreHarvestService/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreHarvestService",
+                "1"
+              ]
             }
           }
         }
@@ -456,11 +778,21 @@
           "name": "List Perawatan",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/perawatan",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "perawatan"]
+              "raw": "{{baseUrl}}/api/CoreMaintenanceService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreMaintenanceService"
+              ]
             }
           }
         },
@@ -469,32 +801,35 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id_lahan\": 1,\n  \"tanggal_perawatan\": \"2026-05-10\",\n  \"jenis_perawatan\": \"Pemupukan\",\n  \"bahan\": \"NPK Mutiara\",\n  \"jumlah\": 50,\n  \"satuan\": \"kg\",\n  \"harga_satuan\": 8000,\n  \"biaya_pekerja\": 200000,\n  \"keterangan\": \"Pemupukan rutin bulan Mei\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/perawatan",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "perawatan"]
+              "raw": "{{baseUrl}}/api/CoreMaintenanceService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreMaintenanceService"
+              ]
             },
             "description": "`id_lahan`, `tanggal_perawatan`, and `jenis_perawatan` are required. `jumlah` must be > 0. `harga_satuan` and `biaya_pekerja` must be >= 0. Requires RequireFullAccess."
-          }
-        },
-        {
-          "name": "Get Perawatan by ID",
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/perawatan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "perawatan", "1"]
-            }
           }
         },
         {
@@ -502,18 +837,34 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id_lahan\": 1,\n  \"tanggal_perawatan\": \"2026-05-10\",\n  \"jenis_perawatan\": \"Pemupukan\",\n  \"bahan\": \"NPK Mutiara\",\n  \"jumlah\": 55,\n  \"satuan\": \"kg\",\n  \"harga_satuan\": 8000,\n  \"biaya_pekerja\": 200000,\n  \"keterangan\": \"Updated\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/perawatan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "perawatan", "1"]
+              "raw": "{{baseUrl}}/api/CoreMaintenanceService/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreMaintenanceService",
+                "1"
+              ]
             }
           }
         },
@@ -521,11 +872,22 @@
           "name": "Delete Perawatan",
           "request": {
             "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/perawatan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "perawatan", "1"]
+              "raw": "{{baseUrl}}/api/CoreMaintenanceService/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreMaintenanceService",
+                "1"
+              ]
             }
           }
         }
@@ -539,11 +901,21 @@
           "name": "List Jadwal Perawatan",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/jadwal-perawatan",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "jadwal-perawatan"]
+              "raw": "{{baseUrl}}/api/CoreMaintenanceScheduleService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreMaintenanceScheduleService"
+              ]
             }
           }
         },
@@ -552,53 +924,63 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id_lahan\": 1,\n  \"jenis_perawatan\": \"Pemupukan\",\n  \"tanggal_mulai\": \"2026-06-01\",\n  \"tanggal_akhir\": \"2026-12-31\",\n  \"frequensi_tipe\": \"monthly\",\n  \"frequensi_custom_hari\": null,\n  \"catatan\": \"Pemupukan bulanan\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/jadwal-perawatan",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "jadwal-perawatan"]
+              "raw": "{{baseUrl}}/api/CoreMaintenanceScheduleService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreMaintenanceScheduleService"
+              ]
             },
             "description": "`frequensi_tipe` enum: `daily`, `weekly`, `monthly`, `custom`. If `custom`, `frequensi_custom_hari` must be a positive integer. `tanggal_akhir` must be >= `tanggal_mulai` if provided."
           }
         },
         {
-          "name": "Create Jadwal (Custom Frequency)",
-          "request": {
-            "method": "POST",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id_lahan\": 1,\n  \"jenis_perawatan\": \"Penyemprotan\",\n  \"tanggal_mulai\": \"2026-06-01\",\n  \"frequensi_tipe\": \"custom\",\n  \"frequensi_custom_hari\": 21,\n  \"catatan\": \"Setiap 3 minggu\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/jadwal-perawatan",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "jadwal-perawatan"]
-            },
-            "description": "Example with custom frequency (every 21 days). `frequensi_custom_hari` is required and must be > 0 when `frequensi_tipe` is `custom`."
-          }
-        },
-        {
-          "name": "Get Jadwal by ID",
+          "name": "Get Upcoming Jadwal",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/jadwal-perawatan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "jadwal-perawatan", "1"]
-            }
+              "raw": "{{baseUrl}}/api/CoreMaintenanceScheduleService/upcoming",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreMaintenanceScheduleService",
+                "upcoming"
+              ]
+            },
+            "description": "List upcoming maintenance schedules across all farms."
           }
         },
         {
@@ -606,18 +988,34 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id_lahan\": 1,\n  \"jenis_perawatan\": \"Pemupukan\",\n  \"tanggal_mulai\": \"2026-06-01\",\n  \"tanggal_akhir\": \"2026-12-31\",\n  \"frequensi_tipe\": \"monthly\",\n  \"frequensi_custom_hari\": null,\n  \"catatan\": \"Updated notes\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/jadwal-perawatan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "jadwal-perawatan", "1"]
+              "raw": "{{baseUrl}}/api/CoreMaintenanceScheduleService/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreMaintenanceScheduleService",
+                "1"
+              ]
             }
           }
         },
@@ -625,11 +1023,22 @@
           "name": "Delete Jadwal Perawatan",
           "request": {
             "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/jadwal-perawatan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "jadwal-perawatan", "1"]
+              "raw": "{{baseUrl}}/api/CoreMaintenanceScheduleService/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreMaintenanceScheduleService",
+                "1"
+              ]
             }
           }
         }
@@ -643,11 +1052,21 @@
           "name": "List Pendapatan",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/pendapatan",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pendapatan"]
+              "raw": "{{baseUrl}}/api/FinanceIncomeService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "FinanceIncomeService"
+              ]
             }
           }
         },
@@ -656,32 +1075,35 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id_lahan\": 1,\n  \"tanggal\": \"2026-05-15\",\n  \"total_janjang\": 120,\n  \"total_berat_kg\": 2400,\n  \"harga_per_kg\": 2200,\n  \"pendapatan_kotor\": 5280000,\n  \"biaya_total\": 500000,\n  \"keterangan\": \"Penjualan ke PKS Riau\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/pendapatan",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pendapatan"]
+              "raw": "{{baseUrl}}/api/FinanceIncomeService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "FinanceIncomeService"
+              ]
             },
             "description": "`total_janjang` must be a positive integer. `total_berat_kg` must be > 0. `pendapatan_kotor` and `biaya_total` must be >= 0. `pendapatan_bersih` is a DB-generated column (pendapatan_kotor - biaya_total)."
-          }
-        },
-        {
-          "name": "Get Pendapatan by ID",
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/pendapatan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pendapatan", "1"]
-            }
           }
         },
         {
@@ -689,18 +1111,34 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id_lahan\": 1,\n  \"tanggal\": \"2026-05-15\",\n  \"total_janjang\": 125,\n  \"total_berat_kg\": 2500,\n  \"harga_per_kg\": 2200,\n  \"pendapatan_kotor\": 5500000,\n  \"biaya_total\": 500000,\n  \"keterangan\": \"Corrected entry\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/pendapatan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pendapatan", "1"]
+              "raw": "{{baseUrl}}/api/FinanceIncomeService/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "FinanceIncomeService",
+                "1"
+              ]
             }
           }
         },
@@ -708,11 +1146,22 @@
           "name": "Delete Pendapatan",
           "request": {
             "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/pendapatan/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "pendapatan", "1"]
+              "raw": "{{baseUrl}}/api/FinanceIncomeService/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "FinanceIncomeService",
+                "1"
+              ]
             }
           }
         }
@@ -726,76 +1175,23 @@
           "name": "List Harga",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/harga",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "harga"]
-            }
-          }
-        },
-        {
-          "name": "Create Harga",
-          "request": {
-            "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"tanggal\": \"2026-05-01\",\n  \"harga_per_kg\": 2350,\n  \"sumber\": \"PKS Riau\"\n}",
-              "options": { "raw": { "language": "json" } }
+            "url": {
+              "raw": "{{baseUrl}}/api/FinanceCommodityPriceService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "FinanceCommodityPriceService"
+              ]
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/harga",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "harga"]
-            }
-          }
-        },
-        {
-          "name": "Get Harga by ID",
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/harga/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "harga", "1"]
-            }
-          }
-        },
-        {
-          "name": "Update Harga",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"tanggal\": \"2026-05-01\",\n  \"harga_per_kg\": 2400,\n  \"sumber\": \"PKS Riau Updated\"\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/harga/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "harga", "1"]
-            }
-          }
-        },
-        {
-          "name": "Delete Harga",
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/harga/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "harga", "1"]
-            }
+            "description": "This backend only exposes a read-only list — there is no create/update/delete route for commodity prices."
           }
         }
       ]
@@ -808,11 +1204,21 @@
           "name": "List Checklist Runs",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/field-checklist/runs",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "field-checklist", "runs"]
+              "raw": "{{baseUrl}}/api/CoreChecklistService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreChecklistService"
+              ]
             }
           }
         },
@@ -821,65 +1227,73 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id_lahan\": 1,\n  \"title\": \"Inspeksi Bulanan Mei 2026\",\n  \"task_date\": \"2026-05-20\",\n  \"tasks\": [\n    { \"task_name\": \"Cek kondisi pohon\", \"is_completed\": false },\n    { \"task_name\": \"Ukur tinggi tanaman\", \"is_completed\": false },\n    { \"task_name\": \"Foto kondisi lahan\", \"is_completed\": false }\n  ]\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/field-checklist/runs",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "field-checklist", "runs"]
+              "raw": "{{baseUrl}}/api/CoreChecklistService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreChecklistService"
+              ]
             },
             "description": "`id_lahan`, `title`, and `task_date` are required. `tasks` is an optional array of task items."
           }
         },
         {
-          "name": "Get Checklist Run by ID",
+          "name": "Update Checklist Run Status",
           "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/field-checklist/runs/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "field-checklist", "runs", "1"]
-            }
-          }
-        },
-        {
-          "name": "Complete Checklist Run",
-          "request": {
-            "method": "POST",
+            "method": "PATCH",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"tasks\": [\n    { \"task_id\": 1, \"is_completed\": true },\n    { \"task_id\": 2, \"is_completed\": true },\n    { \"task_id\": 3, \"is_completed\": false }\n  ],\n  \"notes\": \"Inspeksi selesai. Pohon nomor 12 perlu perhatian.\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "raw": "{\n  \"status\": \"completed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/field-checklist/runs/1/complete",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "field-checklist", "runs", "1", "complete"]
+              "raw": "{{baseUrl}}/api/CoreChecklistService/1/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "CoreChecklistService",
+                "1",
+                "status"
+              ]
             },
             "description": "Mark the run as complete and update task completion statuses."
-          }
-        },
-        {
-          "name": "Delete Checklist Run",
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/field-checklist/runs/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "field-checklist", "runs", "1"]
-            }
           }
         }
       ]
@@ -892,11 +1306,21 @@
           "name": "Get Dashboard",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/dashboard?period=monthly",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "dashboard"],
+              "raw": "{{baseUrl}}/api/ReportingDashboardService?period=monthly",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ReportingDashboardService"
+              ],
               "query": [
                 {
                   "key": "period",
@@ -911,7 +1335,7 @@
                 }
               ]
             },
-            "description": "Returns aggregated metrics: total_berat_ton, total_pendapatan, total_biaya, net_income, chart_data, biaya_breakdown, upcoming_perawatan, recent activity. Cached per user+period+lahan in Redis for 30s."
+            "description": "Returns aggregated metrics: total_berat_ton, total_pendapatan, total_biaya, net_income, chart_data, biaya_breakdown, upcoming_perawatan, recent activity. Cached per user+period+lahan in Redis for 90s."
           }
         }
       ]
@@ -924,15 +1348,30 @@
           "name": "Get Laporan Keuangan",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/laporan/keuangan?bulan=5&tahun=2026",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "laporan", "keuangan"],
+              "raw": "{{baseUrl}}/api/ReportingFarmFinanceService?bulan=5&tahun=2026",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ReportingFarmFinanceService"
+              ],
               "query": [
-                { "key": "bulan", "value": "5", "description": "Month (1-12)" },
-                { "key": "tahun", "value": "2026", "description": "Year" },
-                { "key": "id_lahan", "value": "1", "description": "Farm filter (optional)", "disabled": true }
+                {
+                  "key": "bulan",
+                  "value": "5"
+                },
+                {
+                  "key": "tahun",
+                  "value": "2026"
+                }
               ]
             },
             "description": "Returns financial report summary and per-category detail for the requested period. Requires Pro subscription — returns 402 for trial accounts."
@@ -943,18 +1382,34 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"bulan\": 5,\n  \"tahun\": 2026,\n  \"id_lahan\": 1\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/laporan/keuangan/export",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "laporan", "keuangan", "export"]
+              "raw": "{{baseUrl}}/api/ReportingExportService/email-export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ReportingExportService",
+                "email-export"
+              ]
             },
             "description": "Trigger async PDF generation via Asynq (email:report queue). Returns 202 Accepted with a job ID or download URL. Requires Pro subscription."
           }
@@ -969,11 +1424,21 @@
           "name": "List Notifications",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/notifications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "notifications"]
+              "raw": "{{baseUrl}}/api/NotificationCenterService",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "NotificationCenterService"
+              ]
             },
             "description": "Returns `{\"items\": [...]}` wrapper. Returns 503 if Redis notification service is unavailable."
           }
@@ -981,14 +1446,74 @@
         {
           "name": "Mark All Notifications Read",
           "request": {
-            "method": "POST",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/notifications/read-all",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "notifications", "read-all"]
+              "raw": "{{baseUrl}}/api/NotificationCenterService/read-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "NotificationCenterService",
+                "read-all"
+              ]
             },
             "description": "Mark all unread notifications as read. Returns 200 with updated count."
+          }
+        },
+        {
+          "name": "Mark One Notification Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/NotificationCenterService/1/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "NotificationCenterService",
+                "1",
+                "read"
+              ]
+            },
+            "description": "Mark a single notification as read by ID. Returns 200 with the updated notification."
+          }
+        },
+        {
+          "name": "Delete Read Notifications",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/NotificationCenterService/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "NotificationCenterService",
+                "read"
+              ]
+            },
+            "description": "Permanently delete all notifications the user has already read. Returns 200 with the deleted count."
           }
         }
       ]
@@ -1001,11 +1526,22 @@
           "name": "Get Subscription Status",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/api/subscription/status",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "subscription", "status"]
+              "raw": "{{baseUrl}}/api/BillingSubscriptionService/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "BillingSubscriptionService",
+                "status"
+              ]
             },
             "description": "Returns SubscriptionView: subscription_status, access_mode (trial/pro/expired), days_remaining, trial_remaining, plan_name, plan_price (Rp 30,000), can_checkout, active_farm_limit."
           }
@@ -1015,72 +1551,36 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"plan\": \"pro_monthly\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/subscription/checkout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "subscription", "checkout"]
+              "raw": "{{baseUrl}}/api/BillingSubscriptionService/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "BillingSubscriptionService",
+                "checkout"
+              ]
             },
             "description": "Create a Midtrans Snap checkout session. Returns `snap_token` and `redirect_url` for the payment page. IDR currency, Rp 30,000/month."
-          }
-        },
-        {
-          "name": "Get Payment History",
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/subscription/payment-history",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "subscription", "payment-history"]
-            },
-            "description": "Returns paginated list of payment transactions from t_sawit_hub_payment_events."
-          }
-        }
-      ]
-    },
-    {
-      "name": "Preferences",
-      "description": "User-level UI preferences and theme configuration.",
-      "item": [
-        {
-          "name": "Get Preferences",
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
-            "url": {
-              "raw": "{{baseUrl}}/api/preferences",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "preferences"]
-            },
-            "description": "Returns user's saved preferences including theme and notification settings."
-          }
-        },
-        {
-          "name": "Update Preferences",
-          "request": {
-            "method": "PUT",
-            "header": [
-              { "key": "Authorization", "value": "Bearer {{token}}" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"theme\": \"dark\",\n  \"language\": \"id\",\n  \"notification_enabled\": true\n}",
-              "options": { "raw": { "language": "json" } }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/preferences",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "preferences"]
-            }
           }
         }
       ]
@@ -1105,16 +1605,32 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"admin@sawithub.com\",\n  \"password\": \"adminpassword\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{adminBaseUrl}}/api/admin/auth/login",
-              "host": ["{{adminBaseUrl}}"],
-              "path": ["api", "admin", "auth", "login"]
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "auth",
+                "login"
+              ]
             },
             "description": "Authenticate as an admin user. Token is signed with ADMIN_JWT_SECRET. The test script automatically saves the token to `{{adminToken}}`."
           }
@@ -1123,13 +1639,75 @@
           "name": "Admin Get Profile",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{adminBaseUrl}}/api/admin/auth/me",
-              "host": ["{{adminBaseUrl}}"],
-              "path": ["api", "admin", "auth", "me"]
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "auth",
+                "me"
+              ]
             },
             "description": "Returns the authenticated admin's profile from sawit_hub_admin_db."
+          }
+        },
+        {
+          "name": "Admin Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{adminBaseUrl}}/api/admin/auth/logout",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Revoke the current admin JWT by its JTI. Returns 204 No Content."
+          }
+        },
+        {
+          "name": "Admin Logout All Devices",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{adminBaseUrl}}/api/admin/auth/logout-all",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "auth",
+                "logout-all"
+              ]
+            },
+            "description": "Revoke all active JWTs for this admin account (bumps session_version). Returns 204 No Content."
           }
         }
       ]
@@ -1142,32 +1720,34 @@
           "name": "List Users",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{adminBaseUrl}}/api/admin/users?page=1&limit=20",
-              "host": ["{{adminBaseUrl}}"],
-              "path": ["api", "admin", "users"],
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "20" },
-                { "key": "search", "value": "", "description": "Search by email or username", "disabled": true },
-                { "key": "status", "value": "active", "description": "Filter by status: active, suspended, trial", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             },
             "description": "Returns paginated user list from sawit_hub_db. Response: `{\"users\": [...], \"total\": n, \"page\": 1, \"limit\": 20}`."
-          }
-        },
-        {
-          "name": "Get User by ID",
-          "request": {
-            "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
-            "url": {
-              "raw": "{{adminBaseUrl}}/api/admin/users/1",
-              "host": ["{{adminBaseUrl}}"],
-              "path": ["api", "admin", "users", "1"]
-            },
-            "description": "Get detailed user profile by user ID."
           }
         },
         {
@@ -1175,86 +1755,262 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"status\": \"suspended\",\n  \"reason\": \"Violation of terms of service\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{adminBaseUrl}}/api/admin/users/1/status",
-              "host": ["{{adminBaseUrl}}"],
-              "path": ["api", "admin", "users", "1", "status"]
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "1",
+                "status"
+              ]
             },
             "description": "Update user account status. Valid values: `active`, `suspended`, `trial`. Suspending a user invalidates their sessions via Redis session_version bump."
           }
         },
         {
-          "name": "Delete User",
+          "name": "Update User Role",
           "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
-            "url": {
-              "raw": "{{adminBaseUrl}}/api/admin/users/1",
-              "host": ["{{adminBaseUrl}}"],
-              "path": ["api", "admin", "users", "1"]
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "description": "Permanently delete a user and all associated data. Irreversible. Returns 204 No Content."
+            "url": {
+              "raw": "{{adminBaseUrl}}/api/admin/users/1/role",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "1",
+                "role"
+              ]
+            },
+            "description": "Change a user's role (e.g. promote to admin). Requires super_admin. Returns 200 with the updated user."
+          }
+        },
+        {
+          "name": "Deactivate User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{adminBaseUrl}}/api/admin/users/1/deactivate",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "1",
+                "deactivate"
+              ]
+            },
+            "description": "Disable a user account (sets is_active=false) without deleting it. Returns 200 with the updated user."
+          }
+        },
+        {
+          "name": "Change User Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"new_password\": \"newpassword123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{adminBaseUrl}}/api/admin/users/1/password",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "1",
+                "password"
+              ]
+            },
+            "description": "Force-set a user's password as an admin action. Returns 204 No Content."
           }
         }
       ]
     },
     {
-      "name": "Admin — Analytics",
+      "name": "Admin — Data & Analytics",
       "description": "Platform-level analytics. Overview cached 3 minutes, trends cached 5 minutes.",
       "item": [
         {
           "name": "Get Platform Overview",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
-              "raw": "{{adminBaseUrl}}/api/admin/analytics/overview",
-              "host": ["{{adminBaseUrl}}"],
-              "path": ["api", "admin", "analytics", "overview"]
+              "raw": "{{adminBaseUrl}}/api/admin/overview",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "overview"
+              ]
             },
             "description": "Returns platform-wide metrics: total_users, active_users, pro_subscribers, trial_users, total_revenue, visit_trends. Cached for 3 minutes."
           }
         },
         {
-          "name": "Get Panen Trends",
+          "name": "Get Analytics",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
-              "raw": "{{adminBaseUrl}}/api/admin/analytics/panen-trends?period=monthly&year=2026",
-              "host": ["{{adminBaseUrl}}"],
-              "path": ["api", "admin", "analytics", "panen-trends"],
+              "raw": "{{adminBaseUrl}}/api/admin/analytics?period=monthly&year=2026",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "analytics"
+              ],
               "query": [
-                { "key": "period", "value": "monthly", "description": "Aggregation: monthly or weekly" },
-                { "key": "year", "value": "2026" }
+                {
+                  "key": "period",
+                  "value": "monthly"
+                },
+                {
+                  "key": "year",
+                  "value": "2026"
+                }
               ]
             },
-            "description": "Returns aggregated harvest trend data across all users for the specified period."
+            "description": "Includes user growth, harvest trends, and platform-wide usage metrics in one payload."
+          }
+        },
+        {
+          "name": "Get Admin Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{adminBaseUrl}}/api/admin/data",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "data"
+              ]
+            },
+            "description": "Returns raw platform data tables for the admin data-browser view."
           }
         }
       ]
     },
     {
-      "name": "Admin — System",
+      "name": "Admin — System & Settings",
       "description": "API kill-switch controls and audit logs. APIGate middleware reads endpoint state from Redis.",
       "item": [
         {
-          "name": "Get Endpoint States",
+          "name": "Get System Status",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
-              "raw": "{{adminBaseUrl}}/api/admin/system/api-endpoint-state",
-              "host": ["{{adminBaseUrl}}"],
-              "path": ["api", "admin", "system", "api-endpoint-state"]
+              "raw": "{{adminBaseUrl}}/api/admin/system",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "system"
+              ]
             },
             "description": "Returns the enabled/disabled state for all registered API endpoints. State is stored in Redis."
           }
@@ -1264,18 +2020,35 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"endpoint\": \"POST /api/panen\",\n  \"enabled\": false,\n  \"reason\": \"Emergency maintenance — panen service degraded\"\n}",
-              "options": { "raw": { "language": "json" } }
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{adminBaseUrl}}/api/admin/system/api-endpoint-state",
-              "host": ["{{adminBaseUrl}}"],
-              "path": ["api", "admin", "system", "api-endpoint-state"]
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "system",
+                "api-endpoint-state"
+              ]
             },
             "description": "Enable or disable a specific API endpoint. Disabled endpoints return 503. Changes take effect within the Redis propagation window. This is the admin kill-switch (APIGate middleware)."
           }
@@ -1284,19 +2057,124 @@
           "name": "Get Audit Logs",
           "request": {
             "method": "GET",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
-              "raw": "{{adminBaseUrl}}/api/admin/system/audit-logs?page=1&limit=50",
-              "host": ["{{adminBaseUrl}}"],
-              "path": ["api", "admin", "system", "audit-logs"],
+              "raw": "{{adminBaseUrl}}/api/admin/audit?page=1&limit=50",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "50" },
-                { "key": "action", "value": "", "description": "Filter by action type", "disabled": true },
-                { "key": "admin_id", "value": "", "description": "Filter by admin user", "disabled": true }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
               ]
             },
             "description": "Returns paginated admin action audit log. Records all write operations performed by admin users."
+          }
+        },
+        {
+          "name": "Toggle Global API State",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enabled\": false,\n  \"reason\": \"Emergency maintenance\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{adminBaseUrl}}/api/admin/system/api-state",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "system",
+                "api-state"
+              ]
+            },
+            "description": "Global kill-switch: disable/enable the entire user-facing API at once. Distinct from the per-endpoint toggle above."
+          }
+        },
+        {
+          "name": "Get Settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{adminBaseUrl}}/api/admin/settings",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "settings"
+              ]
+            },
+            "description": "Get current platform settings (e.g. theme config, feature flags visible to admins)."
+          }
+        },
+        {
+          "name": "Update Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{adminBaseUrl}}/api/admin/settings",
+              "host": [
+                "{{adminBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "settings"
+              ]
+            },
+            "description": "Update platform settings. Returns 200 with the updated settings."
           }
         }
       ]
@@ -1311,11 +2189,17 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/auth/ping",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "ping"]
+              "raw": "{{baseUrl}}/api/IdentityAuthService/ping",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "IdentityAuthService",
+                "ping"
+              ]
             },
-            "description": "# Environment Variable Reference\n\nThis is a reference request — not meant to be sent. Use the table below to configure collection variables.\n\n## Development\n\n| Variable | Value |\n|---|---|\n| `baseUrl` | `http://localhost:8000` |\n| `adminBaseUrl` | `http://localhost:8001` |\n| `token` | *(set via Login response)* |\n| `adminToken` | *(set via Admin Login response)* |\n\n## Staging (Railway)\n\n| Variable | Value |\n|---|---|\n| `baseUrl` | `https://sawithub-backend-staging.up.railway.app` |\n| `adminBaseUrl` | `https://sawithub-admin-backend-staging.up.railway.app` |\n\n## Production (Railway)\n\n| Variable | Value |\n|---|---|\n| `baseUrl` | `https://sawithub-backend.up.railway.app` |\n| `adminBaseUrl` | `https://sawithub-admin-backend.up.railway.app` |\n\n## Rate Limiting\n\nAll authenticated endpoints are rate-limited at **100 requests/minute/user** enforced via Redis sliding window. Exceeding returns HTTP 429.\n\n## Subscription Guards\n\nEndpoints marked with ⚠️ 402 require Pro subscription or active trial:\n- `POST /api/lahan` — farm creation blocked after trial limit (2 farms)\n- `POST /api/panen` — harvest creation blocked after trial limit (2 harvests)\n- `POST /api/perawatan` — requires RequireFullAccess\n- `GET /api/laporan/keuangan` — Pro only\n- `POST /api/laporan/keuangan/export` — Pro only"
+            "description": "# Environment Variable Reference\n\nThis is a reference request — not meant to be sent. Use the table below to configure collection variables.\n\n## Development\n\n| Variable | Value |\n|---|---|\n| `baseUrl` | `http://localhost:8000` |\n| `adminBaseUrl` | `http://localhost:8001` |\n| `token` | *(set via Login response)* |\n| `adminToken` | *(set via Admin Login response)* |\n\n## Staging (Railway)\n\n| Variable | Value |\n|---|---|\n| `baseUrl` | `https://sawithub-backend-staging.up.railway.app` |\n| `adminBaseUrl` | `https://sawithub-admin-backend-staging.up.railway.app` |\n\n## Production (Railway)\n\n| Variable | Value |\n|---|---|\n| `baseUrl` | `https://sawithub-backend.up.railway.app` |\n| `adminBaseUrl` | `https://sawithub-admin-backend.up.railway.app` |\n\n## Rate Limiting\n\nAll authenticated endpoints are rate-limited via a Redis-backed token bucket: 100-token burst capacity per user, refilling at 2 tokens/sec (~120 requests/minute sustained). Exceeding returns HTTP 429.\n\n## Subscription Guards\n\nEndpoints marked with ⚠️ 402 require Pro subscription or active trial:\n- `POST /api/CorePlotService` — farm creation blocked after trial limit (1 farm)\n- `POST /api/CoreHarvestService` — harvest creation blocked after trial limit (2 harvests)\n- `POST /api/CoreMaintenanceService` — requires RequireFullAccess\n- `GET /api/ReportingFarmFinanceService` — Pro only\n- `POST /api/ReportingExportService/email-export` — Pro only"
           }
         }
       ]

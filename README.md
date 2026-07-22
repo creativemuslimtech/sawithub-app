@@ -17,7 +17,7 @@ sawithub-app/
 │   └── admin-frontend/     React SPA — admin panel (Vercel + Capacitor Android)
 ├── packages/
 │   ├── shared/             TypeScript types + Zod schemas (@sawithub/shared)
-│   ├── database/           SQL migrations (golang-migrate)
+│   ├── database/           Shared SQL schema (plain .sql files, lexical order via sql-apply.yml)
 │   └── redis-config/       Shared Redis configuration
 ├── docs/                   Architecture, API, agile, research docs
 ├── go.work                 Go workspace (backend + admin-backend)

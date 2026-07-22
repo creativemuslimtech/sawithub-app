@@ -105,8 +105,8 @@ Redis feature flags (all default `true`):
 
 | Variable | Controls |
 |---|---|
-| `REDIS_FEATURE_RATE_LIMIT` | 100 req/min/user sliding window |
-| `REDIS_FEATURE_CACHE` | Dashboard (30s) + laporan (2min) cache |
+| `REDIS_FEATURE_RATE_LIMIT` | 100-token bucket per user, refills 2/sec (~120 req/min sustained) |
+| `REDIS_FEATURE_CACHE` | Dashboard (90s) + laporan (2min) cache |
 | `REDIS_FEATURE_SESSIONS` | JWT session_version revocation |
 | `REDIS_FEATURE_QUEUE` | Asynq email job queue |
 | `REDIS_FEATURE_PRESENCE` | Online presence heartbeat |
@@ -178,7 +178,7 @@ Requests pass through this chain in order:
 ```
 RealIP → RequestID → Logger → Recoverer → OTelHTTP
     → CORS
-    → RateLimit (Redis sliding window, 100/min/user)
+    → RateLimit (Redis token bucket, 100 burst / 2 per sec refill per user)
     → APIGate (Redis kill-switch per endpoint)
     → AuthRequired (JWT verify + session_version check)
     → [RequireFullAccess | RequireFeature] (subscription guards)
@@ -193,7 +193,7 @@ RealIP → RequestID → Logger → Recoverer → OTelHTTP
 
 **JWT revocation:** Each token carries a `jti` claim stored in Redis. Single-token logout deletes the JTI. Logout-all bumps `session_version:user:{id}` — any token with an older version is rejected.
 
-**Subscription limits:** Trial users are capped at 2 farms and 2 harvests via `EnsureTrialUsageAllowed()`. Pro access is enforced by `RequireFullAccess()` middleware on write operations and report endpoints.
+**Subscription limits:** Trial users are capped at 2 harvests (enforced via `EnsureTrialUsageAllowed()`, a Redis counter) and 1 active farm (enforced via the `active_farm_limit` column default on `t_sawit_hub_users`, not a Redis counter). Pro access is enforced by `RequireFullAccess()` middleware on write operations and report endpoints.
 
 **Database generated columns:** `berat_ton`, `berat_rata_janjang`, `total_pendapatan`, `hasil_bersih` in `t_sawit_hub_panen`; `pendapatan_bersih` in `t_sawit_hub_pendapatan` — never set these in INSERT/UPDATE, the DB computes them.
 

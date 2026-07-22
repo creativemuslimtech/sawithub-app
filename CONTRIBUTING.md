@@ -131,7 +131,9 @@ A story/task is done when all of the following are true:
 
 ## Database Migrations
 
-Migrations live in `packages/database/` (shared) and `apps/backend/migrations/` (backend-specific). Managed by [golang-migrate](https://github.com/golang-migrate/migrate).
+Two separate mechanisms, depending on which directory you're touching:
+
+**`apps/backend/migrations/`** (backend-specific) — managed by [golang-migrate](https://github.com/golang-migrate/migrate), paired `.up.sql`/`.down.sql` files.
 
 Rules:
 - **Always write a paired `.down.sql`** for every `.up.sql`
@@ -141,6 +143,8 @@ Rules:
 - Avoid locking migrations on large tables — use `ALTER TABLE ... ALGORITHM=INPLACE` or a background copy strategy
 
 Migration file naming: `{sequential_number}_{short_description}.up.sql`
+
+**`packages/database/`** (shared `sawit_hub_db`/`sawit_hub_admin_db` schema) — plain `.sql` files, no golang-migrate and no up/down pairing. `sql-apply.yml` applies everything in `ddl/` then `dml/` in lexical filename order on merge to `main`. To change a schema here, add a new lexically-later `.sql` file to the relevant `ddl/`/`dml/` folder — there is no down/rollback file to write. See `packages/database/README.md` for the exact execution order and secrets setup.
 
 ---
 

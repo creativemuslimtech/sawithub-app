@@ -448,7 +448,7 @@ Incoming HTTP request
 ├─────────────────────────────┤
 │ SubscriptionContext         │  Load subscription status into ctx
 ├─────────────────────────────┤
-│ RateLimit                   │  100 req/min/user, Redis-backed sliding window
+│ RateLimit                   │  Redis token bucket, 100 burst / 2 per sec refill/user
 ├─────────────────────────────┤
 │ CacheInvalidation           │  POST/PUT/DELETE → flush user cache keys
 ├─────────────────────────────┤
@@ -513,7 +513,7 @@ Graceful Shutdown:  30s window
 | Auth tokens | JWT HMAC-SHA256; separate secrets per service |
 | Session invalidation | Redis session_version key; increment on logout-all |
 | Per-token revocation | Redis token_revocation:{jti} |
-| Rate limiting | 100 req/min/user, Redis sliding window |
+| Rate limiting | 100-token bucket per user, refills 2/sec (~120 req/min sustained) |
 | Transport | TLS enforced (CORS allowlist, Redis TLS=true) |
 | Headers | X-Frame-Options: DENY, nosniff, Permissions-Policy |
 | Payment webhooks | Idempotency key in `t_sawit_hub_payment_events` |

@@ -607,7 +607,7 @@ SawitHub can own this gap with a focused, affordable, mobile-first product.
 | JWT signing | HMAC-SHA256 |
 | JWT revocation | Redis-backed revocation list (30-day TTL) |
 | Separate admin identity | Completely separate DB, separate JWT secret (`ADMIN_JWT_SECRET`), separate session store key |
-| Rate limiting | 100 requests/minute per authenticated user (Redis-backed sliding window) |
+| Rate limiting | Redis-backed token bucket per authenticated user (100 burst, refills 2/sec, ~120 req/min sustained) |
 | Login attempt throttling | 15-minute window on login attempts (`auth.login_attempt_window` TTL) |
 | Security headers | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=()` |
 | CORS policy | Strict origin allowlist (FRONTEND_URL env + `capacitor://localhost`); no wildcard origins |

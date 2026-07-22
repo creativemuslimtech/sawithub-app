@@ -190,7 +190,7 @@ Key E2E test files:
 ## Subscription UI
 
 The app enforces subscription limits client-side (backed by server 402 responses):
-- **Trial**: 14 days, 2 farms, 2 harvests max
+- **Trial**: 14 days, 1 farm, 2 harvests max
 - **Pro**: Rp 30,000/month via Midtrans Snap
 
 The `SubscriptionView` from `/api/subscription/status` drives all paywall UI. `access_mode` values: `trial`, `pro`, `expired`.
