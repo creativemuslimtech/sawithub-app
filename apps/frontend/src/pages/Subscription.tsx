@@ -226,7 +226,7 @@ export default function SubscriptionPage() {
             border: 'none',
           }}
         >
-          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 32, position: 'relative' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr]" style={{ gap: 32, position: 'relative' }}>
             <div>
               {loading ? (
                 <div className="space-y-3">
@@ -298,7 +298,7 @@ export default function SubscriptionPage() {
         </div>
 
         {/* 2-col grid: upgrade card + payment history */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 16 }}>
           {/* Upgrade card */}
           <div className="bg-surface border border-line rounded-lg-1 shadow-card-sm p-7">
             <p className="sh-eyebrow" style={{ marginBottom: 4 }}>Tingkatkan</p>

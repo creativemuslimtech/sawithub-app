@@ -26,7 +26,11 @@ export default function AddPerawatan() {
   const setCurrency = (value: string) =>
     setForm((f) => ({ ...f, biaya: value }))
 
-  useEffect(() => { api.get('/CorePlotService').then((r) => setLahanList(r.data)) }, [])
+  useEffect(() => {
+    api.get('/CorePlotService')
+      .then((r) => setLahanList(r.data || []))
+      .catch(() => toast.error('Gagal memuat data lahan'))
+  }, [])
 
   const resetForm = (keepLahan = true) => setForm((current) => ({
     id_lahan: keepLahan ? current.id_lahan : '',

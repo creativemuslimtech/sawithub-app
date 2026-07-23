@@ -69,13 +69,13 @@ export default function Keuangan() {
 
         <Link
           to="/subscription"
+          className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between"
           style={{
-            display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
             background: 'var(--forest-tint)', border: '1px solid var(--forest-soft)',
             borderRadius: 12, padding: '20px 24px', textDecoration: 'none',
           }}
         >
-          <div>
+          <div style={{ minWidth: 0 }}>
             <p className="sh-eyebrow" style={{ color: 'var(--forest)', marginBottom: 4 }}>Langganan</p>
             <p style={{ fontWeight: 600, color: 'var(--ink)', fontSize: 15, marginBottom: 2 }}>Kelola paket dan status pembayaran</p>
             <p style={{ fontSize: 13, color: 'var(--ink-3)' }}>Pahami batas trial atau lanjutkan akses penuh.</p>

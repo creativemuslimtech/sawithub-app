@@ -64,7 +64,11 @@ export default function AddPanen() {
     setForm(f => ({ ...f, id_lahan: id, luas_panen_ha: lahan ? String(lahan.luas_ha) : f.luas_panen_ha }))
   }
 
-  useEffect(() => { api.get('/CorePlotService').then((r) => setLahanList(r.data)) }, [])
+  useEffect(() => {
+    api.get('/CorePlotService')
+      .then((r) => setLahanList(r.data || []))
+      .catch(() => toast.error('Gagal memuat data lahan'))
+  }, [])
 
   const resetForm = (keepLahan = true) => setForm((current) => ({
     id_lahan: keepLahan ? current.id_lahan : '',
@@ -190,7 +194,7 @@ export default function AddPanen() {
         </div>
 
         <form id="add-panen-form" onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 22 }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr]" style={{ gap: 22 }}>
             {/* LEFT: form */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
               {/* Section 01: Kebun & Tanggal */}
@@ -200,7 +204,7 @@ export default function AddPanen() {
                 {/* Kebun picker */}
                 {lahanList.length > 0 ? (
                   <FormField label="Pilih kebun" hint="Kebun aktif yang dipilih akan menentukan luas dan jumlah pohon">
-                    <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(lahanList.length, 3)}, 1fr)`, gap: 10 }}>
+                    <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 10 }}>
                       {lahanList.slice(0, 3).map((l, i) => {
                         const colors = ['var(--forest)', 'var(--forest-3)', 'var(--amber-2)']
                         const color = colors[i % colors.length]
@@ -257,7 +261,7 @@ export default function AddPanen() {
                   </FormField>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginTop: 16 }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 14, marginTop: 16 }}>
                   <FormField label="Tanggal panen">
                     <input type="date" className="sh-input" value={form.tanggal_panen} onChange={set('tanggal_panen')} required />
                   </FormField>
@@ -271,7 +275,7 @@ export default function AddPanen() {
               <Card padded={false} style={{ padding: 24 }}>
                 <SectionLabel num="02" title="Hasil panen TBS" amber />
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 14 }}>
                   <FormField label="Jumlah janjang" hint="Hitung dari potong terakhir">
                     <div style={{ position: 'relative' }}>
                       <input className="sh-input sh-num" value={form.jumlah_janjang} onChange={set('jumlah_janjang')} type="number" min="0" placeholder="86" style={{ paddingRight: 70 }} />
@@ -308,7 +312,7 @@ export default function AddPanen() {
               <Card padded={false} style={{ padding: 24 }}>
                 <SectionLabel num="03" title="Harga & biaya panen" />
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 14 }}>
                   <FormField label="Harga per kg (TBS)">
                     <div style={{ position: 'relative' }}>
                       <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'var(--ink-4)', fontFamily: 'var(--f-mono)' }}>Rp</span>

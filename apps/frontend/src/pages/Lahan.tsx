@@ -107,7 +107,7 @@ export default function Lahan() {
         {!loading && lahans.length > 0 && (
           <Card padded={false} style={{ padding: '20px 28px', marginBottom: 22, position: 'relative', overflow: 'hidden' }}>
             <PalmLeaf size={120} style={{ position: 'absolute', right: -10, top: -20, color: 'var(--forest)', opacity: 0.08 }} />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 24, alignItems: 'center' }}>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5" style={{ gap: 24, alignItems: 'center' }}>
               {[
                 { l: 'Luas total', v: `${totalLuas.toFixed(1)} ha`, sub: `${lahans.length} blok aktif` },
                 { l: 'Total pohon', v: totalPohon.toLocaleString('id-ID'), sub: `umur rata ${umurRata.toFixed(0)} thn` },
@@ -139,7 +139,7 @@ export default function Lahan() {
 
         {/* Loading state */}
         {loading && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 16 }}>
             {[1, 2, 3].map(i => (
               <div key={i} style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 14, height: 240, opacity: 0.5 }} className="animate-pulse" />
             ))}
@@ -148,7 +148,7 @@ export default function Lahan() {
 
         {/* Map + list layout */}
         {!loading && lahans.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2" style={{ gap: 18 }}>
             {/* Topographic map panel */}
             <Card padded={false} style={{ padding: 0, overflow: 'hidden', position: 'relative', minHeight: 600 }}>
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, #DDE5C7 0%, #C6CFAE 70%, #A8B58A 100%)' }}>
@@ -237,7 +237,7 @@ export default function Lahan() {
                       <Link to="/lahan/add" className="sh-btn sh-btn-ghost sh-btn-sm" style={{ textDecoration: 'none', alignSelf: 'start' }}>Detail →</Link>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, paddingTop: 16, borderTop: '1px solid var(--line-2)' }}>
+                    <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: 16, paddingTop: 16, borderTop: '1px solid var(--line-2)' }}>
                       {[
                         { l: 'Luas', v: `${lahan.luas_ha} ha` },
                         { l: 'Pohon', v: lahan.jumlah_pohon.toLocaleString('id-ID') },

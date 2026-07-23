@@ -341,9 +341,9 @@ export default function Profile() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 24 }}>
+        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr]" style={{ gap: 24 }}>
           {/* Sidebar nav */}
-          <nav style={{ position: 'sticky', top: 80, alignSelf: 'flex-start', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <nav className="flex flex-row flex-wrap lg:sticky lg:flex-col lg:flex-nowrap" style={{ top: 80, alignSelf: 'flex-start', gap: 4 }}>
             {NAV_ITEMS.map(item => (
               <button
                 key={item.key}

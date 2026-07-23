@@ -110,7 +110,7 @@ export default function Pendapatan() {
 
         {/* Tab filters */}
         <div
-          className="inline-flex p-1 rounded-xl border border-line bg-white mb-5"
+          className="flex w-full max-w-full overflow-x-auto p-1 rounded-xl border border-line bg-white mb-5"
         >
           {tabCounts.map(({ key, label, count }) => {
             const active = activeTab === key
@@ -118,7 +118,7 @@ export default function Pendapatan() {
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition"
+                className="inline-flex shrink-0 items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold transition"
                 style={{
                   background: active ? 'var(--ink)' : 'transparent',
                   color: active ? 'white' : 'var(--ink-2)',

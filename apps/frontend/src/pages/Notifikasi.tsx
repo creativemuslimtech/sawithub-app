@@ -193,7 +193,7 @@ export default function Notifikasi() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 24, borderBottom: '1px solid var(--line)', marginBottom: 20 }}>
+        <div className="overflow-x-auto" style={{ display: 'flex', gap: 24, borderBottom: '1px solid var(--line)', marginBottom: 20 }}>
           {tabCounts.map(({ key, label, count }) => {
             const active = activeTab === key
             return (
@@ -210,6 +210,7 @@ export default function Notifikasi() {
                   borderBottom: active ? '2px solid var(--ink)' : '2px solid transparent',
                   marginBottom: -1,
                   display: 'inline-flex',
+                  flexShrink: 0,
                   gap: 8,
                   alignItems: 'center',
                   cursor: 'pointer',

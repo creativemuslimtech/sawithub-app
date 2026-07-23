@@ -164,6 +164,12 @@ export default function App() {
               <CookieConsent />
               <Toaster
                 position="top-right"
+                containerStyle={{
+                  // Clears both the mobile fixed header (56px + safe-area-inset-top)
+                  // and the desktop sticky topbar (64px) so toasts never render
+                  // underneath the header content.
+                  top: 'calc(64px + env(safe-area-inset-top, 0px) + 12px)',
+                }}
                 toastOptions={{
                   style: {
                     background: '#ffffff',

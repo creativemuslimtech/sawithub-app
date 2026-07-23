@@ -1290,7 +1290,7 @@ export default function Dashboard() {
                   Berdasarkan panen terakhir yang tercatat
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 10, marginBottom: 16 }}>
                   <SnapshotPill
                     label="Perkiraan Panen"
                     value={estimasiPanen > 0 ? fmtRupiahFull(estimasiPanen) : '-'}
@@ -1352,7 +1352,7 @@ export default function Dashboard() {
                           <span style={{ borderRadius: 99, border: '1px solid', padding: '3px 10px', fontSize: 11, fontWeight: 600, color: statusTone.color, background: statusTone.bg, borderColor: statusTone.bg }}>{estate.status}</span>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 8, marginBottom: 12 }}>
                           <SnapshotPill label="Pendapatan" value={fmtRupiahFull(estate.pendapatan)} hint={`${fmtRupiahFull(estate.revenuePerHa)}/ha`} accent={accentHex} />
                           <SnapshotPill label="Bersih" value={fmtRupiahFull(estate.bersih)} hint={`${fmtRupiahFull(estate.netPerHa)}/ha`} accent={estate.bersih >= 0 ? 'var(--forest)' : 'var(--terracotta-2)'} />
                           <SnapshotPill label="Volume" value={fmtTonCompact(estate.beratTon)} hint={`${fmtTonCompact(estate.avgTonPerPanen)} per panen`} accent="var(--c-sky)" />
