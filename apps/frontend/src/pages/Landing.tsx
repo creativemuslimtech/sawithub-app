@@ -301,11 +301,11 @@ export default function Landing() {
 
       <main>
         {/* ── Hero ── */}
-        <section style={{ position: 'relative', padding: '60px 56px 80px', overflow: 'hidden' }}>
+        <section className="px-5 sm:px-8 lg:px-14" style={{ position: 'relative', paddingTop: 60, paddingBottom: 80, overflow: 'hidden' }}>
           <PalmFrond size={520} style={{ position: 'absolute', right: -60, top: -40, opacity: 0.08, color: 'var(--forest)' }} />
           <PalmLeaf size={280} style={{ position: 'absolute', left: -40, bottom: -40, opacity: 0.1, color: 'var(--forest)', transform: 'rotate(-15deg)' }} />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 56, alignItems: 'center', maxWidth: 1320, margin: '0 auto' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr]" style={{ gap: 56, alignItems: 'center', maxWidth: 1320, margin: '0 auto' }}>
             <div>
               {/* Badge */}
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '5px 12px 5px 6px', background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 999, marginBottom: 28 }}>
@@ -359,7 +359,7 @@ export default function Landing() {
         </section>
 
         {/* ── Partners rail ── */}
-        <section style={{ padding: '18px 56px', borderTop: '1px solid var(--line-2)', borderBottom: '1px solid var(--line-2)', background: 'var(--paper)' }}>
+        <section className="px-5 sm:px-8 lg:px-14" style={{ paddingTop: 18, paddingBottom: 18, borderTop: '1px solid var(--line-2)', borderBottom: '1px solid var(--line-2)', background: 'var(--paper)' }}>
           <div style={{ maxWidth: 1320, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 48, justifyContent: 'space-between', flexWrap: 'wrap' }}>
             <div className="sh-eyebrow">Dipercaya oleh koperasi &amp; mitra agribisnis</div>
             <div style={{ display: 'flex', gap: 40, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -371,7 +371,7 @@ export default function Landing() {
         </section>
 
         {/* ── Features grid ── */}
-        <section id="fitur" style={{ padding: '100px 56px 60px', position: 'relative' }}>
+        <section id="fitur" className="px-5 sm:px-8 lg:px-14" style={{ paddingTop: 100, paddingBottom: 60, position: 'relative' }}>
           <SunRays size={140} style={{ position: 'absolute', right: 80, top: 60, opacity: 0.08, color: 'var(--amber-2)' }} />
           <div style={{ maxWidth: 1320, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between', marginBottom: 56, flexWrap: 'wrap', gap: 16 }}>
@@ -384,7 +384,7 @@ export default function Landing() {
             <a href="#" style={{ fontSize: 14, color: 'var(--forest)', fontWeight: 600 }}>Jelajahi semua fitur →</a>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: 18 }}>
             {features.map((f, i) => {
               const Icon = f.icon
               return (
@@ -404,12 +404,12 @@ export default function Landing() {
         </section>
 
         {/* ── Editorial dark block — Laporan ── */}
-        <section style={{ padding: '60px 56px 80px' }}>
+        <section className="px-5 sm:px-8 lg:px-14" style={{ paddingTop: 60, paddingBottom: 80 }}>
           <div style={{ maxWidth: 1320, margin: '0 auto' }}>
-          <div style={{ background: 'var(--forest)', color: 'var(--paper)', borderRadius: 32, padding: '64px 56px', position: 'relative', overflow: 'hidden' }}>
+          <div className="px-6 sm:px-10 lg:px-14" style={{ background: 'var(--forest)', color: 'var(--paper)', borderRadius: 32, paddingTop: 64, paddingBottom: 64, position: 'relative', overflow: 'hidden' }}>
             <PalmFrond size={400} style={{ position: 'absolute', right: -80, top: -80, color: 'var(--paper)', opacity: 0.07 }} />
             <SoilWaves width={400} height={80} style={{ position: 'absolute', left: 0, bottom: 0, color: 'var(--amber)', opacity: 0.18 }} />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.1fr', gap: 56, alignItems: 'center', position: 'relative' }}>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr]" style={{ gap: 56, alignItems: 'center', position: 'relative' }}>
               <div>
                 <div style={{ fontSize: 11, color: 'var(--amber-3)', letterSpacing: '0.16em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 18 }}>—— Laporan Keuangan</div>
                 <h2 className="sh-h-1" style={{ color: 'var(--paper)', marginBottom: 24 }}>
@@ -430,7 +430,7 @@ export default function Landing() {
         </section>
 
         {/* ── Testimonials ── */}
-        <section style={{ padding: '60px 56px 80px', background: 'var(--paper)' }}>
+        <section className="px-5 sm:px-8 lg:px-14" style={{ paddingTop: 60, paddingBottom: 80, background: 'var(--paper)' }}>
           <div style={{ maxWidth: 1320, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <div className="sh-eyebrow" style={{ marginBottom: 14 }}>—— Cerita petani</div>
@@ -438,7 +438,7 @@ export default function Landing() {
               Dipakai pagi-pagi sebelum panen, sore setelah pulang dari kebun.
             </h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: 18 }}>
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr_1fr]" style={{ gap: 18 }}>
             {testimonials.map((t, i) => (
               <div key={i} className="sh-card" style={{ padding: 32, minHeight: 280, background: t.featured ? 'var(--cream)' : 'var(--surface)' }}>
                 <div style={{ fontSize: 32, fontFamily: 'var(--f-display)', color: 'var(--amber-2)', lineHeight: 0.5, marginBottom: 12 }}>"</div>
@@ -461,12 +461,12 @@ export default function Landing() {
         </section>
 
         {/* ── Pricing ── */}
-        <section id="harga" style={{ padding: '80px 56px' }}>
+        <section id="harga" className="px-5 sm:px-8 lg:px-14" style={{ paddingTop: 80, paddingBottom: 80 }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <div className="sh-eyebrow" style={{ marginBottom: 14 }}>—— Harga</div>
             <h2 className="sh-h-1">Mulai gratis. Tambah saat siap.</h2>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18, maxWidth: 1120, margin: '0 auto' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-3" style={{ gap: 18, maxWidth: 1120, margin: '0 auto' }}>
             {plans.map((p, i) => (
               <div key={i} style={{
                 background: p.featured ? 'var(--forest)' : 'var(--paper)',
@@ -507,9 +507,9 @@ export default function Landing() {
         </section>
 
         {/* ── Bottom CTA ── */}
-        <section style={{ padding: '20px 56px 80px' }}>
+        <section className="px-5 sm:px-8 lg:px-14" style={{ paddingTop: 20, paddingBottom: 80 }}>
           <div style={{ maxWidth: 1320, margin: '0 auto' }}>
-          <div style={{ background: 'linear-gradient(120deg, var(--amber-soft), var(--cream))', border: '1px solid var(--line)', borderRadius: 32, padding: '64px 56px', position: 'relative', overflow: 'hidden' }}>
+          <div className="px-6 sm:px-10 lg:px-14" style={{ background: 'linear-gradient(120deg, var(--amber-soft), var(--cream))', border: '1px solid var(--line)', borderRadius: 32, paddingTop: 64, paddingBottom: 64, position: 'relative', overflow: 'hidden' }}>
             <PalmFrond size={360} style={{ position: 'absolute', right: -40, top: -40, color: 'var(--forest)', opacity: 0.1 }} />
             <SunRays size={200} style={{ position: 'absolute', left: -40, bottom: -40, color: 'var(--amber-2)', opacity: 0.12 }} />
             <div style={{ position: 'relative', maxWidth: 640 }}>
